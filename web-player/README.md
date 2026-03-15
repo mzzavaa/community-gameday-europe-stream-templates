@@ -8,9 +8,9 @@ Instead of pre-rendering MP4 files and manually switching between them, this pla
 
 - Renders Remotion compositions **live in the browser** at full resolution (1280×720)
 - **Auto-switches** between Pre-Show → Main Event → Gameplay → Closing based on CET time
-- Provides **manual override controls** for the stream operator (toggle with `Esc`)
+- Shows a **live Remotion-rendered countdown** with the GameDay design system before the event starts
+- Provides **manual override controls** for the stream operator
 - Can be **screen-shared via Zoom** to all 53+ User Group locations simultaneously
-- Gives every Zoom participant a **crisp, full-resolution** video feed
 
 ## Quick Start
 
@@ -20,18 +20,168 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in Chrome. You'll see the current composition based on the schedule, or a countdown if the event hasn't started yet.
+Open `http://localhost:5173` in Chrome.
 
-### Manual Override
+---
 
-Press `Esc` to show/hide operator controls. Click any segment button to force-switch to that composition. Click "Auto" to return to schedule-based switching.
+## URL Parameters
+
+The player is fully controllable via URL parameters. This makes it easy to test, demo, and run in production.
+
+### `?segment=` — Force a specific segment
+
+Jump directly to any composition without waiting for the schedule.
+
+| URL | What it shows |
+|-----|---------------|
+| `/?segment=waiting` | Live countdown screen |
+| `/?segment=preshow` | Pre-Show composition (muted, loops) |
+| `/?segment=mainevent` | Main Event composition (audio) |
+| `/?segment=gameplay` | Gameplay overlay (muted) |
+| `/?segment=closing` | Closing Ceremony (audio) |
+| `/?segment=end` | "Stream Ended" screen |
+
+**Why it exists**: For testing and rehearsal. You can verify each composition renders correctly in the web player without waiting for the actual event time.
+
+### `?time=` — Simulate a CET time
+
+Pretend it's a specific time on event day. The schedule logic runs normally.
+
+| URL | Simulated state |
+|-----|-----------------|
+| `/?time=17:00` | Countdown (before Pre-Show) |
+| `/?time=17:45` | Pre-Show |
+| `/?time=18:15` | Main Event |
+| `/?time=19:00` | Gameplay |
+| `/?time=20:35` | Closing |
+| `/?time=21:05` | Stream Ended |
+
+**Why it exists**: To test the auto-switching logic. Unlike `?segment=`, this uses the real schedule so you can verify transitions happen at the right times.
+
+### `?date=` — Override the event date
+
+Use with `?time=` to simulate a specific date.
+
+```
+/?time=18:00&date=2026-03-17
+```
+
+**Why it exists**: For testing on days other than the event day.
+
+### `?controls=false` — Hide operator controls
+
+Hides the control bar at the bottom. You can still toggle it with `Esc`.
+
+```
+/?controls=false
+```
+
+**Why it exists**: For a clean display when screen-sharing. You don't want participants to see the operator buttons.
+
+### `?autoplay=true` — Production mode
+
+Hides controls completely (no `Esc` toggle) and runs in full auto-schedule mode. This is what you use on event day.
+
+```
+/?autoplay=true
+```
+
+**Why it exists**: The "set it and forget it" mode. Open this URL, go fullscreen, share in Zoom, and the player handles everything automatically based on the CET clock.
+
+### Combining parameters
+
+```
+/?autoplay=true                           → Production: auto-schedule, no controls
+/?segment=closing&controls=false          → Preview closing without controls
+/?time=17:45&controls=false               → Simulate Pre-Show time, clean display
+```
+
+---
+
+## Operator Controls
+
+When controls are visible (default), you'll see a bar at the bottom-left:
+
+- **Auto** — Follow the real-time schedule (default)
+- **Countdown / 0–3** — Force-switch to any segment
+- Press **Esc** to show/hide controls
+
+---
+
+## Countdown Screen
+
+Before the event starts, the player shows a live Remotion-rendered countdown using the GameDay design system (hex grid, glass cards, purple/gold theme). It displays countdowns to all four milestones:
+
+- Pre-Show (17:30 CET)
+- Main Event (18:00 CET)
+- Gameplay (18:30 CET)
+- Closing Ceremony (20:30 CET)
+
+Each countdown ticks in real-time. When a milestone passes, it shows "✓ LIVE" in green.
+
+---
+
+## How to Share This in Zoom (Step-by-Step)
+
+### Option A: Screen Share with "Optimize for Video Clip" (Recommended)
+
+This gives you **up to 1080p screen share quality** — the highest Zoom supports.
+
+1. **Start the web player** in Chrome:
+   ```bash
+   cd web-player && npm run dev
+   ```
+2. **Open production URL**: `http://localhost:5173/?autoplay=true`
+3. **Make Chrome fullscreen**: Press `F11` (or `Cmd+Ctrl+F` on Mac)
+4. **In Zoom**, click the green **Share Screen** button
+5. In the share dialog:
+   - Select the **Chrome window** showing the player
+   - ✅ Check **"Share sound"** (bottom-left) — critical for audio compositions
+   - ✅ Check **"Optimize for video clip"** (bottom-left)
+6. Click **Share**
+
+> **Why "Optimize for video clip"?**
+> Without it, Zoom treats your screen as static content and sends it at a low frame rate, causing stuttering. With it enabled, Zoom prioritizes smooth video playback. It adjusts resolution to 720p but the motion is smooth.
+>
+> 📖 [Zoom: Optimizing a shared video in full screen](https://support.zoom.com/hc?id=zm_kb&sysparm_article=KB0068426)
+
+### Option B: Share as Video File (for pre-rendered MP4s)
+
+If you pre-render compositions to MP4 first:
+
+1. In Zoom, click **Share Screen** → **Advanced** tab → **"Video"**
+2. Select your MP4 file
+
+> 📖 [Zoom: Sharing a recorded video with sound](https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0064733)
+
+### Zoom Settings to Check Before the Event
+
+**Settings → Video:**
+- ✅ HD video: Enabled
+- ✅ Original ratio: Enabled (prevents cropping)
+
+**Settings → Share Screen:**
+- Window size when screen sharing: "Maintain current size"
+
+> 📖 [Zoom: Video settings guide](https://alamocolleges.screenstepslive.com/a/1175251-how-to-share-video-and-update-video-settings)
+
+### Tips for Maximum Quality
+
+1. **Use wired ethernet** — WiFi packet loss degrades video quality
+2. **Close other apps** — Zoom + Chrome need CPU for smooth playback
+3. **Use Chrome** — Best Remotion Player performance
+4. **Test beforehand** — Do a full dry run with a test Zoom call
+5. **Disable Zoom virtual backgrounds** — They consume GPU
+6. **Participants: Gallery View** — Maximizes the shared screen
+
+---
 
 ## Configuring the Schedule
 
-Edit `src/schedule.ts` to set the event date and times:
+Edit `src/schedule.ts`:
 
 ```ts
-export const EVENT_DATE = "2025-06-14";
+export const EVENT_DATE = "2026-03-17"; // Tuesday
 
 export const SCHEDULE = [
   { id: "preshow",   start: "17:30", label: "Pre-Show (Muted)" },
@@ -41,71 +191,6 @@ export const SCHEDULE = [
   { id: "end",       start: "21:00", label: "Stream Ended" },
 ];
 ```
-
----
-
-## How to Share This in Zoom (Step-by-Step)
-
-This is the most important part. Follow these steps exactly to get the best video quality for all participants.
-
-### Option A: Screen Share with "Optimize for Video Clip" (Recommended)
-
-This gives you **1080p screen share quality** — the highest Zoom supports.
-
-1. **Start the web player** in Chrome: `npm run dev`, open `http://localhost:5173`
-2. **Make Chrome fullscreen**: Press `F11` (or `Cmd+Ctrl+F` on Mac)
-3. **Hide the operator controls**: Press `Esc` so only the video is visible
-4. **In Zoom**, click the green **Share Screen** button in the meeting toolbar
-5. In the share dialog:
-   - Select the **Chrome window** showing the player
-   - ✅ Check **"Share sound"** at the bottom-left (critical for audio compositions)
-   - ✅ Check **"Optimize for video clip"** at the bottom-left
-6. Click **Share**
-
-> **Why "Optimize for video clip"?** Without it, Zoom treats your screen as static content and sends it at low frame rate, causing stuttering. With it enabled, Zoom prioritizes smooth video playback by dynamically adjusting compression and bandwidth. It drops resolution from 1080p to 720p but the motion is smooth.
->
-> **Official Zoom guide**: [Optimizing a shared video in full screen](https://support.zoom.com/hc?id=zm_kb&sysparm_article=KB0068426)
-
-### Option B: Share as Video File (for pre-rendered MP4s)
-
-If you pre-render the compositions to MP4 first, Zoom has a built-in video player:
-
-1. **Pre-render**: `npx remotion render GameDayPreShow out/preshow.mp4` (from the parent project)
-2. In Zoom, click **Share Screen**
-3. Click the **Advanced** tab at the top
-4. Select **"Video"**
-5. Click **Share**, then select your MP4 file
-
-> **Official Zoom guide**: [Sharing a recorded video with sound during your meeting](https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0064733)
-
-### Zoom Settings to Check Before the Event
-
-Open Zoom **Settings → Video** and verify:
-
-- **HD video**: ✅ Enabled
-- **Original ratio**: ✅ Enabled (prevents Zoom from cropping)
-
-Open Zoom **Settings → Share Screen** and verify:
-
-- **Window size when screen sharing**: "Maintain current size"
-
-> **Zoom video settings guide**: [How to share video and update video settings](https://alamocolleges.screenstepslive.com/a/1175251-how-to-share-video-and-update-video-settings)
-
-### Tips for Maximum Quality
-
-1. **Use a wired ethernet connection** — WiFi introduces packet loss that degrades video quality
-2. **Close other apps** — Zoom + Chrome need CPU for smooth playback
-3. **Use Chrome** — Best performance for Remotion Player rendering
-4. **Test beforehand** — Run through the full flow with a test Zoom call
-5. **Disable Zoom virtual backgrounds** — They consume GPU that's better used for the stream
-6. **Set Zoom to Gallery View** — Participants should use Gallery View so the shared screen is maximized
-
-### What Participants See
-
-When you screen-share with "Optimize for video clip" + "Share sound":
-- Participants see the composition at **up to 720p** with smooth motion
-- Audio from the Main Event and Closing compositions plays through Zoom directly (not through your microphone)
-- The stream looks identical at every User Group location
 
 ---
 
@@ -120,22 +205,23 @@ web-player/
 └── src/
     ├── main.tsx            # React mount
     ├── App.tsx             # Player + schedule logic + operator controls
+    ├── Countdown.tsx       # Remotion composition: live countdown screen
     └── schedule.ts         # Event date, times, composition metadata
 ```
 
-The player imports compositions directly from the parent project (`../00-GameDayStreamPreShow-Muted.tsx`, etc.) via a Vite alias. No code duplication.
+The player imports compositions directly from the parent project via a Vite alias. No code duplication.
 
 ## Deployment
 
-For local use (recommended for the stream operator):
+Local (recommended for stream operator):
 ```bash
 npm run dev
 ```
 
-To build a static site you can host anywhere:
+Static build for hosting:
 ```bash
-npm run build
-npm run preview  # test the build locally
+npm run build    # outputs to dist/
+npm run preview  # test locally
 ```
 
-The `dist/` folder can be deployed to Vercel, Netlify, or any static host. This gives you a URL that other UG leaders could open as a backup.
+Deploy `dist/` to Vercel, Netlify, or any static host for a backup URL other UG leaders can open.

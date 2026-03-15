@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Player } from "@remotion/player";
 import { GameDayPreShow } from "@compositions/00-GameDayStreamPreShow-Muted";
 import { GameDayMainEvent } from "@compositions/01-GameDayStreamMainEvent-Audio";
 import { GameDayGameplay } from "@compositions/02-GameDayStreamGameplay-Muted";
 import { GameDayClosing } from "@compositions/03-GameDayStreamClosing-Audio";
+import { CountdownComposition } from "./Countdown";
 import {
   EVENT_DATE,
   SCHEDULE,
@@ -14,15 +15,22 @@ import {
 type SegmentId = "preshow" | "mainevent" | "gameplay" | "closing" | "end" | "waiting";
 
 /**
- * URL parameter overrides for testing:
- *   ?segment=preshow        → jump directly to a segment
- *   ?time=18:05             → simulate a specific CET time on event day
- *   ?time=17:00&date=2025-06-14  → simulate a specific date + time
+ * URL parameters:
+ *
+ *   ?segment=preshow     → Force a specific segment (preshow|mainevent|gameplay|closing|end|waiting)
+ *   ?time=18:05          → Simulate a CET time on event day
+ *   ?date=2026-03-17     → Override the event date (use with ?time=)
+ *   ?controls=false      → Hide operator controls (for clean fullscreen display)
+ *   ?autoplay=true       → Start in auto mode with controls hidden (production mode)
  *
  * Examples:
- *   http://localhost:5173/?segment=closing
- *   http://localhost:5173/?time=18:15
- *   http://localhost:5173/?time=20:35&date=2025-06-14
+ *   http://localhost:5173/                          → Live countdown until event
+ *   http://localhost:5173/?segment=preshow          → Test Pre-Show composition
+ *   http://localhost:5173/?segment=closing          → Test Closing composition
+ *   http://localhost:5173/?time=17:45               → Simulate 17:45 CET on event day
+ *   http://localhost:5173/?time=20:35               → Simulate Closing time
+ *   http://localhost:5173/?autoplay=true             → Production: auto-schedule, no controls
+ *   http://localhost:5173/?controls=false            → Hide controls but allow Esc toggle
  */
 function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -30,28 +38,26 @@ function getUrlParams() {
     segment: params.get("segment"),
     time: params.get("time"),
     date: params.get("date"),
+    controls: params.get("controls"),
+    autoplay: params.get("autoplay"),
   };
 }
 
 function getCurrentSegment(): SegmentId {
   const { segment: urlSegment, time: urlTime, date: urlDate } = getUrlParams();
 
-  // Direct segment override: ?segment=closing
   if (urlSegment) {
     const valid: SegmentId[] = ["preshow", "mainevent", "gameplay", "closing", "end", "waiting"];
     if (valid.includes(urlSegment as SegmentId)) return urlSegment as SegmentId;
   }
 
-  // Determine date and time to use
   let currentDate: string;
   let currentTime: string;
 
   if (urlTime) {
-    // Simulate time: ?time=18:05 (uses EVENT_DATE unless ?date= is also set)
     currentDate = urlDate ?? EVENT_DATE;
     currentTime = urlTime;
   } else {
-    // Real clock
     const now = new Date();
     const formatter = new Intl.DateTimeFormat("en-CA", {
       timeZone: TIMEZONE,
@@ -70,7 +76,6 @@ function getCurrentSegment(): SegmentId {
 
   if (currentDate !== EVENT_DATE && !urlTime) return "waiting";
 
-  // Walk the schedule backwards to find the active segment
   for (let i = SCHEDULE.length - 1; i >= 0; i--) {
     if (currentTime >= SCHEDULE[i].start) {
       return SCHEDULE[i].id as SegmentId;
@@ -79,54 +84,47 @@ function getCurrentSegment(): SegmentId {
   return "waiting";
 }
 
-function formatCountdown(targetDate: string, targetTime: string, tz: string): string {
-  const target = new Date(`${targetDate}T${targetTime}:00`);
-  // Approximate: create target in the event timezone
-  const targetStr = target.toLocaleString("en-US", { timeZone: tz });
-  const targetMs = new Date(targetStr).getTime();
-  const nowStr = new Date().toLocaleString("en-US", { timeZone: tz });
-  const nowMs = new Date(nowStr).getTime();
-  const diff = targetMs - nowMs;
-  if (diff <= 0) return "00:00:00";
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-
-// ─── Manual override controls ────────────────────────────────────────
 const SEGMENTS: { id: SegmentId; label: string }[] = [
+  { id: "waiting", label: "Countdown" },
   { id: "preshow", label: "0 — Pre-Show" },
   { id: "mainevent", label: "1 — Main Event" },
   { id: "gameplay", label: "2 — Gameplay" },
   { id: "closing", label: "3 — Closing" },
 ];
 
-export const App: React.FC = () => {
-  const [segment, setSegment] = useState<SegmentId>(getCurrentSegment);
-  const [override, setOverride] = useState<SegmentId | null>(null);
-  const [showControls, setShowControls] = useState(true);
+const COUNTDOWN_MILESTONES = SCHEDULE.filter((s) => s.id !== "end").map((s) => ({
+  label: s.label,
+  time: s.start,
+}));
 
-  // Poll every second to check if we should switch segments
+export const App: React.FC = () => {
+  const urlParams = getUrlParams();
+  const isAutoplay = urlParams.autoplay === "true";
+  const controlsDisabled = urlParams.controls === "false" || isAutoplay;
+
+  const [segment, setSegment] = useState<SegmentId>(getCurrentSegment);
+  const [override, setOverride] = useState<SegmentId | null>(
+    urlParams.segment ? (urlParams.segment as SegmentId) : null
+  );
+  const [showControls, setShowControls] = useState(!controlsDisabled);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!override) {
-        setSegment(getCurrentSegment());
-      }
+      if (!override) setSegment(getCurrentSegment());
     }, 1000);
     return () => clearInterval(interval);
   }, [override]);
 
   const active = override ?? segment;
 
-  // Toggle controls with Escape key
+  // Esc toggles controls (unless autoplay mode)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowControls((v) => !v);
+      if (e.key === "Escape" && !isAutoplay) setShowControls((v) => !v);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [isAutoplay]);
 
   const handleOverride = useCallback((id: SegmentId) => {
     setOverride(id);
@@ -138,19 +136,47 @@ export const App: React.FC = () => {
     setSegment(getCurrentSegment());
   }, []);
 
-  // ─── Render ──────────────────────────────────────────────────────
+  // ─── Waiting: Remotion-rendered countdown ────────────────────────
   if (active === "waiting") {
-    return <WaitingScreen />;
+    return (
+      <div style={{ width: "100vw", height: "100vh", background: "#0c0820", position: "relative" }}>
+        <Player
+          component={CountdownComposition}
+          inputProps={{
+            eventDate: EVENT_DATE,
+            timezone: TIMEZONE,
+            milestones: COUNTDOWN_MILESTONES,
+          }}
+          durationInFrames={30 * 60 * 60} // 1 hour of frames — effectively infinite
+          fps={30}
+          compositionWidth={1280}
+          compositionHeight={720}
+          autoPlay
+          loop
+          controls={false}
+          style={{ width: "100%", height: "100%" }}
+        />
+        {showControls && <Controls active={active} override={override} onOverride={handleOverride} onAuto={handleAutoMode} />}
+      </div>
+    );
   }
+
   if (active === "end") {
-    return <EndScreen />;
+    return (
+      <div style={screenStyle}>
+        <h1 style={{ fontSize: 32, color: "#fbbf24" }}>🎉 Stream Ended</h1>
+        <p style={{ fontSize: 18, marginTop: 16, color: "#c084fc" }}>
+          Thank you for joining AWS Community GameDay Europe!
+        </p>
+        {showControls && <Controls active={active} override={override} onOverride={handleOverride} onAuto={handleAutoMode} />}
+      </div>
+    );
   }
 
   const comp = COMPOSITIONS[active];
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#0c0820", position: "relative" }}>
-      {/* Key forces remount when switching compositions */}
       <Player
         key={active}
         component={
@@ -170,123 +196,54 @@ export const App: React.FC = () => {
         style={{ width: "100%", height: "100%" }}
         initiallyMuted={active === "preshow" || active === "gameplay"}
       />
-
-      {/* Operator controls — toggle with Escape */}
-      {showControls && (
-        <div style={controlsStyle}>
-          <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 4 }}>
-            Press <b>Esc</b> to hide controls
-          </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            <button
-              onClick={handleAutoMode}
-              style={{
-                ...btnStyle,
-                background: !override ? "#6c3fa0" : "#333",
-              }}
-            >
-              ⏱ Auto
-            </button>
-            {SEGMENTS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => handleOverride(s.id)}
-                style={{
-                  ...btnStyle,
-                  background: active === s.id ? "#8b5cf6" : "#333",
-                }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>
-            {override ? `Manual: ${active}` : `Auto mode — current: ${active}`}
-          </div>
-        </div>
-      )}
+      {showControls && <Controls active={active} override={override} onOverride={handleOverride} onAuto={handleAutoMode} />}
     </div>
   );
 };
 
-// ─── Waiting / End screens ───────────────────────────────────────────
-const WaitingScreen: React.FC = () => {
-  const [, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const countdowns = SCHEDULE.filter((s) => s.id !== "end").map((s) => ({
-    label: s.label,
-    time: s.start,
-    countdown: formatCountdown(EVENT_DATE, s.start, TIMEZONE),
-  }));
-
-  return (
-    <div style={screenStyle}>
-      <h1 style={{ fontSize: 32, color: "#c084fc" }}>AWS Community GameDay Europe</h1>
-      <p style={{ fontSize: 14, marginTop: 8, opacity: 0.5 }}>
-        {EVENT_DATE} — All times CET
-      </p>
-      <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 16 }}>
-        {countdowns.map((c) => (
-          <div key={c.time} style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontSize: 14, color: "#8b5cf6", width: 200, textAlign: "right" }}>
-              {c.label} ({c.time})
-            </span>
-            <span style={{
-              fontSize: 36,
-              fontFamily: "monospace",
-              color: c.countdown === "00:00:00" ? "#22c55e" : "#fbbf24",
-            }}>
-              {c.countdown === "00:00:00" ? "✓ LIVE" : c.countdown}
-            </span>
-          </div>
-        ))}
-      </div>
+// ─── Operator Controls (extracted) ───────────────────────────────────
+const Controls: React.FC<{
+  active: SegmentId;
+  override: SegmentId | null;
+  onOverride: (id: SegmentId) => void;
+  onAuto: () => void;
+}> = ({ active, override, onOverride, onAuto }) => (
+  <div style={controlsStyle}>
+    <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 4 }}>
+      Press <b>Esc</b> to hide • <b>?autoplay=true</b> for production
     </div>
-  );
-};
-
-const EndScreen: React.FC = () => (
-  <div style={screenStyle}>
-    <h1 style={{ fontSize: 32, color: "#fbbf24" }}>🎉 Stream Ended</h1>
-    <p style={{ fontSize: 18, marginTop: 16, color: "#c084fc" }}>
-      Thank you for joining AWS Community GameDay Europe!
-    </p>
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      <button onClick={onAuto} style={{ ...btnStyle, background: !override ? "#6c3fa0" : "#333" }}>
+        ⏱ Auto
+      </button>
+      {SEGMENTS.map((s) => (
+        <button
+          key={s.id}
+          onClick={() => onOverride(s.id)}
+          style={{ ...btnStyle, background: active === s.id ? "#8b5cf6" : "#333" }}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
+    <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>
+      {override ? `Manual: ${active}` : `Auto mode — current: ${active}`}
+    </div>
   </div>
 );
 
-// ─── Styles ──────────────────────────────────────────────────────────
 const screenStyle: React.CSSProperties = {
-  width: "100vw",
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#0c0820",
-  color: "white",
+  width: "100vw", height: "100vh", display: "flex", flexDirection: "column",
+  justifyContent: "center", alignItems: "center", background: "#0c0820", color: "white",
+  position: "relative",
 };
 
 const controlsStyle: React.CSSProperties = {
-  position: "absolute",
-  bottom: 12,
-  left: 12,
-  background: "rgba(0,0,0,0.85)",
-  padding: "8px 12px",
-  borderRadius: 8,
-  color: "white",
-  fontSize: 13,
-  zIndex: 9999,
+  position: "absolute", bottom: 12, left: 12, background: "rgba(0,0,0,0.85)",
+  padding: "8px 12px", borderRadius: 8, color: "white", fontSize: 13, zIndex: 9999,
 };
 
 const btnStyle: React.CSSProperties = {
-  border: "none",
-  color: "white",
-  padding: "4px 10px",
-  borderRadius: 4,
-  cursor: "pointer",
-  fontSize: 12,
+  border: "none", color: "white", padding: "4px 10px", borderRadius: 4,
+  cursor: "pointer", fontSize: 12,
 };
