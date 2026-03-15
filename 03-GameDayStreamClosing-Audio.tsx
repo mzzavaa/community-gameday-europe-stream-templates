@@ -98,12 +98,12 @@ export const PODIUM_TEAMS: TeamData[] = [
 
 // ── Winning City Teams (Top 6 teams from Vienna, ordered by score descending) ──
 export const WINNING_CITY_TEAMS: TeamData[] = [
-  { name: "Team Alpha", flag: "🇦🇹", city: "Vienna Austria", score: 17320, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
-  { name: "Team Bravo", flag: "🇦🇹", city: "Vienna Austria", score: 16890, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
-  { name: "Team Charlie", flag: "🇦🇹", city: "Vienna Austria", score: 15740, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
-  { name: "Team Delta", flag: "🇦🇹", city: "Vienna Austria", score: 14200, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
-  { name: "Team Echo", flag: "🇦🇹", city: "Vienna Austria", score: 13650, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
-  { name: "Team Foxtrot", flag: "🇦🇹", city: "Vienna Austria", score: 12980, logoUrl: LOGO_MAP["AWS User Group Vienna"] ?? null },
+  { name: "Lorem Ipsum Team", flag: "🏳️", city: "TBD", score: 17320, logoUrl: null },
+  { name: "Dolor Sit Amet", flag: "🏳️", city: "TBD", score: 16890, logoUrl: null },
+  { name: "Consectetur Elite", flag: "🏳️", city: "TBD", score: 15740, logoUrl: null },
+  { name: "Sed Do Eiusmod", flag: "🏳️", city: "TBD", score: 14200, logoUrl: null },
+  { name: "Tempor Incididunt", flag: "🏳️", city: "TBD", score: 13650, logoUrl: null },
+  { name: "Ut Labore Dolore", flag: "🏳️", city: "TBD", score: 12980, logoUrl: null },
 ];
 
 // ── Reveal Schedule ──
@@ -824,12 +824,57 @@ export const TeamPodiumReveal: React.FC<{ frame: number }> = ({ frame }) => {
   const entryProgress = spring({ frame: phaseFrame, fps, config: springConfig.entry });
 
   const top3 = WINNING_CITY_TEAMS.slice(0, 3);
-  const maxScore = top3[0].score;
-  const MAX_BAR_HEIGHT = 180;
+  const bottom3 = WINNING_CITY_TEAMS.slice(3, 6);
 
-  // Classic podium order: [2nd, 1st, 3rd] from left to right
-  const podiumOrder = [WINNING_CITY_TEAMS[1], WINNING_CITY_TEAMS[0], WINNING_CITY_TEAMS[2]];
-  const podiumRanks = [2, 1, 3];
+  // Podium card renderer
+  const PodiumCard: React.FC<{ team: TeamData; rank: number; width: number; isTop: boolean }> = ({ team, rank, width, isTop }) => {
+    const borderColor = rank === 1 ? GD_GOLD : rank === 2 ? GD_GOLD + "80" : rank === 3 ? GD_GOLD + "80" : GD_GOLD + "60";
+    const scoreColor = rank === 1 ? GD_GOLD : GD_GOLD;
+    return (
+      <div style={{
+        width,
+        background: "rgba(10, 8, 30, 0.85)",
+        border: `2px solid ${borderColor}`,
+        borderRadius: 12,
+        padding: isTop ? "20px 16px" : "14px 12px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: isTop ? 8 : 6,
+        boxShadow: rank === 1 ? `0 0 40px ${GD_GOLD}30, inset 0 1px 0 ${GD_GOLD}20` : `0 8px 32px rgba(0,0,0,0.4)`,
+      }}>
+        <div style={{
+          fontSize: isTop ? 32 : 22,
+          fontWeight: 900,
+          color: GD_GOLD,
+          fontFamily: "'Inter', sans-serif",
+        }}>#{rank}</div>
+        <div style={{
+          fontSize: isTop ? 11 : 10,
+          fontWeight: 600,
+          color: "rgba(255,255,255,0.5)",
+          fontFamily: "'Inter', sans-serif",
+          textTransform: "uppercase",
+          letterSpacing: 2,
+        }}>Team</div>
+        <div style={{
+          fontSize: isTop ? 16 : 13,
+          fontWeight: 700,
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          textAlign: "center",
+          lineHeight: 1.3,
+        }}>{team.name}</div>
+        <div style={{
+          fontSize: isTop ? 28 : 20,
+          fontWeight: 900,
+          color: scoreColor,
+          fontFamily: "'Inter', sans-serif",
+          fontVariantNumeric: "tabular-nums",
+        }}>{team.score.toLocaleString()}</div>
+      </div>
+    );
+  };
 
   return (
     <AbsoluteFill
@@ -838,118 +883,59 @@ export const TeamPodiumReveal: React.FC<{ frame: number }> = ({ frame }) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "20px 40px",
         opacity: entryProgress,
       }}
     >
       {/* Title */}
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 800,
-          color: GD_GOLD,
-          fontFamily: "'Inter', sans-serif",
-          marginBottom: 24,
-          textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-          textAlign: "center",
-        }}
-      >
-        🏆 Team Podium — Vienna
+      <div style={{
+        fontSize: 32,
+        fontWeight: 900,
+        color: GD_GOLD,
+        fontFamily: "'Inter', sans-serif",
+        marginBottom: 32,
+        textShadow: `0 2px 20px ${GD_GOLD}40`,
+        textAlign: "center",
+        letterSpacing: 4,
+        textTransform: "uppercase",
+      }}>
+        🏆 Podium 🏆
       </div>
 
-      {/* Podium Section: top 3 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-end",
-          gap: 24,
-        }}
-      >
-        {podiumOrder.map((team, i) => {
-          const rank = podiumRanks[i];
-          const barHeight = getPodiumBarHeight(team.score, maxScore, MAX_BAR_HEIGHT);
-          const borderColor =
-            rank === 1 ? GD_GOLD : rank === 2 ? "#C0C0C0" : "#CD7F32";
-
-          return (
-            <div
-              key={rank}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {/* Card */}
-              <div
-                style={{
-                  position: "relative",
-                  width: TOP_CARD_WIDTH,
-                  filter:
-                    rank === 1
-                      ? `drop-shadow(0 0 20px ${GD_GOLD}80)`
-                      : "none",
-                }}
-              >
-                <PositionLabel rank={rank} />
-                <TeamRevealCard
-                  team={team}
-                  rank={rank}
-                  frame={frame}
-                  revealFrame={TEAM_PODIUM_FRAME}
-                />
-              </div>
-
-              {/* Podium Bar */}
-              <div
-                style={{
-                  width: TOP_CARD_WIDTH,
-                  height: barHeight,
-                  background: `linear-gradient(180deg, ${GD_ACCENT}, ${GD_PURPLE})`,
-                  borderRadius: "0 0 8px 8px",
-                  border: `1px solid ${borderColor}30`,
-                  borderTop: "none",
-                }}
-              />
-            </div>
-          );
-        })}
+      {/* Top 3 podium: 2nd (left, lower), 1st (center, higher), 3rd (right, lower) */}
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-end",
+        gap: 20,
+        marginBottom: 24,
+      }}>
+        {/* 2nd place — left, lower */}
+        <div style={{ marginBottom: 0 }}>
+          <PodiumCard team={top3[1]} rank={2} width={240} isTop={true} />
+        </div>
+        {/* 1st place — center, elevated */}
+        <div style={{ marginBottom: 50 }}>
+          <PodiumCard team={top3[0]} rank={1} width={280} isTop={true} />
+        </div>
+        {/* 3rd place — right, lowest */}
+        <div style={{ marginBottom: 0 }}>
+          <PodiumCard team={top3[2]} rank={3} width={220} isTop={true} />
+        </div>
       </div>
 
-      {/* Bottom Row: positions 4, 5, 6 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 20,
-          marginTop: 24,
-        }}
-      >
-        {WINNING_CITY_TEAMS.slice(3, 6).map((team, i) => {
-          const rank = i + 4;
-          return (
-            <div
-              key={rank}
-              style={{
-                position: "relative",
-                width: BOTTOM_CARD_WIDTH,
-              }}
-            >
-              <PositionLabel rank={rank} />
-              <TeamRevealCard
-                team={team}
-                rank={rank}
-                frame={frame}
-                revealFrame={TEAM_PODIUM_FRAME}
-              />
-            </div>
-          );
-        })}
+      {/* Bottom row: 4th, 5th, 6th */}
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 16,
+      }}>
+        {bottom3.map((team, i) => (
+          <PodiumCard key={i + 4} team={team} rank={i + 4} width={200} isTop={false} />
+        ))}
       </div>
     </AbsoluteFill>
   );
-};
+}
 
 // ── RevealPhase ──
 const RevealPhase: React.FC<{ frame: number }> = ({ frame }) => {

@@ -4,6 +4,37 @@ Remotion-powered stream overlay compositions for the first-ever **AWS Community 
 
 These compositions are the visual layer of a live stream that plays at every participating User Group location simultaneously. They provide countdowns, schedules, speaker information, and key instructions — ensuring every attendee can follow along even with bad audio or no idea who is on screen.
 
+## Preview
+
+### Hero Intro
+![Hero Intro](screenshots/hero-intro-frame-0000.png)
+
+### Hero Scenes
+![Hero Scene 1](screenshots/hero-scene1-frame-120.png)
+![Hero Scene 3](screenshots/hero-scene3-frame-460.png)
+![Hero Scene 5](screenshots/hero-scene5-frame-780.png)
+
+### Fast Scroll Showcase
+![Fast Scroll](screenshots/fast-scroll-frame-1800.png)
+
+### Shuffle Phase
+![Shuffle Phase](screenshots/shuffle-phase-frame-8200.png)
+
+### Reveal Phase
+![Reveal 6th Place](screenshots/reveal-6th-frame-9300.png)
+![Reveal 1st Place](screenshots/reveal-1st-frame-12900.png)
+
+### Full Podium
+![Full Podium](screenshots/full-podium-frame-14000.png)
+
+### Thank You
+![Thank You](screenshots/thankyou-frame-18300.png)
+
+### Fade to Black
+![Fade to Black](screenshots/fade-to-black-frame-26970.png)
+
+---
+
 ## What is this?
 
 This repository contains **4 Remotion video compositions** that together form the full ~3-hour GameDay stream experience:
