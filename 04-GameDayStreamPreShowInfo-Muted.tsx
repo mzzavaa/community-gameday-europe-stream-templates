@@ -276,7 +276,7 @@ const InfoSlide: React.FC<{ index: number }> = ({ index }) => {
 
 // ── All Organizers (community + AWS supporters on one page) ──
 const CommunityOrg: React.FC = () => (
-  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingBottom: 40 }}>
     <Heading>Community Organizers</Heading>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 18, justifyContent: "center", maxWidth: 1050 }}>
       {ORGANIZERS.map((p, i) => {

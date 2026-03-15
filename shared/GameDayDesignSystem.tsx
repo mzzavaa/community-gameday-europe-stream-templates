@@ -7,7 +7,7 @@ export const GD_PURPLE = "#6c3fa0";
 export const GD_VIOLET = "#8b5cf6";
 export const GD_PINK = "#d946ef";
 export const GD_ACCENT = "#c084fc";
-export const GD_ORANGE = "#f97316";
+export const GD_ORANGE = "#ff9900";
 export const GD_GOLD = "#fbbf24";
 
 // ── Timing Constants ──
