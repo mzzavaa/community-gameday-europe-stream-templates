@@ -31,7 +31,7 @@ import {
   TYPOGRAPHY,
   ScheduleSegment,
   CardState,
-} from "./shared/GameDayDesignSystem";
+} from "../shared/GameDayDesignSystem";
 
 // ── UG Vienna Logo URL ──
 const UG_VIENNA_LOGO =

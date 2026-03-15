@@ -23,9 +23,9 @@ import {
   GD_ACCENT,
   GD_ORANGE,
   TYPOGRAPHY,
-} from "./shared/GameDayDesignSystem";
-import { USER_GROUPS, LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
-import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
+} from "../shared/GameDayDesignSystem";
+import { USER_GROUPS, LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
+import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
 // ── Part A Constants ──
 const FPS = 30;

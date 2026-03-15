@@ -5,7 +5,7 @@
 
 ## Quick Summary
 
-- **File to edit:** `03b-ClosingWinners.tsx`
+- **File to edit:** `compositions/03b-ClosingWinners.tsx`
 - **What to update:** The `PODIUM_TEAMS` array (~line 65)
 - **When:** During the live stream, after final scores are in
 - **Then:** Save → Remotion Studio hot-reloads → Render
@@ -58,14 +58,14 @@ For automated updates during the live stream, a Lambda function can:
 
 1. Fetch final scores from the GameDay scoring API
 2. Map each winning team to the `TeamData` structure above
-3. Write the updated `PODIUM_TEAMS` array to `03b-ClosingWinners.tsx`
+3. Write the updated `PODIUM_TEAMS` array to `compositions/03b-ClosingWinners.tsx`
 4. Trigger a Remotion render via CLI or Remotion Lambda
 
 ### Lambda Integration Points
 
 ```
 Input:  GameDay Scoring API → top 6 teams with scores
-Output: Updated PODIUM_TEAMS array in 03b-ClosingWinners.tsx
+Output: Updated PODIUM_TEAMS array in compositions/03b-ClosingWinners.tsx
 Render: npx remotion render GameDayClosingWinners --output=out/closing-winners.mp4
 ```
 
@@ -92,7 +92,7 @@ Render: npx remotion render GameDayClosingWinners --output=out/closing-winners.m
 | Duration        | 9000 frames (5 minutes)    |
 | FPS             | 30                         |
 | Resolution      | 1280×720                   |
-| Source file     | `03b-ClosingWinners.tsx`   |
+| Source file     | `compositions/03b-ClosingWinners.tsx`   |
 
 ### Phase Timeline
 
@@ -107,7 +107,7 @@ Render: npx remotion render GameDayClosingWinners --output=out/closing-winners.m
 
 | Composition               | File                    | Notes                    |
 |---------------------------|-------------------------|--------------------------|
-| `GameDayClosingCountdown` | `03a-ClosingFixed.tsx`  | Pre-rendered, no changes |
-| `GameDayPreShow`          | `00-GameDayStreamPreShow-Muted.tsx` | Fixed         |
-| `GameDayMainEvent`        | `01-GameDayStreamMainEvent-Audio.tsx` | Fixed       |
-| `GameDayGameplay`         | `02-GameDayStreamGameplay-Muted.tsx` | Fixed        |
+| `GameDayClosingCountdown` | `compositions/03a-ClosingFixed.tsx`  | Pre-rendered, no changes |
+| `GameDayPreShow`          | `compositions/00-GameDayStreamPreShow-Muted.tsx` | Fixed         |
+| `GameDayMainEvent`        | `compositions/01-GameDayStreamMainEvent-Audio.tsx` | Fixed       |
+| `GameDayGameplay`         | `compositions/02-GameDayStreamGameplay-Muted.tsx` | Fixed        |

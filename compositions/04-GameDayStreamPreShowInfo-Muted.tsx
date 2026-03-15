@@ -9,10 +9,10 @@ import {
   BackgroundLayer, HexGridOverlay, AudioBadge,
   GD_DARK, GD_PURPLE, GD_VIOLET, GD_PINK, GD_ACCENT, GD_ORANGE, GD_GOLD,
   calculateCountdown, formatTime, STREAM_START, GAME_START,
-} from "./shared/GameDayDesignSystem";
-import { USER_GROUPS } from "./shared/userGroups";
-import { LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
-import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
+} from "../shared/GameDayDesignSystem";
+import { USER_GROUPS } from "../shared/userGroups";
+import { LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
+import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
 // Global frame context - TransitionSeries resets useCurrentFrame() per sequence,
 // so the countdown bar needs the true composition frame passed from the top level.

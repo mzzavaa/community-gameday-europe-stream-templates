@@ -24,9 +24,9 @@ import {
   GD_ACCENT,
   GD_ORANGE,
   TYPOGRAPHY,
-} from "./shared/GameDayDesignSystem";
-import { USER_GROUPS, LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
-import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
+} from "../shared/GameDayDesignSystem";
+import { USER_GROUPS, LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
+import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
 // ── Derived Data ──
 const COUNTRIES = Array.from(new Set(USER_GROUPS.map((g) => g.flag)));

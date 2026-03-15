@@ -9,7 +9,7 @@ import {
   GAME_START, GAME_END,
   GD_DARK, GD_PURPLE, GD_VIOLET, GD_PINK, GD_ACCENT, GD_ORANGE, GD_GOLD,
   type ScheduleSegment,
-} from "./shared/GameDayDesignSystem";
+} from "../shared/GameDayDesignSystem";
 
 const F = "'Amazon Ember', 'Inter', sans-serif";
 const GAMEDAY_LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png");
@@ -231,7 +231,7 @@ export const GameDayGameplay: React.FC = () => {
       {/* ── Audio cue banner (last 5 min) ── */}
       {showAudioCue && (
         <div style={{
-          position: "absolute", top: 28, left: 0, right: 0,
+          position: "absolute", top: 66, left: 0, right: 0,
           display: "flex", justifyContent: "center", zIndex: 100, opacity: audioCueEntry,
         }}>
           <div style={{

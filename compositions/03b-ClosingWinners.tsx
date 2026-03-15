@@ -23,8 +23,8 @@ import {
   GD_ACCENT,
   GD_ORANGE,
   TYPOGRAPHY,
-} from "./shared/GameDayDesignSystem";
-import { USER_GROUPS, LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
+} from "../shared/GameDayDesignSystem";
+import { USER_GROUPS, LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
 
 // ── Part B Constants ──
 const TOTAL_FRAMES = 9000;

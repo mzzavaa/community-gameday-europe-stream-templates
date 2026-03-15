@@ -8,41 +8,50 @@ These compositions are the visual layer of a live stream that plays at every par
 
 ## Preview
 
-### Hero Intro
-![Hero Intro](screenshots/hero-intro-frame-0000.png)
+### Pre-Show Countdown
+![Pre-Show](screenshots/readme-preshow-frame-150.png)
 
-### Hero Scenes
-![Hero Scene 1](screenshots/hero-scene1-frame-120.png)
-![Hero Scene 3](screenshots/hero-scene3-frame-460.png)
-![Hero Scene 5](screenshots/hero-scene5-frame-780.png)
+### Main Event — Speaker & Schedule
+![Main Event](screenshots/readme-mainevent-frame-900.png)
 
-### Fast Scroll Showcase
-![Fast Scroll](screenshots/fast-scroll-frame-1800.png)
+### Gameplay Overlay
+![Gameplay](screenshots/readme-gameplay-frame-3600.png)
 
-### Shuffle Phase
-![Shuffle Phase](screenshots/shuffle-phase-frame-8200.png)
+### Closing — Shuffle Phase (Part A)
+![Closing Shuffle](screenshots/readme-closing-shuffle-frame-2000.png)
+
+### Closing — Bar Chart Reveal (Part B)
+![Bar Chart Reveal](screenshots/readme-winners-reveal-frame-3500.png)
+
+### Closing — 1st Place Reveal (Part B)
+![1st Place](screenshots/readme-winners-1st-place-frame-5800.png)
+
+### Closing — Podium (Part B)
+![Podium](screenshots/readme-winners-podium-frame-7258.png)
 
 ### Thank You
-![Thank You](screenshots/thankyou-frame-18300.png)
-
-### Fade to Black
-![Fade to Black](screenshots/fade-to-black-frame-26970.png)
+![Thank You](screenshots/readme-winners-thankyou-frame-8200.png)
 
 ---
 
 ## What is this?
 
-This repository contains **4 Remotion video compositions** that together form the full ~3-hour GameDay stream experience:
+This repository contains **7 Remotion video compositions** (in `compositions/`) that together form the full ~3-hour GameDay stream experience:
 
 | # | Composition | File | Duration | Purpose |
 |---|-------------|------|----------|---------|
-| 0 | **Pre-Show** | `00-GameDayStreamPreShow-Muted.tsx` | 10 min (loop ×3 = 30 min) | Countdown loop before the stream goes live |
-| 1 | **Main Event** | `01-GameDayStreamMainEvent-Audio.tsx` | 30 min | Live introductions, instructions, code distribution |
-| 2 | **Gameplay** | `02-GameDayStreamGameplay-Muted.tsx` | 120 min | Muted overlay during the 2-hour game |
-| 3 | **Closing** | `03-GameDayStreamClosing-Audio.tsx` | 15 min | Winner ceremony, local awards, and wrap-up |
+| 0 | **Pre-Show** | `compositions/00-GameDayStreamPreShow-Muted.tsx` | 10 min (loop ×3 = 30 min) | Countdown loop before the stream goes live |
+| 1 | **Main Event** | `compositions/01-GameDayStreamMainEvent-Audio.tsx` | 30 min | Live introductions, instructions, code distribution |
+| 2 | **Gameplay** | `compositions/02-GameDayStreamGameplay-Muted.tsx` | 120 min | Muted overlay during the 2-hour game |
+| 3a | **Closing Part A** | `compositions/03a-ClosingFixed.tsx` | ~2.5 min | Hero intro, fast scroll, shuffle countdown — pre-rendered |
+| 3b | **Closing Part B** | `compositions/03b-ClosingWinners.tsx` | ~5 min | Bar chart reveal, podium, thank you — **updated live with real scores** |
+| 4 | **Pre-Show Info** | `compositions/04-GameDayStreamPreShowInfo-Muted.tsx` | 30 min | Rotating content sections loop |
+| — | **Marketing** | `compositions/OrganizersMarketingVideo.tsx` | 15 sec | Social media clip for organizers |
 
 Additional files:
 - `shared/GameDayDesignSystem.tsx` — Shared colors, components, springs, and timing constants
+- `shared/closing-utils.ts` — Closing ceremony utilities (shuffle, bell curve, score formatting)
+- `TEMPLATE.md` — Instructions for updating Part B with real winner data
 - `archive/` — Earlier iterations (V1–V4) of the community promo video + the original stream overlay, kept as reference
 
 ## What is Remotion?
@@ -113,15 +122,24 @@ npx remotion render GameDayMainEvent out/intro-only.mp4 --frames=0-1799
 ├── package.json                              # Dependencies (remotion, react)
 ├── tsconfig.json                             # TypeScript config
 ├── remotion.config.ts                        # Remotion entry point config
+├── TEMPLATE.md                               # Live winners template instructions
 ├── src/
-│   ├── Root.tsx                              # Composition registry (imports all 4 compositions)
+│   ├── Root.tsx                              # Composition registry
 │   └── index.ts                              # Remotion entry point
-├── 00-GameDayStreamPreShow-Muted.tsx         # 0. Pre-Show countdown loop (muted)
-├── 01-GameDayStreamMainEvent-Audio.tsx       # 1. Main Event — live intros (audio)
-├── 02-GameDayStreamGameplay-Muted.tsx        # 2. Gameplay — 2h overlay (muted)
-├── 03-GameDayStreamClosing-Audio.tsx         # 3. Closing Ceremony (audio)
+├── compositions/
+│   ├── 00-GameDayStreamPreShow-Muted.tsx     # 0. Pre-Show countdown loop (muted)
+│   ├── 01-GameDayStreamMainEvent-Audio.tsx   # 1. Main Event — live intros (audio)
+│   ├── 02-GameDayStreamGameplay-Muted.tsx    # 2. Gameplay — 2h overlay (muted)
+│   ├── 03a-ClosingFixed.tsx                  # 3a. Closing Part A — pre-rendered
+│   ├── 03b-ClosingWinners.tsx                # 3b. Closing Part B — live winners template
+│   ├── 03-GameDayStreamClosing-Audio.tsx     # 3. Original closing (legacy)
+│   ├── 04-GameDayStreamPreShowInfo-Muted.tsx # 4. Pre-Show Info loop
+│   └── OrganizersMarketingVideo.tsx          # Marketing clip
 ├── shared/
-│   └── GameDayDesignSystem.tsx               # Colors, components, springs, timing
+│   ├── GameDayDesignSystem.tsx               # Colors, components, springs, timing
+│   ├── closing-utils.ts                      # Closing ceremony utilities
+│   ├── organizers.ts                         # Organizer data
+│   └── userGroups.ts                         # User group data
 ├── public/
 │   └── AWSCommunityGameDayEurope/            # Logos, backgrounds, speaker avatars
 ├── screenshots/                              # Frame captures for reference / debugging
@@ -157,13 +175,18 @@ The Main Event composition (30 min) follows this exact schedule:
 
 ## Closing Ceremony
 
+The closing ceremony is split into two compositions for live flexibility:
+
+- **Part A** (`03a-ClosingFixed.tsx`) — Pre-rendered. Hero intro showcasing all user groups, fast scroll, and a shuffle countdown building suspense.
+- **Part B** (`03b-ClosingWinners.tsx`) — **Updated live** with real scores from the Lambda leaderboard API. Bar chart reveal (6th → 1st), podium cards, and thank you. See [TEMPLATE.md](TEMPLATE.md) for setup instructions.
+
 | Time (CET) | What Happens |
 |-------------|-------------|
-| 20:30 | Global winner announcement (slides only, not on camera) |
+| 20:30 | Part A plays — shuffle countdown builds suspense |
+| ~20:33 | Part B plays — bar chart reveals winners 6th → 1st |
+| ~20:38 | Podium + Thank You |
 | 20:30–21:00 | Local winner ceremonies — UG leaders hand out medals and take photos |
 | 21:00 | Stream ends with music |
-
-Note: Global top 3 winners are announced via slides (not shown on camera) due to local setup limitations. Local UG leaders handle their own award ceremonies.
 
 ## Design System
 

@@ -9,8 +9,8 @@ import {
   BackgroundLayer,
   springConfig,
   TYPOGRAPHY,
-} from "./shared/GameDayDesignSystem";
-import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
+} from "../shared/GameDayDesignSystem";
+import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
 // ── SVG Icons ──
 const MapPinIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color = GD_ORANGE }) => (

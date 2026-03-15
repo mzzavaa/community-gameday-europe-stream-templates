@@ -25,7 +25,7 @@ import {
   GD_ORANGE,
   GD_GOLD,
   TYPOGRAPHY,
-} from "./shared/GameDayDesignSystem";
+} from "../shared/GameDayDesignSystem";
 
 // ── Audio Cue Banner Visibility ──
 export function isAudioCueBannerVisible(frame: number): boolean {

@@ -1,15 +1,14 @@
 import React from "react";
 import { Composition } from "remotion";
-import { GameDayPreShow } from "../00-GameDayStreamPreShow-Muted";
-import { GameDayMainEvent } from "../01-GameDayStreamMainEvent-Audio";
-import { GameDayGameplay } from "../02-GameDayStreamGameplay-Muted";
+import { GameDayPreShow } from "../compositions/00-GameDayStreamPreShow-Muted";
+import { GameDayMainEvent } from "../compositions/01-GameDayStreamMainEvent-Audio";
+import { GameDayGameplay } from "../compositions/02-GameDayStreamGameplay-Muted";
 import {
   GameDayClosingCountdown,
-  ClosingShowcase as ClosingShowcaseFixed,
-} from "../03a-ClosingFixed";
-import { GameDayClosingWinners } from "../03b-ClosingWinners";
-import { OrganizersMarketingVideo } from "../OrganizersMarketingVideo";
-import { GameDayPreShowInfo } from "../04-GameDayStreamPreShowInfo-Muted";
+} from "../compositions/03a-ClosingFixed";
+import { GameDayClosingWinners } from "../compositions/03b-ClosingWinners";
+import { OrganizersMarketingVideo } from "../compositions/OrganizersMarketingVideo";
+import { GameDayPreShowInfo } from "../compositions/04-GameDayStreamPreShowInfo-Muted";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
