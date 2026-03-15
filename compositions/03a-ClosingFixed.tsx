@@ -454,8 +454,8 @@ const CARD_GAP = 14;
 const SCROLL_ROW_HEIGHT = CARD_HEIGHT + CARD_GAP;
 const TOTAL_ROWS = Math.ceil(USER_GROUPS.length / SCROLL_COLS);
 const TOTAL_SCROLL_HEIGHT = TOTAL_ROWS * SCROLL_ROW_HEIGHT;
-const VIEWPORT_TOP = 56;
-const VIEWPORT_HEIGHT_PX = 720 - VIEWPORT_TOP - 24;
+const VIEWPORT_TOP = 8;
+const VIEWPORT_HEIGHT_PX = 720 - VIEWPORT_TOP - 8;
 
 const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
@@ -481,12 +481,12 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
         transform: "translate(-50%, -50%)", background: `radial-gradient(circle, ${GD_PURPLE}30 0%, transparent 70%)`,
         borderRadius: "50%", pointerEvents: "none",
       }} />
-      <div style={{ position: "absolute", top: 48, left: 0, right: 0, height: 2, background: "rgba(255,255,255,0.03)", zIndex: 20 }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(255,255,255,0.03)", zIndex: 20 }}>
         <div style={{ height: "100%", width: `${scrollProgress * 100}%`, background: `linear-gradient(90deg, ${GD_PURPLE}, ${GD_VIOLET}, ${GD_PINK})`, boxShadow: `0 0 12px ${GD_PINK}60` }} />
       </div>
-      <div style={{ position: "absolute", top: VIEWPORT_TOP, left: 0, right: 0, height: 60, background: `linear-gradient(180deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 15, pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 50, background: `linear-gradient(0deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 15, pointerEvents: "none" }} />
-      <div style={{ position: "absolute", top: VIEWPORT_TOP, left: 28, right: 28, bottom: 24, overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: VIEWPORT_TOP, left: 0, right: 0, height: 40, background: `linear-gradient(180deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 15, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40, background: `linear-gradient(0deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 15, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: VIEWPORT_TOP, left: 28, right: 28, bottom: 8, overflow: "hidden" }}>
         <div style={{ transform: `translateY(${-scrollY}px)`, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: CARD_GAP, width: "100%" }}>
           {USER_GROUPS.map((group, i) => {
             const row = Math.floor(i / SCROLL_COLS);

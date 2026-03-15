@@ -9,6 +9,9 @@ import {
 import { GameDayClosingWinners } from "../compositions/03b-ClosingWinners";
 import { OrganizersMarketingVideo } from "../compositions/OrganizersMarketingVideo";
 import { GameDayPreShowInfo } from "../compositions/04-GameDayStreamPreShowInfo-Muted";
+import { GameDayPreShowInfoV2 } from "../compositions/04v2-GameDayStreamPreShowInfo-V2";
+import { GameDayPreShowInfoV3 } from "../compositions/04v3-GameDayStreamPreShowInfo-V3";
+import { GameDayMainEventV2 } from "../compositions/01v2-GameDayStreamMainEvent-V2";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -27,6 +30,16 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="GameDayMainEvent"
         component={GameDayMainEvent}
+        durationInFrames={54000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
+      {/* 1v2. Main Event V2 (Audio): cinematic intro, map animation, GameDay logo progress, Mihaly video */}
+      <Composition
+        id="GameDayMainEventV2"
+        component={GameDayMainEventV2}
         durationInFrames={54000}
         fps={30}
         width={1280}
@@ -77,6 +90,26 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="GameDayPreShowInfo"
         component={GameDayPreShowInfo}
+        durationInFrames={54000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
+      {/* 5v2. Pre-Show Info V2 (Muted): cinematic 30-min loop — enhanced version */}
+      <Composition
+        id="GameDayPreShowInfoV2"
+        component={GameDayPreShowInfoV2}
+        durationInFrames={54000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
+      {/* 5v3. Pre-Show Info V3 (Muted): SVG icons, UG logos, community education slides */}
+      <Composition
+        id="GameDayPreShowInfoV3"
+        component={GameDayPreShowInfoV3}
         durationInFrames={54000}
         fps={30}
         width={1280}
