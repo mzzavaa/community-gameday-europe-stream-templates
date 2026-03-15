@@ -77,7 +77,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
           <div style={{ fontSize: 17, color: GD_ACCENT, marginTop: 18, opacity: 0.85 }}>2 hours of competitive cloud gaming</div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 6 }}>
             <GlobeIcon size={16} color={DESC_COLOR} />
-            <span style={{ fontSize: 15, color: DESC_COLOR }}>53+ User Groups across 20+ Countries</span>
+            <span style={{ fontSize: 15, color: DESC_COLOR }}>53+ User Groups across 20+ Countries in 4+ Timezones</span>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
       <div style={{ position: "absolute", right: 0, top: 0, width: 560, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 36px 0 0", marginTop: -20 }}>
         <div style={{ ...anim(14) }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 3, marginBottom: 14 }}>
-            <CalendarIcon size={18} /> Schedule for Community GameDay Europe
+            <CalendarIcon size={18} /> Schedule (CET) — Community GameDay Europe
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
             {milestones.map((ms) => {
