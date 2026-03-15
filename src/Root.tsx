@@ -13,7 +13,7 @@ import { GameDayPreShowInfo } from "../04-GameDayStreamPreShowInfo-Muted";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      {/* 0. Pre-Show (Muted): 10-min loop (play 3× for 30 min total) */}
+      {/* 0. Pre-Show (Muted): 10-min loop — web player handles looping */}
       <Composition
         id="GameDayPreShow"
         component={GameDayPreShow}
@@ -22,24 +22,6 @@ export const RemotionRoot: React.FC = () => {
         width={1280}
         height={720}
         defaultProps={{ loopIteration: 0 }}
-      />
-      <Composition
-        id="GameDayPreShow-Loop2"
-        component={GameDayPreShow}
-        durationInFrames={18000}
-        fps={30}
-        width={1280}
-        height={720}
-        defaultProps={{ loopIteration: 1 }}
-      />
-      <Composition
-        id="GameDayPreShow-Loop3"
-        component={GameDayPreShow}
-        durationInFrames={18000}
-        fps={30}
-        width={1280}
-        height={720}
-        defaultProps={{ loopIteration: 2 }}
       />
 
       {/* 1. Main Event (Audio): 30 min live introductions */}

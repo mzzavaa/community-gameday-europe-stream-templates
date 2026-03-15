@@ -231,20 +231,20 @@ export const GameDayGameplay: React.FC = () => {
       {/* ── Audio cue banner (last 5 min) ── */}
       {showAudioCue && (
         <div style={{
-          position: "absolute", bottom: 32, right: 40, left: "auto",
-          display: "flex", justifyContent: "flex-end", zIndex: 100, opacity: audioCueEntry,
+          position: "absolute", top: 28, left: 0, right: 0,
+          display: "flex", justifyContent: "center", zIndex: 100, opacity: audioCueEntry,
         }}>
           <div style={{
             background: `linear-gradient(90deg, ${GD_ORANGE}dd, ${GD_GOLD}dd)`,
-            borderRadius: 16, padding: "16px 36px",
+            borderRadius: 16, padding: "12px 32px",
             boxShadow: `0 8px 32px ${GD_ORANGE}40`,
-            display: "flex", alignItems: "center", gap: 14,
+            display: "flex", alignItems: "center", gap: 12,
           }}>
-            <svg width="26" height="24" viewBox="0 0 24 24" fill="none" stroke={GD_DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="20" viewBox="0 0 24 24" fill="none" stroke={GD_DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M14.54 7.46a5 5 0 0 1 0 9.08"/>
               <path d="M18.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
-            <div style={{ fontSize: 22, fontWeight: 700, color: GD_DARK, fontFamily: F }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: GD_DARK, fontFamily: F }}>
               Audio needed for Closing Ceremony
             </div>
           </div>

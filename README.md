@@ -137,14 +137,14 @@ The Main Event composition (30 min) follows this exact schedule:
 
 | Time (CET) | Segment | Duration | Who |
 |-------------|---------|----------|-----|
-| 18:00–18:01 | Linda — Welcome & Intro | 1 min | Linda Mohamed |
+| 18:00–18:01 | Linda — Welcome & Intro | 1 min | Linda |
 | 18:01–18:05 | Jerome & Anda — Community GameDay | ~4 min | Jerome & Anda |
-| 18:05–18:06 | Linda — Transition | ~1 min | Linda Mohamed |
-| 18:06–18:07 | Support Process Video | 1 min | — |
+| 18:05–18:06 | Linda — Transition | ~1 min | Linda |
+| 18:06–18:07 | Support Process Video | 1 min | Mihaly |
 | 18:07–18:13 | Special Guest | 6 min | — (surprise) |
-| 18:13–18:14 | AWS Gamemasters Intro | 1 min | — |
+| 18:13–18:14 | AWS Gamemasters Intro | 1 min | Linda |
 | 18:14–18:25 | GameDay Instructions | 11 min | Arnaud & Loïc |
-| 18:25–18:30 | Distribute Codes | 5 min | — |
+| 18:25–18:30 | Distribute Codes | 5 min | Locally at UGs |
 
 ## Gameplay Key Moments
 
@@ -222,9 +222,10 @@ The event spans 4+ timezones across Europe. All times below are CET — local ti
 
 ## The People
 
-- **Linda Mohamed** — Stream Host, AWS Community Hero, AWS & Women's UG Vienna (Austria)
+- **Linda** — Stream Host, AWS Community Hero, AWS & Women's UG Vienna (Austria)
 - **Jerome** — Co-organizer, AWS User Group Belgium (Brussels)
 - **Anda** — Co-organizer, AWS User Group Geneva (Switzerland)
+- **Mihaly** — Support Process, AWS User Group Budapest (Hungary)
 - **Special Guest** — To be revealed
 - **Arnaud & Loïc** — AWS Gamemasters (gameplay instructions)
 
