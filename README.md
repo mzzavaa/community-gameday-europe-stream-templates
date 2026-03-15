@@ -1,5 +1,7 @@
 # AWS Community GameDay Europe — Stream Visuals
 
+> 🏆 **LIVE WINNERS TEMPLATE** — The closing ceremony winners must be updated with real data before rendering. See **[TEMPLATE.md](TEMPLATE.md)** for instructions.
+
 Remotion-powered stream overlay compositions for the first-ever **AWS Community GameDay Europe**, a competitive cloud event spanning **53+ AWS User Groups** across **20+ countries** and multiple timezones.
 
 These compositions are the visual layer of a live stream that plays at every participating User Group location simultaneously. They provide countdowns, schedules, speaker information, and key instructions — ensuring every attendee can follow along even with bad audio or no idea who is on screen.

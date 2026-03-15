@@ -1,42 +1,45 @@
-# 🏆 Live Winners Template — How to Update
+# 🏆 LIVE WINNERS TEMPLATE — MUST UPDATE BEFORE RENDERING
 
-This document explains how to update the **GameDayClosingWinners** composition with real winner data during the live GameDay stream.
+> ⚠️ **The `GameDayClosingWinners` composition contains PLACEHOLDER data.**
+> It will render with white flags 🏳️, "TEAM NAME", and "CITY, COUNTRY" until you update it with real winner data.
 
 ## Quick Summary
 
 - **File to edit:** `03b-ClosingWinners.tsx`
-- **What to update:** The `PODIUM_TEAMS` array (line ~65)
+- **What to update:** The `PODIUM_TEAMS` array (~line 65)
 - **When:** During the live stream, after final scores are in
-- **Then:** Re-render the composition in Remotion Studio or via CLI
+- **Then:** Save → Remotion Studio hot-reloads → Render
 
 ## Template Data Structure
 
-The `PODIUM_TEAMS` array in `03b-ClosingWinners.tsx` holds 6 entries, ranked 1st to 6th:
+The `PODIUM_TEAMS` array holds 6 entries, ordered 1st to 6th:
 
 ```typescript
 export const PODIUM_TEAMS: TeamData[] = [
-  { teamName: "The Cloud Ninjas",   ugName: "AWS User Group Belgium",        flag: "🇧🇪", city: "Brussels, Belgium",  score: 18500 },
-  { teamName: "Serverless Squad",   ugName: "AWS User Group Vienna",         flag: "🇦🇹", city: "Vienna, Austria",    score: 15200 },
-  { teamName: "Lambda Lords",       ugName: "Berlin AWS User Group",         flag: "🇩🇪", city: "Berlin, Germany",    score: 12800 },
-  { teamName: "DynamoDB Dragons",   ugName: "AWS User Group France- Paris",  flag: "🇫🇷", city: "Paris, France",      score: 11500 },
-  { teamName: "S3 Surfers",         ugName: "Grenoble AWS User Group",       flag: "🇫🇷", city: "Grenoble, France",   score: 10200 },
-  { teamName: "CloudFormation Crew", ugName: "Lille AWS User Group",         flag: "🇫🇷", city: "Lille, France",      score: 8900  },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 18500 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 15200 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 12800 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 11500 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 10200 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 8900  },
 ];
 ```
 
+Replace each field with real data from the GameDay scoring results.
+
 ## Field Reference
 
-| Field      | Description                          | Example                        |
+| Field      | Description                          | What to put                    |
 |------------|--------------------------------------|--------------------------------|
-| `teamName` | The team's chosen name (most prominent on screen) | `"The Cloud Ninjas"` |
-| `ugName`   | User Group name — **must match a key in `LOGO_MAP`** from `archive/CommunityGamedayEuropeV4.tsx` | `"AWS User Group Belgium"` |
-| `flag`     | Country flag emoji                   | `"🇧🇪"`                        |
-| `city`     | City, Country label                  | `"Brussels, Belgium"`          |
-| `score`    | Final score (integer)                | `18500`                        |
+| `teamName` | The team's chosen name (most prominent on screen) | The actual team name from the scoreboard |
+| `ugName`   | User Group name — **must match a key in `LOGO_MAP`** | Exact UG name from `archive/CommunityGamedayEuropeV4.tsx` |
+| `flag`     | Country flag emoji                   | The flag emoji of the UG's country |
+| `city`     | City, Country label                  | The UG's city and country |
+| `score`    | Final score (integer)                | The actual final score from the GameDay |
 
 ### Important: `ugName` must match exactly
 
-The `ugName` field is used to look up the User Group logo. It must match one of the keys in `LOGO_MAP` defined in `archive/CommunityGamedayEuropeV4.tsx`. If it doesn't match, no logo will be displayed for that team.
+The `ugName` field is used to look up the User Group logo via `LOGO_MAP` in `archive/CommunityGamedayEuropeV4.tsx`. If it doesn't match, no logo will be displayed.
 
 To see all valid `ugName` values, check the `LOGO_MAP` export in that file.
 
@@ -44,10 +47,10 @@ To see all valid `ugName` values, check the `LOGO_MAP` export in that file.
 
 1. Open `03b-ClosingWinners.tsx`
 2. Find the `PODIUM_TEAMS` array (~line 65)
-3. Replace the 6 placeholder entries with real winner data
+3. Replace all 6 placeholder entries with real winner data
 4. Entries must be ordered by rank: index 0 = 1st place, index 5 = 6th place
 5. Save the file — Remotion Studio will hot-reload automatically
-6. Render via Studio UI or CLI: `npx remotion render GameDayClosingWinners`
+6. Render: `npx remotion render GameDayClosingWinners`
 
 ## How to Update (Lambda / Automated)
 
@@ -71,12 +74,12 @@ Render: npx remotion render GameDayClosingWinners --output=out/closing-winners.m
 ```json
 {
   "winners": [
-    { "teamName": "The Cloud Ninjas", "ugName": "AWS User Group Belgium", "flag": "🇧🇪", "city": "Brussels, Belgium", "score": 18500 },
-    { "teamName": "Serverless Squad", "ugName": "AWS User Group Vienna", "flag": "🇦🇹", "city": "Vienna, Austria", "score": 15200 },
-    { "teamName": "Lambda Lords", "ugName": "Berlin AWS User Group", "flag": "🇩🇪", "city": "Berlin, Germany", "score": 12800 },
-    { "teamName": "DynamoDB Dragons", "ugName": "AWS User Group France- Paris", "flag": "🇫🇷", "city": "Paris, France", "score": 11500 },
-    { "teamName": "S3 Surfers", "ugName": "Grenoble AWS User Group", "flag": "🇫🇷", "city": "Grenoble, France", "score": 10200 },
-    { "teamName": "CloudFormation Crew", "ugName": "Lille AWS User Group", "flag": "🇫🇷", "city": "Lille, France", "score": 8900 }
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 },
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 },
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 },
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 },
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 },
+    { "teamName": "...", "ugName": "...", "flag": "...", "city": "...", "score": 0 }
   ]
 }
 ```

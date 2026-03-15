@@ -357,7 +357,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
         <div
           style={{
             position: "absolute",
-            top: 20,
+            bottom: 20,
             left: 0,
             right: 0,
             display: "flex",
@@ -371,7 +371,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
             style={{
               background: `linear-gradient(90deg, ${GD_ORANGE}dd, ${GD_GOLD}dd)`,
               borderRadius: 16,
-              padding: "14px 40px",
+              padding: "10px 28px",
               boxShadow: `0 8px 32px ${GD_ORANGE}40`,
               display: "flex",
               alignItems: "center",
@@ -385,7 +385,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
             </svg>
             <div
               style={{
-                fontSize: TYPOGRAPHY.h6,
+                fontSize: TYPOGRAPHY.bodySmall,
                 fontWeight: 700,
                 color: GD_DARK,
               }}

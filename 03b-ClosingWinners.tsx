@@ -33,11 +33,11 @@ const TOTAL_FRAMES = 9000;
 const SHUFFLE_START = 0;
 const SHUFFLE_END = 1799;
 const REVEAL_6TH = 1800;
-const REVEAL_5TH = 2400;
-const REVEAL_4TH = 3000;
-const REVEAL_3RD = 3600;
-const REVEAL_2ND = 4800;
-const REVEAL_1ST = 6000;
+const REVEAL_5TH = 2200;
+const REVEAL_4TH = 2600;
+const REVEAL_3RD = 3000;
+const REVEAL_2ND = 4200;
+const REVEAL_1ST = 5400;
 const ROLL_CALL_START = 7200;
 const THANKYOU_START = 7800;
 
@@ -61,24 +61,25 @@ export interface TeamData {
 
 // ── Placeholder Podium Teams (update live during stream) ──
 // ugName must match a key in LOGO_MAP from CommunityGamedayEuropeV4
-// Use wide score spread so card height differences are clearly visible
+// ⚠️  PLACEHOLDER DATA — MUST BE UPDATED WITH REAL WINNERS BEFORE RENDERING
+// See TEMPLATE.md for instructions on how to update
 export const PODIUM_TEAMS: TeamData[] = [
-  { teamName: "TEAM NAME", ugName: "AWS User Group Belgium", flag: "🏳️", city: "CITY, COUNTRY", score: 18500 },
-  { teamName: "TEAM NAME", ugName: "AWS User Group Vienna", flag: "🏳️", city: "CITY, COUNTRY", score: 15200 },
-  { teamName: "TEAM NAME", ugName: "Berlin AWS User Group", flag: "🏳️", city: "CITY, COUNTRY", score: 12800 },
-  { teamName: "TEAM NAME", ugName: "AWS User Group France- Paris", flag: "🏳️", city: "CITY, COUNTRY", score: 11500 },
-  { teamName: "TEAM NAME", ugName: "Grenoble AWS User Group", flag: "🏳️", city: "CITY, COUNTRY", score: 10200 },
-  { teamName: "TEAM NAME", ugName: "Lille AWS User Group", flag: "🏳️", city: "CITY, COUNTRY", score: 8900 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 18500 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 15200 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 12800 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 11500 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 10200 },
+  { teamName: "TEAM NAME", ugName: "REPLACE_WITH_UG_NAME", flag: "🏳️", city: "CITY, COUNTRY", score: 8900 },
 ];
 
 // ── Reveal Schedule ──
 const REVEAL_SCHEDULE = [
-  { rank: 6, frame: REVEAL_6TH, duration: 600 },
-  { rank: 5, frame: REVEAL_5TH, duration: 600 },
-  { rank: 4, frame: REVEAL_4TH, duration: 600 },
+  { rank: 6, frame: REVEAL_6TH, duration: 400 },
+  { rank: 5, frame: REVEAL_5TH, duration: 400 },
+  { rank: 4, frame: REVEAL_4TH, duration: 400 },
   { rank: 3, frame: REVEAL_3RD, duration: 1200 },
   { rank: 2, frame: REVEAL_2ND, duration: 1200 },
-  { rank: 1, frame: REVEAL_1ST, duration: 1200 },
+  { rank: 1, frame: REVEAL_1ST, duration: 1800 },
 ];
 
 // ── Crossfade duration for smooth phase transitions ──
@@ -95,7 +96,7 @@ export function getRevealedPlacements(frame: number): number[] {
 
 export function getCountUpValue(target: number, frame: number, revealFrame: number): number {
   const elapsed = Math.max(0, frame - revealFrame);
-  const progress = Math.min(1, elapsed / 60);
+  const progress = Math.min(1, elapsed / 180);
   const eased = 1 - Math.pow(1 - progress, 3);
   return Math.round(eased * target);
 }
@@ -249,14 +250,14 @@ const PodiumBar: React.FC<{
   const { fps } = useVideoConfig();
   const elapsed = Math.max(0, frame - revealFrame);
   const config = rank === 1
-    ? { damping: 8, stiffness: 80, mass: 1.2 }
-    : { damping: 12, stiffness: 100 };
+    ? { damping: 20, stiffness: 12, mass: 3 }
+    : { damping: 18, stiffness: 16, mass: 2.5 };
   const progress = spring({ frame: elapsed, fps, config });
   const animatedHeight = barHeight * progress;
   const displayScore = getCountUpValue(team.score, frame, revealFrame);
 
   // Subtle scale bounce on entry
-  const scaleSpring = spring({ frame: elapsed, fps, config: { damping: 10, stiffness: 120 } });
+  const scaleSpring = spring({ frame: elapsed, fps, config: { damping: 16, stiffness: 20, mass: 2 } });
   const entryScale = interpolate(scaleSpring, [0, 1], [0.85, 1]);
 
   // Pulsing glow for #1 winner
@@ -277,10 +278,10 @@ const PodiumBar: React.FC<{
 
   // For top 3: staged reveal (bar → city → name)
   const cityOpacity = isTop3
-    ? interpolate(elapsed, [120, 160], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    ? interpolate(elapsed, [180, 240], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : progress;
   const nameOpacity = isTop3
-    ? interpolate(elapsed, [240, 280], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    ? interpolate(elapsed, [300, 360], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : progress;
 
   return (
