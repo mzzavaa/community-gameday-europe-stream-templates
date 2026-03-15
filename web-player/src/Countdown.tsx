@@ -137,8 +137,8 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
             {([
               { icon: <UsersIcon size={17} />, text: "Form your team locally before the stream" },
               { icon: <ChairIcon size={17} />, text: "Be seated with audio ready 5 min before start" },
-              { icon: <MonitorIcon size={17} />, text: "Watch the live stream for instructions & codes" },
-              { icon: <CodeIcon size={17} />, text: "Receive your team code, then the game begins" },
+              { icon: <MonitorIcon size={17} />, text: "Watch the live stream for instructions" },
+              { icon: <CodeIcon size={17} />, text: "Team codes distributed locally, then game on" },
               { icon: <ClockIcon size={17} />, text: "Stream returns after 2h for the closing ceremony" },
             ] as const).map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 11, fontSize: 15, color: "rgba(255,255,255,0.9)" }}>
