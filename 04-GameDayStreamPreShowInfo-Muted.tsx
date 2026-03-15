@@ -148,7 +148,7 @@ const UGSpotlight: React.FC<{ index: number }> = ({ index }) => {
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <Heading>User Group Spotlight</Heading>
       <div style={{ opacity: o, transform: `scale(${0.85 + o * 0.15})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-        {logo && <Img src={logo} style={{ width: 200, height: 200, borderRadius: 24, objectFit: "cover", border: `2px solid ${GD_PURPLE}44` }} />}
+        {logo && <Img src={logo} style={{ maxWidth: 400, maxHeight: 200 }} />}
         <span style={{ fontSize: 56, marginTop: logo ? 0 : 20 }}>{g.flag}</span>
         <div style={{ fontSize: 32, fontWeight: 800, color: "white", fontFamily: F, textAlign: "center", maxWidth: 800 }}>{g.name}</div>
         <div style={{ fontSize: 22, color: GD_ACCENT, fontFamily: F }}>{g.city}</div>
