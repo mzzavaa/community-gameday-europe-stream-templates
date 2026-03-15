@@ -25,6 +25,7 @@ import {
   GD_ORANGE,
 } from "./shared/GameDayDesignSystem";
 import { USER_GROUPS, LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
+import { ORGANIZERS } from "./shared/organizers";
 
 // ── Derived Data ──
 const COUNTRIES = Array.from(new Set(USER_GROUPS.map((g) => g.flag)));
@@ -243,16 +244,7 @@ const CountUp: React.FC<{ target: number; frame: number; startFrame: number; suf
 
 const UNIQUE_FLAGS = Array.from(new Set(USER_GROUPS.map((g) => g.flag)));
 
-const ORGANIZERS = [
-  { name: "Jerome", role: "AWS User Group Belgium", country: "Belgium", flag: "🇧🇪", face: "AWSCommunityGameDayEurope/faces/jerome.jpg", type: "community" as const },
-  { name: "Anda", role: "AWS User Group Geneva", country: "Switzerland", flag: "🇨🇭", face: "AWSCommunityGameDayEurope/faces/anda.jpg", type: "community" as const },
-  { name: "Marcel", role: "AWS User Group Münsterland", country: "Germany", flag: "🇩🇪", face: "AWSCommunityGameDayEurope/faces/marcel.jpg", type: "community" as const },
-  { name: "Linda", role: "AWS User Group Vienna", country: "Austria", flag: "🇦🇹", face: "AWSCommunityGameDayEurope/faces/linda.jpg", type: "community" as const },
-  { name: "Manuel", role: "AWS User Group Frankfurt", country: "Germany", flag: "🇩🇪", face: "AWSCommunityGameDayEurope/faces/manuel.jpg", type: "community" as const },
-  { name: "Andreas", role: "AWS User Group Bonn", country: "Germany", flag: "🇩🇪", face: "AWSCommunityGameDayEurope/faces/andreas.jpg", type: "community" as const },
-  { name: "Lucian", role: "AWS User Group Timisoara", country: "Romania", flag: "🇷🇴", face: "AWSCommunityGameDayEurope/faces/lucian.jpg", type: "community" as const },
-  { name: "Mihaly", role: "AWS User Group Budapest", country: "Hungary", flag: "🇭🇺", face: "AWSCommunityGameDayEurope/faces/mihaly.jpg", type: "community" as const },
-];
+
 
 const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();

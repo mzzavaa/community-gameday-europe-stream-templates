@@ -6,23 +6,23 @@ Build a standalone 15-second Remotion composition showcasing the 8 AWS Community
 
 ## Tasks
 
-- [ ] 1. Extract shared organizer data
+- [x] 1. Extract shared organizer data
   - [x] 1.1 Create `shared/organizers.ts` with the `Organizer` interface and `ORGANIZERS` array
     - Export the `Organizer` interface with fields: name, role, country, flag, face, type
     - Export the `ORGANIZERS` array with all 8 organizers (Jerome, Anda, Marcel, Linda, Manuel, Andreas, Lucian, Mihaly) — data copied from `03-GameDayStreamClosing-Audio.tsx`
     - _Requirements: 5.1, 5.2, 3.9_
 
-  - [-] 1.2 Update `03-GameDayStreamClosing-Audio.tsx` to import from `shared/organizers.ts`
+  - [x] 1.2 Update `03-GameDayStreamClosing-Audio.tsx` to import from `shared/organizers.ts`
     - Remove the inline ORGANIZERS array
     - Replace with `import { ORGANIZERS } from "./shared/organizers"`
     - Verify no other inline references to the old array remain
     - _Requirements: 5.1, 5.2_
 
-- [ ] 2. Checkpoint — Verify shared data extraction
+- [x] 2. Checkpoint — Verify shared data extraction
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 3. Create the composition file and scenes
-  - [~] 3.1 Create `OrganizersMarketingVideo.tsx` with frame constants and composition shell
+  - [-] 3.1 Create `OrganizersMarketingVideo.tsx` with frame constants and composition shell
     - Define frame constants: INTRO 0–119, ORG 120–299, OUTRO 300–449, CROSSFADE 15 frames
     - Export `OrganizersMarketingVideo` React component
     - Import `useCurrentFrame`, `useVideoConfig`, `spring`, `interpolate`, `Img`, `staticFile` from Remotion

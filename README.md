@@ -20,13 +20,6 @@ These compositions are the visual layer of a live stream that plays at every par
 ### Shuffle Phase
 ![Shuffle Phase](screenshots/shuffle-phase-frame-8200.png)
 
-### Reveal Phase
-![Reveal 6th Place](screenshots/reveal-6th-frame-9300.png)
-![Reveal 1st Place](screenshots/reveal-1st-frame-12900.png)
-
-### Full Podium
-![Full Podium](screenshots/full-podium-frame-14000.png)
-
 ### Thank You
 ![Thank You](screenshots/thankyou-frame-18300.png)
 
