@@ -41,43 +41,43 @@ export enum Phase {
 // ── Phase Boundary Constants ──
 export const PHASE_BOUNDARIES = {
   showcaseStart: 0,
-  showcaseEnd: 1199,
-  shuffleStart: 1200,
-  shuffleEnd: 2999,
-  revealStart: 3000,
-  revealEnd: 11999,
-  thankYouStart: 12000,
-  thankYouEnd: 20999,
+  showcaseEnd: 1499,
+  shuffleStart: 1500,
+  shuffleEnd: 3299,
+  revealStart: 3300,
+  revealEnd: 12299,
+  thankYouStart: 12300,
+  thankYouEnd: 21299,
 } as const;
 
 // ── Reveal Frame Offsets ──
 export const REVEAL_FRAMES = {
-  6: 3000, 5: 3600, 4: 4200, 3: 4800, 2: 5700, 1: 6600,
-  fullPodium: 7500,
+  6: 3300, 5: 3900, 4: 4500, 3: 5100, 2: 6000, 1: 6900,
+  fullPodium: 7800,
 } as const;
 
 // ── Composition Constants ──
 export const WIDTH = 1280;
 export const HEIGHT = 720;
 export const FPS = 30;
-export const TOTAL_FRAMES = 21000;
+export const TOTAL_FRAMES = 21300;
 export const GROUPS_PER_PAGE = 6;
 export const PAGE_DURATION = 120;
 export const SHUFFLE_POSITIONS = 6;
 export const SHUFFLE_SCORE_MIN = 3000;
 export const SHUFFLE_SCORE_MAX = 5000;
 export const FLASH_DURATION = 60;
-export const PHASE_BOUNDARY_FRAMES = [0, 1200, 3000, 12000];
-export const FADE_START = 20910;
-export const FADE_END = 20999;
-export const FULL_PODIUM_FRAME = 7500;
-export const TEAM_PODIUM_FRAME = 9000;
+export const PHASE_BOUNDARY_FRAMES = [0, 1500, 3300, 12300];
+export const FADE_START = 21210;
+export const FADE_END = 21299;
+export const FULL_PODIUM_FRAME = 7800;
+export const TEAM_PODIUM_FRAME = 9300;
 export const TOP_CARD_WIDTH = 280;
 export const BOTTOM_CARD_WIDTH = 220;
 
 // ── Showcase Sub-Phase Timing ──
-const HERO_INTRO_END = 899;
-const FAST_SCROLL_START = 900;
+const HERO_INTRO_END = 1199;
+const FAST_SCROLL_START = 1200;
 
 // ── TeamData Interface ──
 export interface TeamData {
@@ -110,12 +110,12 @@ export const WINNING_CITY_TEAMS: TeamData[] = [
 
 // ── Reveal Schedule ──
 export const REVEAL_SCHEDULE = [
-  { rank: 6, frame: 3000, duration: 600 },
-  { rank: 5, frame: 3600, duration: 600 },
-  { rank: 4, frame: 4200, duration: 600 },
-  { rank: 3, frame: 4800, duration: 900 },
-  { rank: 2, frame: 5700, duration: 900 },
-  { rank: 1, frame: 6600, duration: 900 },
+  { rank: 6, frame: 3300, duration: 600 },
+  { rank: 5, frame: 3900, duration: 600 },
+  { rank: 4, frame: 4500, duration: 600 },
+  { rank: 3, frame: 5100, duration: 900 },
+  { rank: 2, frame: 6000, duration: 900 },
+  { rank: 1, frame: 6900, duration: 900 },
 ];
 
 // ── Position Label ──
@@ -154,14 +154,14 @@ export function getPodiumBarHeight(teamScore: number, maxScore: number, maxBarHe
 
 // ── Pure Utility Functions ──
 export function getActivePhase(frame: number): Phase {
-  if (frame <= 1199) return Phase.Showcase;
-  if (frame <= 2999) return Phase.Shuffle;
-  if (frame <= 11999) return Phase.Reveal;
+  if (frame <= 1499) return Phase.Showcase;
+  if (frame <= 3299) return Phase.Shuffle;
+  if (frame <= 12299) return Phase.Reveal;
   return Phase.ThankYou;
 }
 
 export function isTransitionFrame(frame: number): boolean {
-  const boundaries = [0, 1200, 3000, 12000];
+  const boundaries = [0, 1500, 3300, 12300];
   return boundaries.some((b) => frame >= b && frame < b + 60);
 }
 
@@ -182,12 +182,12 @@ export function getShuffleCycleSpeed(frameInPhase: number): number {
 
 export function getRevealedPlacements(frame: number): number[] {
   const placements: number[] = [];
-  if (frame >= 3000) placements.push(6);
-  if (frame >= 3600) placements.push(5);
-  if (frame >= 4200) placements.push(4);
-  if (frame >= 4800) placements.push(3);
-  if (frame >= 5700) placements.push(2);
-  if (frame >= 6600) placements.push(1);
+  if (frame >= 3300) placements.push(6);
+  if (frame >= 3900) placements.push(5);
+  if (frame >= 4500) placements.push(4);
+  if (frame >= 5100) placements.push(3);
+  if (frame >= 6000) placements.push(2);
+  if (frame >= 6900) placements.push(1);
   return placements;
 }
 
@@ -199,8 +199,8 @@ export function getCountUpValue(targetScore: number, frame: number, revealFrame:
 }
 
 export function getFadeOpacity(frame: number): number {
-  if (frame < 20910) return 0;
-  return Math.min(1, (frame - 20910) / 90);
+  if (frame < 21210) return 0;
+  return Math.min(1, (frame - 21210) / 90);
 }
 
 // ── Card Accent Colors ──
@@ -418,7 +418,7 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
       )}
 
       {/* ── SCENE 4: Organizer shoutout ── */}
-      {frame >= 550 && frame < 700 && (
+      {frame >= 550 && frame < 1000 && (
         <AbsoluteFill style={{ opacity: s4Opacity }}>
           <div style={{
             position: "absolute", top: 40, left: 0, right: 0, textAlign: "center",
@@ -469,7 +469,7 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
       )}
 
       {/* ── SCENE 5: "AND NOW... THE RESULTS" ── */}
-      {frame >= 700 && (
+      {frame >= 1000 && (
         <AbsoluteFill style={{ opacity: s5Opacity }}>
           {/* Radial burst */}
           <div style={{
@@ -618,7 +618,7 @@ const ShowcasePhase: React.FC<{ frame: number }> = ({ frame }) => {
 const ResultsCountdown: React.FC<{ frame: number }> = ({ frame }) => {
   // Only show during fast scroll phase (after hero intro)
   if (frame <= HERO_INTRO_END) return null;
-  const countdown = formatTime(Math.max(0, Math.floor((3000 - frame) / 30)));
+  const countdown = formatTime(Math.max(0, Math.floor((3300 - frame) / 30)));
   return (
     <div style={{ position: "absolute", top: 16, right: 16, zIndex: 20 }}>
       <GlassCard style={{ padding: "6px 14px" }}>
@@ -640,7 +640,7 @@ const SHUFFLE_TOTAL_WIDTH = USER_GROUPS.length * (SHUFFLE_BAR_WIDTH + SHUFFLE_BA
 
 const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const frameInPhase = frame - 1200;
+  const frameInPhase = frame - 1500;
   const phaseDuration = 1800; // 60 seconds
 
   // Entry animation
@@ -1011,7 +1011,7 @@ const RevealPhase: React.FC<{ frame: number }> = ({ frame }) => {
           {previouslyRevealed.map((rank) => {
             const team = PODIUM_TEAMS[rank - 1];
             const revealEntry = REVEAL_SCHEDULE.find((r) => r.rank === rank);
-            const revealFrame = revealEntry?.frame ?? 3000;
+            const revealFrame = revealEntry?.frame ?? 3300;
             const maxScore = PODIUM_TEAMS[0].score;
             const barHeight = interpolate(team.score, [0, maxScore], [30, 100]);
             const barProgress = spring({ frame: frame - revealFrame, fps, config: springConfig.entry });
@@ -1034,7 +1034,7 @@ const RevealPhase: React.FC<{ frame: number }> = ({ frame }) => {
 // ── ThankYou Phase ──
 const ThankYouPhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const phaseFrame = frame - 12000;
+  const phaseFrame = frame - 12300;
   const subtitleSpring = spring({ frame: phaseFrame, fps, config: { damping: 18, stiffness: 80 } });
   const titleSpring = spring({ frame: Math.max(0, phaseFrame - 20), fps, config: { damping: 14, stiffness: 70 } });
   const closingSpring = spring({ frame: Math.max(0, phaseFrame - 45), fps, config: { damping: 18, stiffness: 80 } });
@@ -1139,7 +1139,7 @@ export const ClosingShowcase: React.FC = () => {
 
 export const ClosingReveal: React.FC = () => {
   const frame = useCurrentFrame();
-  const offsetFrame = frame + 3000;
+  const offsetFrame = frame + 3300;
   return (
     <AbsoluteFill style={{ fontFamily: "'Inter', sans-serif", background: "#0c0820" }}>
       <BackgroundLayer darken={0.65} />
@@ -1175,7 +1175,7 @@ export const ClosingTeamPodium: React.FC = () => {
 
 export const ClosingThankYou: React.FC = () => {
   const frame = useCurrentFrame();
-  const offsetFrame = frame + 12000;
+  const offsetFrame = frame + 12300;
   return (
     <AbsoluteFill style={{ fontFamily: "'Inter', sans-serif", background: "#0c0820" }}>
       <BackgroundLayer darken={0.65} />

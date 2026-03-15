@@ -17,255 +17,237 @@ import {
   HexGridOverlay,
 } from "@compositions/shared/GameDayDesignSystem";
 
-// ─── SVG Icons ───────────────────────────────────────────────────────
-const AudioIcon: React.FC<{ size?: number; color?: string }> = ({ size = 14, color = "#22c55e" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill={color} />
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+const FONT = "'Amazon Ember', 'Inter', system-ui, sans-serif";
+const LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png");
+const COMMUNITY_LOGO = staticFile("AWSCommunityGameDayEurope/AWSCommunityEurope_last_nobackground.png");
+
+// ─── Icons ───────────────────────────────────────────────────────────
+const AudioIcon: React.FC<{ size?: number; color?: string }> = ({ size = 18, color = "#22c55e" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" />
   </svg>
 );
 
-const MutedIcon: React.FC<{ size?: number; color?: string }> = ({ size = 14, color = GD_PURPLE }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill={color} />
-    <line x1="23" y1="9" x2="17" y2="15" />
-    <line x1="17" y1="9" x2="23" y2="15" />
+const MutedIcon: React.FC<{ size?: number; color?: string }> = ({ size = 18, color = GD_PURPLE }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <line x1="23" y1="9" x2="17" y2="15" stroke={color} fill="none" />
+    <line x1="17" y1="9" x2="23" y2="15" stroke={color} fill="none" />
   </svg>
 );
 
 // ─── Types ───────────────────────────────────────────────────────────
-interface Milestone {
-  label: string;
-  time: string;
-  id: string;
-  desc: string;
+interface Milestone { label: string; time: string; id: string; desc: string }
+interface CountdownProps { eventDate: string; timezone: string; milestones: Milestone[] }
+
+function msUntil(eventDate: string, time: string): number {
+  return Math.max(0, new Date(`${eventDate}T${time}:00`).getTime() - Date.now());
 }
 
-interface CountdownProps {
-  eventDate: string;
-  timezone: string;
-  milestones: Milestone[];
+function fmt(ms: number) {
+  const s = Math.floor(ms / 1000);
+  return {
+    d: Math.floor(s / 86400),
+    h: String(Math.floor((s % 86400) / 3600)).padStart(2, "0"),
+    m: String(Math.floor((s % 3600) / 60)).padStart(2, "0"),
+    s: String(s % 60).padStart(2, "0"),
+  };
 }
 
-function msUntil(eventDate: string, time: string, nowMs: number): number {
-  const target = new Date(`${eventDate}T${time}:00`).getTime();
-  return Math.max(0, target - nowMs);
-}
-
-function formatHMS(ms: number): { d: number; h: string; m: string; s: string } {
-  const totalSec = Math.floor(ms / 1000);
-  const d = Math.floor(totalSec / 86400);
-  const h = Math.floor((totalSec % 86400) / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  return { d, h: String(h).padStart(2, "0"), m: String(m).padStart(2, "0"), s: String(s).padStart(2, "0") };
-}
-
-const FONT = "'Amazon Ember', 'Inter', system-ui, sans-serif";
-
-const LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png");
-const COMMUNITY_LOGO = staticFile("AWSCommunityGameDayEurope/AWSCommunityEurope_last_nobackground.png");
-
-// ─── Timer box ───────────────────────────────────────────────────────
-const TimerBox: React.FC<{ value: string; unit: string; pulse: number; large?: boolean }> = ({
-  value, unit, pulse, large,
-}) => (
+// ─── Timer digit ─────────────────────────────────────────────────────
+const Digit: React.FC<{ v: string; u: string; pulse: number; big?: boolean }> = ({ v, u, pulse, big }) => (
   <div style={{
-    background: `linear-gradient(180deg, ${GD_PURPLE}33, ${GD_DARK}ee)`,
-    border: `1px solid ${GD_VIOLET}22`,
-    borderRadius: large ? 10 : 5,
-    padding: large ? "8px 12px" : "3px 6px",
+    background: `linear-gradient(180deg, ${GD_PURPLE}40, ${GD_DARK}dd)`,
+    border: `1px solid ${GD_VIOLET}30`,
+    borderRadius: big ? 14 : 8,
+    padding: big ? "12px 18px" : "6px 10px",
     textAlign: "center",
-    minWidth: large ? 64 : 36,
+    minWidth: big ? 90 : 48,
+    backdropFilter: "blur(4px)",
   }}>
     <div style={{
-      fontSize: large ? 40 : 18,
+      fontSize: big ? 56 : 28,
       fontWeight: 800,
-      fontFamily: "'Amazon Ember', monospace",
+      fontFamily: FONT,
       color: GD_GOLD,
-      textShadow: `0 0 ${(large ? 14 : 6) * pulse}px ${GD_ORANGE}44`,
-      lineHeight: 1.1,
-    }}>
-      {value}
-    </div>
-    <div style={{ fontSize: large ? 10 : 8, color: GD_ACCENT, marginTop: 1, textTransform: "uppercase", letterSpacing: 1 }}>
-      {unit}
-    </div>
+      textShadow: `0 0 ${(big ? 20 : 10) * pulse}px ${GD_ORANGE}55`,
+      lineHeight: 1,
+    }}>{v}</div>
+    <div style={{ fontSize: big ? 13 : 10, color: GD_ACCENT, marginTop: 3, textTransform: "uppercase", letterSpacing: 1.5 }}>{u}</div>
   </div>
 );
 
-const Colon: React.FC<{ pulse: number; large?: boolean }> = ({ pulse, large }) => (
-  <div style={{
-    fontSize: large ? 32 : 16, color: GD_GOLD, fontWeight: 300,
-    paddingBottom: large ? 12 : 6, opacity: 0.3 + pulse * 0.7,
-  }}>:</div>
+const Sep: React.FC<{ pulse: number; big?: boolean }> = ({ pulse, big }) => (
+  <div style={{ fontSize: big ? 44 : 22, color: GD_GOLD, opacity: 0.3 + pulse * 0.5, paddingBottom: big ? 16 : 8, fontWeight: 300 }}>:</div>
 );
 
-// ─── Milestone row ───────────────────────────────────────────────────
-const MilestoneRow: React.FC<{
-  ms: Milestone; remaining: number; pulse: number; isPreshow: boolean;
-}> = ({ ms, remaining, pulse, isPreshow }) => {
-  const isLive = remaining === 0;
-  const t = formatHMS(remaining);
-  const isMuted = ms.id === "preshow" || ms.id === "gameplay";
-
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 16,
-      opacity: isPreshow ? 0.45 : 1,
-      padding: "8px 16px",
-      background: isLive ? "#22c55e11" : "transparent",
-      borderRadius: 8,
-      border: isLive ? "1px solid #22c55e33" : "1px solid transparent",
-    }}>
-      {/* Time + icon */}
-      <div style={{ width: 52, textAlign: "center" }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: isLive ? "#22c55e" : GD_ACCENT, fontFamily: FONT }}>
-          {ms.time}
-        </div>
-        <div style={{ marginTop: 2 }}>
-          {isMuted ? <MutedIcon size={12} /> : <AudioIcon size={12} />}
-        </div>
-      </div>
-
-      {/* Label + description */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: isPreshow ? 12 : 14, fontWeight: 700, color: isLive ? "#22c55e" : "white",
-          fontFamily: FONT,
-        }}>
-          {ms.label}
-          {isPreshow && <span style={{ fontWeight: 400, fontStyle: "italic", color: GD_PURPLE, marginLeft: 6, fontSize: 10 }}>optional</span>}
-        </div>
-        <div style={{ fontSize: isPreshow ? 10 : 11, color: GD_PURPLE, marginTop: 1 }}>
-          {ms.desc}
-        </div>
-      </div>
-
-      {/* Timer */}
-      <div style={{ width: 160, display: "flex", justifyContent: "flex-end" }}>
-        {isLive ? (
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#22c55e" }}>✓ LIVE</div>
-        ) : (
-          <div style={{ display: "flex", gap: 3, alignItems: "flex-end" }}>
-            {t.d > 0 && <><TimerBox value={String(t.d)} unit="d" pulse={pulse} /><Colon pulse={pulse} /></>}
-            <TimerBox value={t.h} unit="h" pulse={pulse} />
-            <Colon pulse={pulse} />
-            <TimerBox value={t.m} unit="m" pulse={pulse} />
-            <Colon pulse={pulse} />
-            <TimerBox value={t.s} unit="s" pulse={pulse} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// ─── Main Component ──────────────────────────────────────────────────
-export const CountdownComposition: React.FC<CountdownProps> = ({
-  eventDate,
-  milestones,
-}) => {
+// ─── Main ────────────────────────────────────────────────────────────
+export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, milestones }) => {
   const frame = useCurrentFrame();
-  const realNow = Date.now();
-  const pulse = interpolate(frame % 60, [0, 30, 60], [0.4, 1, 0.4]);
+  const pulse = interpolate(frame % 60, [0, 30, 60], [0.3, 1, 0.3]);
 
-  const fadeIn = (delay: number) => ({
-    opacity: interpolate(frame, [delay, delay + 20], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }),
-    transform: `translateY(${interpolate(frame, [delay, delay + 20], [15, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" })}px)`,
+  const anim = (delay: number) => ({
+    opacity: interpolate(frame, [delay, delay + 18], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }),
+    transform: `translateY(${interpolate(frame, [delay, delay + 18], [20, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" })}px)`,
   });
 
-  // Gameplay hero
   const gameplay = milestones.find((m) => m.id === "gameplay")!;
-  const gameplayMs = msUntil(eventDate, gameplay.time, realNow);
-  const gameplayTime = formatHMS(gameplayMs);
-  const gameplayLive = gameplayMs === 0;
-
-  // Other milestones in schedule order
-  const others = milestones.filter((m) => m.id !== "gameplay");
+  const gMs = msUntil(eventDate, gameplay.time);
+  const gT = fmt(gMs);
+  const gLive = gMs === 0;
 
   return (
     <AbsoluteFill style={{ background: GD_DARK, fontFamily: FONT }}>
-      <BackgroundLayer darken={0.88} />
+      <BackgroundLayer darken={0.75} />
       <HexGridOverlay />
 
-      {/* ── Logos ── */}
+      {/* ═══ LEFT SIDE: Logos + Hero Countdown ═══ */}
       <div style={{
-        position: "absolute", top: 20, width: "100%",
-        display: "flex", justifyContent: "center", alignItems: "center", gap: 20,
-        ...fadeIn(0),
+        position: "absolute", left: 0, top: 0, width: 740, height: "100%",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       }}>
-        <Img src={COMMUNITY_LOGO} style={{ height: 52 }} />
-        <div style={{ width: 1, height: 36, background: GD_PURPLE + "44" }} />
-        <Img src={LOGO} style={{ height: 44 }} />
-      </div>
-
-      {/* ── Hero: GameDay countdown ── */}
-      <div style={{
-        position: "absolute", top: 100, width: "100%",
-        display: "flex", flexDirection: "column", alignItems: "center",
-        ...fadeIn(8),
-      }}>
-        <div style={{
-          fontSize: 13, fontWeight: 700, color: GD_GOLD, textTransform: "uppercase",
-          letterSpacing: 3, marginBottom: 6,
-        }}>
-          🎮 Game Starts In
+        {/* Logos */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, ...anim(0) }}>
+          <Img src={COMMUNITY_LOGO} style={{ height: 60 }} />
+          <div style={{ width: 1, height: 40, background: `${GD_PURPLE}55` }} />
+          <Img src={LOGO} style={{ height: 50 }} />
         </div>
 
-        {gameplayLive ? (
-          <div style={{ fontSize: 48, fontWeight: 800, color: "#22c55e", textShadow: `0 0 30px #22c55e44` }}>
-            GAME ON
+        {/* Game starts in */}
+        <div style={{ ...anim(6), textAlign: "center" }}>
+          <div style={{
+            fontSize: 18, fontWeight: 700, color: GD_GOLD, textTransform: "uppercase",
+            letterSpacing: 4, marginBottom: 12,
+          }}>
+            🎮 Game Starts In
           </div>
-        ) : (
-          <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-            {gameplayTime.d > 0 && (
-              <><TimerBox value={String(gameplayTime.d)} unit="days" pulse={pulse} large /><Colon pulse={pulse} large /></>
-            )}
-            <TimerBox value={gameplayTime.h} unit="hrs" pulse={pulse} large />
-            <Colon pulse={pulse} large />
-            <TimerBox value={gameplayTime.m} unit="min" pulse={pulse} large />
-            <Colon pulse={pulse} large />
-            <TimerBox value={gameplayTime.s} unit="sec" pulse={pulse} large />
+
+          {gLive ? (
+            <div style={{ fontSize: 64, fontWeight: 800, color: "#22c55e", textShadow: "0 0 40px #22c55e44" }}>
+              GAME ON
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "flex-end" }}>
+              {gT.d > 0 && <><Digit v={String(gT.d)} u="days" pulse={pulse} big /><Sep pulse={pulse} big /></>}
+              <Digit v={gT.h} u="hours" pulse={pulse} big />
+              <Sep pulse={pulse} big />
+              <Digit v={gT.m} u="min" pulse={pulse} big />
+              <Sep pulse={pulse} big />
+              <Digit v={gT.s} u="sec" pulse={pulse} big />
+            </div>
+          )}
+
+          <div style={{ fontSize: 16, color: GD_ACCENT, marginTop: 16, opacity: 0.8 }}>
+            2 hours of competitive cloud gaming
           </div>
-        )}
-
-        <div style={{ fontSize: 12, color: GD_PURPLE, marginTop: 8 }}>
-          2 hours of competitive cloud gaming • 53+ User Groups • 20+ countries
+          <div style={{ fontSize: 14, color: GD_PURPLE, marginTop: 4 }}>
+            53+ User Groups • 20+ Countries • Thousands of players
+          </div>
         </div>
       </div>
 
-      {/* ── Schedule timeline ── */}
+      {/* ═══ RIGHT SIDE: Schedule + Info ═══ */}
       <div style={{
-        position: "absolute", top: 310, left: "50%", transform: "translateX(-50%)",
-        width: 580,
-        display: "flex", flexDirection: "column", gap: 4,
-        ...fadeIn(18),
+        position: "absolute", right: 0, top: 0, width: 540, height: "100%",
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "0 40px 0 0",
       }}>
-        <div style={{
-          fontSize: 10, fontWeight: 600, color: GD_PURPLE, textTransform: "uppercase",
-          letterSpacing: 2, marginBottom: 4, paddingLeft: 16,
-        }}>
-          Full Schedule — {eventDate} CET
+        {/* Schedule */}
+        <div style={{ ...anim(14) }}>
+          <div style={{
+            fontSize: 14, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase",
+            letterSpacing: 3, marginBottom: 12,
+          }}>
+            📅 Schedule — {eventDate}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {milestones.map((ms) => {
+              const remaining = msUntil(eventDate, ms.time);
+              const isLive = remaining === 0;
+              const t = fmt(remaining);
+              const isPreshow = ms.id === "preshow";
+              const isGame = ms.id === "gameplay";
+              const isMuted = ms.id === "preshow" || ms.id === "gameplay";
+
+              return (
+                <div key={ms.id} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "10px 14px",
+                  background: isLive ? "#22c55e15" : isGame ? `${GD_GOLD}08` : "rgba(255,255,255,0.02)",
+                  borderRadius: 10,
+                  border: isLive ? "1px solid #22c55e44" : isGame ? `1px solid ${GD_GOLD}22` : "1px solid transparent",
+                  opacity: isPreshow ? 0.5 : 1,
+                }}>
+                  {/* Time */}
+                  <div style={{ width: 50, textAlign: "center" }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: isLive ? "#22c55e" : "white" }}>{ms.time}</div>
+                    <div style={{ marginTop: 2 }}>{isMuted ? <MutedIcon size={14} /> : <AudioIcon size={14} />}</div>
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: isLive ? "#22c55e" : "white" }}>
+                      {ms.label}
+                      {isPreshow && <span style={{ fontSize: 11, color: GD_PURPLE, fontWeight: 400, fontStyle: "italic", marginLeft: 6 }}>optional</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: GD_PURPLE, marginTop: 2 }}>{ms.desc}</div>
+                  </div>
+
+                  {/* Mini timer */}
+                  <div style={{ width: 100, textAlign: "right" }}>
+                    {isLive ? (
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#22c55e" }}>✓ LIVE</span>
+                    ) : (
+                      <span style={{ fontSize: 16, fontWeight: 700, fontFamily: "monospace", color: isGame ? GD_GOLD : GD_ACCENT }}>
+                        {t.d > 0 ? `${t.d}d ` : ""}{t.h}:{t.m}:{t.s}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        {others.map((ms) => (
-          <MilestoneRow
-            key={ms.id}
-            ms={ms}
-            remaining={msUntil(eventDate, ms.time, realNow)}
-            pulse={pulse}
-            isPreshow={ms.id === "preshow"}
-          />
-        ))}
+
+        {/* Preparation checklist */}
+        <div style={{ marginTop: 24, ...anim(22) }}>
+          <div style={{
+            fontSize: 14, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase",
+            letterSpacing: 3, marginBottom: 10,
+          }}>
+            ✅ Get Ready
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {[
+              { icon: "👥", text: "Form a team of 4 at your User Group" },
+              { icon: "💻", text: "Have your AWS account ready" },
+              { icon: "🖥️", text: "Join the Zoom stream at your location" },
+              { icon: "⏰", text: "Team codes distributed at 18:25 CET" },
+            ].map((item) => (
+              <div key={item.text} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                fontSize: 14, color: "white", opacity: 0.85,
+              }}>
+                <span style={{ fontSize: 16 }}>{item.icon}</span>
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* ── Bottom ── */}
+      {/* ── Bottom bar ── */}
       <div style={{
-        position: "absolute", bottom: 14, width: "100%", textAlign: "center",
-        fontSize: 10, color: GD_PURPLE,
-        opacity: interpolate(frame, [30, 50], [0, 0.4], { extrapolateRight: "clamp" }),
+        position: "absolute", bottom: 0, left: 0, right: 0, height: 32,
+        background: `linear-gradient(90deg, ${GD_PURPLE}22, ${GD_VIOLET}11, ${GD_PURPLE}22)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        opacity: interpolate(frame, [28, 45], [0, 1], { extrapolateRight: "clamp" }),
       }}>
-        The first-ever AWS Community GameDay across Europe
+        <span style={{ fontSize: 12, color: GD_PURPLE, letterSpacing: 1 }}>
+          The first-ever AWS Community GameDay across Europe 🇪🇺
+        </span>
       </div>
     </AbsoluteFill>
   );
