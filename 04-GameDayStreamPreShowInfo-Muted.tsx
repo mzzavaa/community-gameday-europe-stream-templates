@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import {
   AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, staticFile,
 } from "remotion";
@@ -13,6 +13,10 @@ import {
 import { USER_GROUPS } from "./shared/userGroups";
 import { LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
 import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
+
+// Global frame context - TransitionSeries resets useCurrentFrame() per sequence,
+// so the countdown bar needs the true composition frame passed from the top level.
+const GlobalFrameCtx = createContext(0);
 
 const F = "'Amazon Ember', 'Inter', sans-serif";
 const COMMUNITY_LOGO = staticFile("AWSCommunityGameDayEurope/AWSCommunityEurope_last_nobackground.png");
@@ -44,16 +48,16 @@ const SIMPLE_SCHEDULE = [
 
 const INFO_SLIDES = [
   "53+ AWS User Groups across 20+ countries competing simultaneously",
-  "Connect your audio now — if it's not working, use the provided fallback video",
-  "This stream will be muted during gameplay — we'll be back to celebrate the winners",
-  "Everything behind this event was organized by volunteers — not employed by AWS",
+  "Connect your audio now - if it's not working, use the provided fallback video",
+  "This stream will be muted during gameplay - we'll be back to celebrate the winners",
+  "Everything behind this event was organized by volunteers - not employed by AWS",
   "Teams of 4 compete on a gamified platform solving real-world AWS challenges",
-  "No prior experience needed — just curiosity and teamwork",
+  "No prior experience needed - just curiosity and teamwork",
 ];
 
-// ── Persistent top bar ──
+// ── Persistent top bar (uses global frame so countdown doesn't reset per sequence) ──
 const Bar: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useContext(GlobalFrameCtx);
   const { fps } = useVideoConfig();
   const sc = calculateCountdown(frame, 0, STREAM_START, fps);
   const gc = calculateCountdown(frame, 0, GAME_START, fps);
@@ -104,12 +108,13 @@ function useStagger(i: number, gap = 5) {
 
 // ── Hero with logos and countdown ──
 const Hero: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useContext(GlobalFrameCtx);
+  const localFrame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const gc = calculateCountdown(frame, 0, GAME_START, fps);
   const m = String(Math.floor(gc / 60)).padStart(2, "0");
   const s = String(gc % 60).padStart(2, "0");
-  const pulse = interpolate(frame % 60, [0, 30, 60], [0.3, 1, 0.3]);
+  const pulse = interpolate(localFrame % 60, [0, 30, 60], [0.3, 1, 0.3]);
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 36 }}>
@@ -219,7 +224,7 @@ const ScheduleWithFaces: React.FC = () => {
     { time: "T-0", label: "Community Intro", faces: [linda, jerome, anda] },
     { time: "T+7 min", label: "Special Guest", faces: [] },
     { time: "T+14 min", label: "GameDay Instructions", faces: [arnaud, loic] },
-    { time: "T+25 min", label: "Team Codes → Game ON", faces: [] },
+    { time: "T+25 min", label: "Team Codes - Game ON", faces: [] },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 48 }}>
@@ -269,7 +274,7 @@ const InfoSlide: React.FC<{ index: number }> = ({ index }) => {
   );
 };
 
-// ── Community Organizers ──
+// ── All Organizers (community + AWS supporters on one page) ──
 const CommunityOrg: React.FC = () => (
   <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
     <Heading>Community Organizers</Heading>
@@ -293,27 +298,23 @@ const CommunityOrg: React.FC = () => (
         );
       })}
     </div>
-  </AbsoluteFill>
-);
-
-// ── AWS Orga Support & Gamemasters (one line) ──
-const AWSSupport: React.FC = () => (
-  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-    <Heading color={GD_ORANGE}>AWS Orga Support & Gamemasters</Heading>
-    <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
+    <div style={{ fontSize: 18, fontWeight: 700, color: GD_ORANGE, textTransform: "uppercase", letterSpacing: 3, marginTop: 28, marginBottom: 16, fontFamily: F, textAlign: "center" }}>AWS Orga Support & Gamemasters</div>
+    <div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
       {AWS_SUPPORTERS.map((p, i) => {
-        const o = useStagger(i, 6);
+        const o = useStagger(ORGANIZERS.length + i, 5);
         return (
           <div key={p.name} style={{
-            opacity: o, transform: `scale(${0.85 + o * 0.15})`,
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+            opacity: o, transform: `translateY(${(1 - o) * 16}px)`,
+            display: "flex", alignItems: "center", gap: 14,
             background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}33`,
-            borderRadius: 20, padding: "24px 32px", width: 220,
+            borderRadius: 16, padding: "14px 20px", minWidth: 240,
           }}>
-            <Img src={staticFile(p.face)} style={{ width: 80, height: 80, borderRadius: 40, objectFit: "cover" }} />
-            <div style={{ fontSize: 20, fontWeight: 700, color: "white", fontFamily: F }}>{p.name}</div>
-            <div style={{ fontSize: 13, color: GD_ORANGE, textAlign: "center" }}>{p.role}</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{p.country}</div>
+            <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover" }} />
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: F }}>{p.flag} {p.name}</div>
+              <div style={{ fontSize: 13, color: GD_ORANGE }}>{p.role}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{p.country}</div>
+            </div>
           </div>
         );
       })}
@@ -358,7 +359,7 @@ const Ready: React.FC = () => {
     "Be seated with audio ready 5 minutes before start",
     "Watch the live stream for instructions",
     "Team codes distributed locally by your UG leader",
-    "Game runs for 2 hours — stream is muted",
+    "Game runs for 2 hours - stream is muted",
     "Stream returns for the closing ceremony",
     "After the ceremony, local UGs continue their schedule",
   ];
@@ -386,55 +387,52 @@ const S = 1200; // 40s for content sections
 const U = 240;  // 8s per UG spotlight
 const T = 20;   // transition duration
 
-function buildSections(): Array<{ key: string; dur: number; el: React.ReactNode }> {
-  const out: Array<{ key: string; dur: number; el: React.ReactNode }> = [];
+function buildSections(): Array<{ key: string; name: string; dur: number; el: React.ReactNode }> {
+  const out: Array<{ key: string; name: string; dur: number; el: React.ReactNode }> = [];
   let ugIdx = 0;
   const nextUGs = (count: number) => {
     for (let i = 0; i < count; i++) {
-      out.push({ key: `ug-${ugIdx}`, dur: U, el: <Wrap><UGSpotlight index={ugIdx} /></Wrap> });
+      const g = SHUFFLED[ugIdx % SHUFFLED.length];
+      out.push({ key: `ug-${ugIdx}`, name: `UG: ${g.name}`, dur: U, el: <Wrap><UGSpotlight index={ugIdx} /></Wrap> });
       ugIdx++;
     }
   };
   let infoIdx = 0;
   const nextInfo = () => {
-    out.push({ key: `info-${infoIdx}`, dur: S, el: <Wrap><InfoSlide index={infoIdx} /></Wrap> });
+    out.push({ key: `info-${infoIdx}`, name: `Info: ${INFO_SLIDES[infoIdx % INFO_SLIDES.length].slice(0, 40)}...`, dur: S, el: <Wrap><InfoSlide index={infoIdx} /></Wrap> });
     infoIdx++;
   };
 
-  // Cycle pattern: hero, UGs, schedule variant, UGs, info, UGs, people, UGs, ...
   // Cycle 1
-  out.push({ key: "hero1", dur: S, el: <Wrap><Hero /></Wrap> });
+  out.push({ key: "hero1", name: "Hero + Countdown", dur: S, el: <Wrap><Hero /></Wrap> });
   nextUGs(6);
-  out.push({ key: "sched-simple", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
-  nextUGs(6);
-  nextInfo();
-  out.push({ key: "community-org", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
-  nextUGs(6);
-  out.push({ key: "sched-detailed", dur: S, el: <Wrap><ScheduleDetailed /></Wrap> });
+  out.push({ key: "sched-simple", name: "Schedule (Simple)", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
   nextUGs(6);
   nextInfo();
-  out.push({ key: "aws-support", dur: S, el: <Wrap><AWSSupport /></Wrap> });
+  out.push({ key: "organizers", name: "Organizers + AWS Support", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
   nextUGs(6);
-  out.push({ key: "sched-faces", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
-  nextUGs(6);
-  out.push({ key: "stats1", dur: S, el: <Wrap><Stats /></Wrap> });
+  out.push({ key: "sched-detailed", name: "Schedule (Detailed)", dur: S, el: <Wrap><ScheduleDetailed /></Wrap> });
   nextUGs(6);
   nextInfo();
-  out.push({ key: "ready1", dur: S, el: <Wrap><Ready /></Wrap> });
-  // Remaining UGs
+  nextUGs(6);
+  out.push({ key: "sched-faces", name: "Schedule (With Faces)", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
+  nextUGs(6);
+  out.push({ key: "stats1", name: "Stats", dur: S, el: <Wrap><Stats /></Wrap> });
+  nextUGs(6);
+  nextInfo();
+  out.push({ key: "ready1", name: "Get Ready", dur: S, el: <Wrap><Ready /></Wrap> });
   while (ugIdx < SHUFFLED.length) nextUGs(1);
-  // Cycle 2 (fill remaining time)
-  out.push({ key: "hero2", dur: S, el: <Wrap><Hero /></Wrap> });
+  // Cycle 2
+  out.push({ key: "hero2", name: "Hero + Countdown (2)", dur: S, el: <Wrap><Hero /></Wrap> });
   nextInfo();
-  out.push({ key: "sched-simple2", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
-  out.push({ key: "community-org2", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
+  out.push({ key: "sched-simple2", name: "Schedule (Simple) (2)", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
+  out.push({ key: "organizers2", name: "Organizers + AWS Support (2)", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
   nextInfo();
-  out.push({ key: "sched-faces2", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
-  out.push({ key: "aws-support2", dur: S, el: <Wrap><AWSSupport /></Wrap> });
+  out.push({ key: "sched-faces2", name: "Schedule (With Faces) (2)", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
   nextInfo();
-  out.push({ key: "stats2", dur: S, el: <Wrap><Stats /></Wrap> });
-  out.push({ key: "ready2", dur: S, el: <Wrap><Ready /></Wrap> });
-  out.push({ key: "hero3", dur: S, el: <Wrap><Hero /></Wrap> });
+  out.push({ key: "stats2", name: "Stats (2)", dur: S, el: <Wrap><Stats /></Wrap> });
+  out.push({ key: "ready2", name: "Get Ready (2)", dur: S, el: <Wrap><Ready /></Wrap> });
+  out.push({ key: "hero3", name: "Hero + Countdown (3)", dur: S, el: <Wrap><Hero /></Wrap> });
 
   return out;
 }
@@ -447,27 +445,30 @@ const presentations = [
 ];
 
 export const GameDayPreShowInfo: React.FC = () => {
+  const frame = useCurrentFrame();
   const sections = buildSections();
   return (
-    <TransitionSeries>
-      {sections.map((s, i) => {
-        const items: React.ReactNode[] = [];
-        if (i > 0) {
+    <GlobalFrameCtx.Provider value={frame}>
+      <TransitionSeries>
+        {sections.map((s, i) => {
+          const items: React.ReactNode[] = [];
+          if (i > 0) {
+            items.push(
+              <TransitionSeries.Transition
+                key={`t-${s.key}`}
+                presentation={presentations[i % presentations.length]()}
+                timing={linearTiming({ durationInFrames: T })}
+              />
+            );
+          }
           items.push(
-            <TransitionSeries.Transition
-              key={`t-${s.key}`}
-              presentation={presentations[i % presentations.length]()}
-              timing={linearTiming({ durationInFrames: T })}
-            />
+            <TransitionSeries.Sequence key={s.key} durationInFrames={s.dur} name={s.name}>
+              {s.el}
+            </TransitionSeries.Sequence>
           );
-        }
-        items.push(
-          <TransitionSeries.Sequence key={s.key} durationInFrames={s.dur}>
-            {s.el}
-          </TransitionSeries.Sequence>
-        );
-        return items;
-      })}
-    </TransitionSeries>
+          return items;
+        })}
+      </TransitionSeries>
+    </GlobalFrameCtx.Provider>
   );
 };
