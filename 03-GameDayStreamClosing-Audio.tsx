@@ -39,37 +39,37 @@ export enum Phase {
 // ── Phase Boundary Constants ──
 export const PHASE_BOUNDARIES = {
   showcaseStart: 0,
-  showcaseEnd: 7199,
-  shuffleStart: 7200,
-  shuffleEnd: 8999,
-  revealStart: 9000,
-  revealEnd: 17999,
-  thankYouStart: 18000,
-  thankYouEnd: 26999,
+  showcaseEnd: 1199,
+  shuffleStart: 1200,
+  shuffleEnd: 2999,
+  revealStart: 3000,
+  revealEnd: 11999,
+  thankYouStart: 12000,
+  thankYouEnd: 20999,
 } as const;
 
 // ── Reveal Frame Offsets ──
 export const REVEAL_FRAMES = {
-  6: 9000, 5: 9600, 4: 10200, 3: 10800, 2: 11700, 1: 12600,
-  fullPodium: 13500,
+  6: 3000, 5: 3600, 4: 4200, 3: 4800, 2: 5700, 1: 6600,
+  fullPodium: 7500,
 } as const;
 
 // ── Composition Constants ──
 export const WIDTH = 1280;
 export const HEIGHT = 720;
 export const FPS = 30;
-export const TOTAL_FRAMES = 27000;
+export const TOTAL_FRAMES = 21000;
 export const GROUPS_PER_PAGE = 6;
 export const PAGE_DURATION = 120;
 export const SHUFFLE_POSITIONS = 6;
 export const SHUFFLE_SCORE_MIN = 3000;
 export const SHUFFLE_SCORE_MAX = 5000;
 export const FLASH_DURATION = 60;
-export const PHASE_BOUNDARY_FRAMES = [0, 7200, 9000, 18000];
-export const FADE_START = 26910;
-export const FADE_END = 26999;
-export const FULL_PODIUM_FRAME = 13500;
-export const TEAM_PODIUM_FRAME = 15000;
+export const PHASE_BOUNDARY_FRAMES = [0, 1200, 3000, 12000];
+export const FADE_START = 20910;
+export const FADE_END = 20999;
+export const FULL_PODIUM_FRAME = 7500;
+export const TEAM_PODIUM_FRAME = 9000;
 export const TOP_CARD_WIDTH = 280;
 export const BOTTOM_CARD_WIDTH = 220;
 
@@ -108,12 +108,12 @@ export const WINNING_CITY_TEAMS: TeamData[] = [
 
 // ── Reveal Schedule ──
 export const REVEAL_SCHEDULE = [
-  { rank: 6, frame: 9000, duration: 600 },
-  { rank: 5, frame: 9600, duration: 600 },
-  { rank: 4, frame: 10200, duration: 600 },
-  { rank: 3, frame: 10800, duration: 900 },
-  { rank: 2, frame: 11700, duration: 900 },
-  { rank: 1, frame: 12600, duration: 900 },
+  { rank: 6, frame: 3000, duration: 600 },
+  { rank: 5, frame: 3600, duration: 600 },
+  { rank: 4, frame: 4200, duration: 600 },
+  { rank: 3, frame: 4800, duration: 900 },
+  { rank: 2, frame: 5700, duration: 900 },
+  { rank: 1, frame: 6600, duration: 900 },
 ];
 
 // ── Position Label ──
@@ -152,14 +152,14 @@ export function getPodiumBarHeight(teamScore: number, maxScore: number, maxBarHe
 
 // ── Pure Utility Functions ──
 export function getActivePhase(frame: number): Phase {
-  if (frame <= 7199) return Phase.Showcase;
-  if (frame <= 8999) return Phase.Shuffle;
-  if (frame <= 17999) return Phase.Reveal;
+  if (frame <= 1199) return Phase.Showcase;
+  if (frame <= 2999) return Phase.Shuffle;
+  if (frame <= 11999) return Phase.Reveal;
   return Phase.ThankYou;
 }
 
 export function isTransitionFrame(frame: number): boolean {
-  const boundaries = [0, 7200, 9000, 18000];
+  const boundaries = [0, 1200, 3000, 12000];
   return boundaries.some((b) => frame >= b && frame < b + 60);
 }
 
@@ -180,12 +180,12 @@ export function getShuffleCycleSpeed(frameInPhase: number): number {
 
 export function getRevealedPlacements(frame: number): number[] {
   const placements: number[] = [];
-  if (frame >= 9000) placements.push(6);
-  if (frame >= 9600) placements.push(5);
-  if (frame >= 10200) placements.push(4);
-  if (frame >= 10800) placements.push(3);
-  if (frame >= 11700) placements.push(2);
-  if (frame >= 12600) placements.push(1);
+  if (frame >= 3000) placements.push(6);
+  if (frame >= 3600) placements.push(5);
+  if (frame >= 4200) placements.push(4);
+  if (frame >= 4800) placements.push(3);
+  if (frame >= 5700) placements.push(2);
+  if (frame >= 6600) placements.push(1);
   return placements;
 }
 
@@ -197,8 +197,8 @@ export function getCountUpValue(targetScore: number, frame: number, revealFrame:
 }
 
 export function getFadeOpacity(frame: number): number {
-  if (frame < 26910) return 0;
-  return Math.min(1, (frame - 26910) / 90);
+  if (frame < 20910) return 0;
+  return Math.min(1, (frame - 20910) / 90);
 }
 
 // ── Card Accent Colors ──
@@ -628,7 +628,7 @@ const ShowcasePhase: React.FC<{ frame: number }> = ({ frame }) => {
 const ResultsCountdown: React.FC<{ frame: number }> = ({ frame }) => {
   // Only show during fast scroll phase (after hero intro)
   if (frame <= HERO_INTRO_END) return null;
-  const countdown = formatTime(Math.max(0, Math.floor((9000 - frame) / 30)));
+  const countdown = formatTime(Math.max(0, Math.floor((3000 - frame) / 30)));
   return (
     <div style={{ position: "absolute", top: 16, right: 16, zIndex: 20 }}>
       <GlassCard style={{ padding: "6px 14px" }}>
@@ -650,7 +650,7 @@ const SHUFFLE_TOTAL_WIDTH = USER_GROUPS.length * (SHUFFLE_BAR_WIDTH + SHUFFLE_BA
 
 const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const frameInPhase = frame - 7200;
+  const frameInPhase = frame - 1200;
   const phaseDuration = 1800; // 60 seconds
 
   // Entry animation
@@ -1035,7 +1035,7 @@ const RevealPhase: React.FC<{ frame: number }> = ({ frame }) => {
           {previouslyRevealed.map((rank) => {
             const team = PODIUM_TEAMS[rank - 1];
             const revealEntry = REVEAL_SCHEDULE.find((r) => r.rank === rank);
-            const revealFrame = revealEntry?.frame ?? 9000;
+            const revealFrame = revealEntry?.frame ?? 3000;
             const maxScore = PODIUM_TEAMS[0].score;
             const barHeight = interpolate(team.score, [0, maxScore], [30, 100]);
             const barProgress = spring({ frame: frame - revealFrame, fps, config: springConfig.entry });
@@ -1058,7 +1058,7 @@ const RevealPhase: React.FC<{ frame: number }> = ({ frame }) => {
 // ── ThankYou Phase ──
 const ThankYouPhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const phaseFrame = frame - 18000;
+  const phaseFrame = frame - 12000;
   const subtitleSpring = spring({ frame: phaseFrame, fps, config: { damping: 18, stiffness: 80 } });
   const titleSpring = spring({ frame: Math.max(0, phaseFrame - 20), fps, config: { damping: 14, stiffness: 70 } });
   const closingSpring = spring({ frame: Math.max(0, phaseFrame - 45), fps, config: { damping: 18, stiffness: 80 } });
@@ -1114,6 +1114,7 @@ export const GameDayClosing: React.FC = () => {
       {phase === Phase.Shuffle && (
         <AbsoluteFill style={{ zIndex: 10 }}>
           <ShufflePhase frame={frame} />
+          <ResultsCountdown frame={frame} />
         </AbsoluteFill>
       )}
       {phase === Phase.Reveal && (
@@ -1147,7 +1148,7 @@ export const ClosingShowcase: React.FC = () => {
 
 export const ClosingReveal: React.FC = () => {
   const frame = useCurrentFrame();
-  const offsetFrame = frame + 9000;
+  const offsetFrame = frame + 3000;
   return (
     <AbsoluteFill style={{ fontFamily: "'Inter', sans-serif", background: "#0c0820" }}>
       <BackgroundLayer darken={0.65} />
@@ -1183,7 +1184,7 @@ export const ClosingTeamPodium: React.FC = () => {
 
 export const ClosingThankYou: React.FC = () => {
   const frame = useCurrentFrame();
-  const offsetFrame = frame + 18000;
+  const offsetFrame = frame + 12000;
   return (
     <AbsoluteFill style={{ fontFamily: "'Inter', sans-serif", background: "#0c0820" }}>
       <BackgroundLayer darken={0.65} />

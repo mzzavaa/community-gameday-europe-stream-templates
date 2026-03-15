@@ -10,10 +10,10 @@ This repository contains **4 Remotion video compositions** that together form th
 
 | # | Composition | File | Duration | Purpose |
 |---|-------------|------|----------|---------|
-| 1 | **Pre-Show** | `1-GameDayStreamPreShow.tsx` | 10 min (loop ×3 = 30 min) | Countdown loop before the stream goes live |
-| 2 | **Main Event** | `2-GameDayStreamMainEvent.tsx` | 30 min | Live introductions, instructions, code distribution |
-| 3 | **Gameplay** | `3-GameDayStreamGameplay.tsx` | 120 min | Muted overlay during the 2-hour game |
-| 4 | **Closing** | `4-GameDayStreamClosing.tsx` | 30 min | Winner ceremony, local awards, and wrap-up |
+| 0 | **Pre-Show** | `00-GameDayStreamPreShow-Muted.tsx` | 10 min (loop ×3 = 30 min) | Countdown loop before the stream goes live |
+| 1 | **Main Event** | `01-GameDayStreamMainEvent-Audio.tsx` | 30 min | Live introductions, instructions, code distribution |
+| 2 | **Gameplay** | `02-GameDayStreamGameplay-Muted.tsx` | 120 min | Muted overlay during the 2-hour game |
+| 3 | **Closing** | `03-GameDayStreamClosing-Audio.tsx` | 15 min | Winner ceremony, local awards, and wrap-up |
 
 Additional files:
 - `shared/GameDayDesignSystem.tsx` — Shared colors, components, springs, and timing constants
@@ -84,31 +84,25 @@ npx remotion render GameDayMainEvent out/intro-only.mp4 --frames=0-1799
 ## Project Structure
 
 ```
-├── package.json                      # Dependencies (remotion, react)
-├── tsconfig.json                     # TypeScript config
-├── remotion.config.ts                # Remotion entry point config
+├── package.json                              # Dependencies (remotion, react)
+├── tsconfig.json                             # TypeScript config
+├── remotion.config.ts                        # Remotion entry point config
 ├── src/
-│   ├── Root.tsx                      # Composition registry
-│   └── index.ts                      # Remotion entry point
-├── 1-GameDayStreamPreShow.tsx        # 1. Pre-Show (countdown loop)
-├── 2-GameDayStreamMainEvent.tsx      # 2. Main Event (live introductions)
-├── 3-GameDayStreamGameplay.tsx       # 3. Gameplay (muted 2h overlay)
-├── 4-GameDayStreamClosing.tsx        # 4. Closing Ceremony
+│   ├── Root.tsx                              # Composition registry (imports all 4 compositions)
+│   └── index.ts                              # Remotion entry point
+├── 00-GameDayStreamPreShow-Muted.tsx         # 0. Pre-Show countdown loop (muted)
+├── 01-GameDayStreamMainEvent-Audio.tsx       # 1. Main Event — live intros (audio)
+├── 02-GameDayStreamGameplay-Muted.tsx        # 2. Gameplay — 2h overlay (muted)
+├── 03-GameDayStreamClosing-Audio.tsx         # 3. Closing Ceremony (audio)
 ├── shared/
-│   └── GameDayDesignSystem.tsx       # Colors, components, springs, timing
+│   └── GameDayDesignSystem.tsx               # Colors, components, springs, timing
 ├── public/
-│   └── AWSCommunityGameDayEurope/
-│       ├── faces/                    # Speaker avatars (linda, jerome, anda, etc.)
-│       ├── europe-map.png            # Europe map background
-│       └── ...                       # Logos, backgrounds, screenshots
-├── __tests__/                        # Property-based tests
-├── docs/
-│   ├── 01-preshow.md                 # Detailed Pre-Show documentation
-│   ├── 02-mainevent.md               # Detailed Main Event documentation
-│   ├── 03-gameplay.md                # Detailed Gameplay documentation
-│   └── 04-closing.md                 # Detailed Closing documentation
-├── archive/                          # Earlier iterations + original overlay
-└── README.md                         # This file
+│   └── AWSCommunityGameDayEurope/            # Logos, backgrounds, speaker avatars
+├── screenshots/                              # Frame captures for reference / debugging
+├── __tests__/                                # Property-based tests
+├── docs/                                     # Detailed per-composition documentation
+├── archive/                                  # Earlier iterations (V1–V4), kept as reference
+└── README.md                                 # This file
 ```
 
 ## Main Event Schedule (Source of Truth)
