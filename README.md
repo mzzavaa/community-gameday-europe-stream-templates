@@ -188,6 +188,18 @@ The closing ceremony is split into two compositions for live flexibility:
 | 20:30–21:00 | Local winner ceremonies — UG leaders hand out medals and take photos |
 | 21:00 | Stream ends with music |
 
+## User Group Logos
+
+The 53+ user group logos are not stored locally — they are loaded at render time from a shared Notion database hosted at `awscommunitydach.notion.site`. The URL-to-name mapping lives in `archive/CommunityGamedayEuropeV4.tsx` as `LOGO_MAP`, which is imported by the closing and pre-show compositions.
+
+This means:
+- Rendering requires internet access (Notion image CDN must be reachable)
+- If the Notion workspace is restructured or images are deleted, logos will break
+- The `LOGO_MAP` keys must match the group names in `shared/userGroups.ts` exactly — mismatches result in a flag-only fallback card
+- Speaker/organizer photos (`public/AWSCommunityGameDayEurope/faces/`) are local, only the UG logos are remote
+
+If you need to add or update a logo, find the group's page in the Notion database, copy the image attachment URL, and add it to `LOGO_MAP` in `archive/CommunityGamedayEuropeV4.tsx`.
+
 ## Design System
 
 All compositions share a unified design system (`shared/GameDayDesignSystem.tsx`):
