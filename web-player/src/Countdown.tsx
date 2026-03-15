@@ -83,7 +83,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
       </div>
 
       {/* ═══ RIGHT: Schedule + Checklist ═══ */}
-      <div style={{ position: "absolute", right: 0, top: 0, width: 560, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 36px 0 0" }}>
+      <div style={{ position: "absolute", right: 0, top: 0, width: 560, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 36px 0 0", marginTop: -20 }}>
         <div style={{ ...anim(14) }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 3, marginBottom: 14 }}>
             <CalendarIcon size={18} /> Schedule — {eventDate}
@@ -129,7 +129,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
           </div>
         </div>
 
-        <div style={{ marginTop: 26, ...anim(22) }}>
+        <div style={{ marginTop: 40, ...anim(22) }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 3, marginBottom: 12 }}>
             <CheckCircleIcon size={18} /> Get Ready
           </div>
