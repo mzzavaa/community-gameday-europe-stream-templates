@@ -126,7 +126,7 @@ const PhaseTimeline: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
     { label: "Final", start: 90, end: 120 },
   ];
   return (
-    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {phases.map((p) => {
         const active = totalMin >= p.start && totalMin < p.end;
         const done = totalMin >= p.end;
@@ -134,12 +134,12 @@ const PhaseTimeline: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
         const isFinal = p.label === "Final";
         const c = isFinal ? GD_ORANGE : active ? GD_VIOLET : done ? GD_ACCENT : `${GD_PURPLE}66`;
         return (
-          <div key={p.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: active ? "white" : done ? GD_ACCENT : "rgba(255,255,255,0.35)", letterSpacing: 1, textTransform: "uppercase", fontFamily: F }}>{p.label}</div>
-            <div style={{ width: 120, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-              <div style={{ width: `${progress * 100}%`, height: "100%", borderRadius: 3, background: `linear-gradient(90deg, ${c}, ${active && isFinal ? GD_PINK : c}cc)` }} />
+          <div key={p.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, width: 70, color: active ? "white" : done ? GD_ACCENT : "rgba(255,255,255,0.35)", letterSpacing: 1, textTransform: "uppercase", fontFamily: F }}>{p.label}</div>
+            <div style={{ width: 180, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+              <div style={{ width: `${progress * 100}%`, height: "100%", borderRadius: 4, background: `linear-gradient(90deg, ${c}, ${active && isFinal ? GD_PINK : c}cc)` }} />
             </div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: F }}>{p.start}-{p.end} min</div>
+            <div style={{ fontSize: 13, color: active ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.3)", fontFamily: F }}>{p.start}-{p.end} min</div>
           </div>
         );
       })}
@@ -174,36 +174,36 @@ export const GameDayGameplay: React.FC = () => {
       <HexGridOverlay />
       <AudioBadge muted />
 
-      {/* ── Center content: logos, countdown, tip, timeline ── */}
-      <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "40px 60px" }}>
+      {/* ── Logos: top-left ── */}
+      <div style={{ position: "absolute", top: 24, left: 36, display: "flex", alignItems: "center", gap: 20, zIndex: 20 }}>
+        <Img src={COMMUNITY_LOGO} style={{ height: 80 }} />
+        <div style={{ width: 1, height: 50, background: `${GD_PURPLE}44` }} />
+        <Img src={GAMEDAY_LOGO} style={{ height: 100 }} />
+      </div>
 
-        {/* Logos */}
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Img src={COMMUNITY_LOGO} style={{ height: 60 }} />
-          <div style={{ width: 1, height: 40, background: `${GD_PURPLE}44` }} />
-          <Img src={GAMEDAY_LOGO} style={{ height: 80 }} />
+      {/* ── Countdown: top-right ── */}
+      <div style={{ position: "absolute", top: 24, right: 36, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, zIndex: 20 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: timerColor, textTransform: "uppercase", letterSpacing: 4, fontFamily: F }}>
+          {showUrgency ? "Almost Done!" : showFinal30 ? "Final 30 Minutes" : "Time Remaining"}
         </div>
-
-        {/* Big countdown */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: timerColor, textTransform: "uppercase", letterSpacing: 4, fontFamily: F }}>
-            {showUrgency ? "Almost Done!" : showFinal30 ? "Final 30 Minutes" : "Time Remaining"}
-          </div>
-          <div style={{
-            fontSize: 96, fontWeight: 900, fontFamily: "monospace", color: timerColor, lineHeight: 1,
-            textShadow: showUrgency ? `0 0 ${30 + urgencyPulse * 30}px ${GD_PINK}80` : showFinal30 ? `0 0 20px ${GD_ORANGE}40` : `0 0 20px ${GD_GOLD}30`,
-          }}>
-            {min}:{sec}
-          </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: F }}>until Closing Ceremony</div>
+        <div style={{
+          fontSize: 72, fontWeight: 900, fontFamily: "monospace", color: timerColor, lineHeight: 1,
+          textShadow: showUrgency ? `0 0 ${30 + urgencyPulse * 30}px ${GD_PINK}80` : showFinal30 ? `0 0 20px ${GD_ORANGE}40` : `0 0 20px ${GD_GOLD}30`,
+        }}>
+          {min}:{sec}
         </div>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: F }}>until Closing Ceremony</div>
+      </div>
 
-        {/* Rotating tip card */}
+      {/* ── Tip card: center ── */}
+      <AbsoluteFill style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <TipCard frame={frame} />
-
-        {/* Phase timeline */}
-        <PhaseTimeline frame={frame} fps={fps} />
       </AbsoluteFill>
+
+      {/* ── Phase timeline: bottom-left ── */}
+      <div style={{ position: "absolute", bottom: 28, left: 36, zIndex: 20 }}>
+        <PhaseTimeline frame={frame} fps={fps} />
+      </div>
 
       {/* ── Europe map watermark (subtle, right side) ── */}
       <Img src={EUROPE_MAP} style={{ position: "absolute", right: -60, top: "50%", transform: "translateY(-50%)", height: "80%", opacity: 0.04 }} />
