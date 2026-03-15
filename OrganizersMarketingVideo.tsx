@@ -5,20 +5,22 @@ import {
   GD_PURPLE,
   GD_VIOLET,
   GD_GOLD,
+  GD_ORANGE,
   BackgroundLayer,
   springConfig,
   TYPOGRAPHY,
 } from "./shared/GameDayDesignSystem";
-import { ORGANIZERS } from "./shared/organizers";
+import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
 
 // ── Frame Constants ──
-// Quick intro (2s), then organizers reveal with crossfade, hold 10s, then outro
 const INTRO_START = 0;
-const INTRO_END = 59;       // 2 seconds
-const ORG_START = 45;        // overlap with intro for crossfade
-const ORG_END = 439;         // hold until all faces visible for 10s
-const OUTRO_START = 440;
-const OUTRO_END = 589;
+const INTRO_END = 59;
+const ORG_START = 45;
+const ORG_END = 439;
+const AWS_START = 420;
+const AWS_END = 799;
+const OUTRO_START = 780;
+const OUTRO_END = 929;
 
 
 // ── IntroScene: Quick logo fly-in with scale + opacity (frames 0–59) ──
@@ -153,7 +155,7 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
             fontWeight: 900,
             fontFamily: "'Inter', sans-serif",
             marginTop: 8,
-            color: GD_GOLD,
+            color: GD_VIOLET,
             letterSpacing: 1,
           }}
         >
@@ -254,7 +256,152 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
 };
 
 
-// ── OutroScene (frames 300–449) ──
+// ── AWSScene: Same circle style as organizers but orange (frames 420–799) ──
+
+const AWSScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  const relFrame = frame - AWS_START;
+
+  const sceneOpacity = interpolate(frame, [AWS_START, AWS_START + 15, AWS_END - 15, AWS_END], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const titleSpring = spring({
+    frame: Math.max(0, relFrame - 5),
+    fps,
+    config: { damping: 14, stiffness: 120 },
+  });
+
+  return (
+    <AbsoluteFill style={{ opacity: sceneOpacity }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 40,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          opacity: titleSpring,
+          transform: `translateY(${interpolate(titleSpring, [0, 1], [20, 0])}px)`,
+        }}
+      >
+        <div
+          style={{
+            fontSize: TYPOGRAPHY.bodySmall,
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.5)",
+            fontFamily: "'Inter', sans-serif",
+            letterSpacing: 5,
+          }}
+        >
+          COMMUNITY GAMEDAY EUROPE
+        </div>
+        <div
+          style={{
+            fontSize: TYPOGRAPHY.h4,
+            fontWeight: 900,
+            fontFamily: "'Inter', sans-serif",
+            marginTop: 8,
+            color: GD_ORANGE,
+            letterSpacing: 1,
+          }}
+        >
+          AWS Orga Support & Gamemasters
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: "25%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.min(AWS_SUPPORTERS.length, 4)}, 1fr)`,
+          gap: "36px 80px",
+          maxWidth: 1250,
+        }}
+      >
+        {AWS_SUPPORTERS.map((org, i) => {
+          const cardDelay = 10 + i * 10;
+          const cardSpring = spring({
+            frame: Math.max(0, relFrame - cardDelay),
+            fps,
+            config: { damping: 12, stiffness: 100, mass: 0.8 },
+          });
+          const cardScale = interpolate(cardSpring, [0, 1], [0.5, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+          return (
+            <div
+              key={org.name}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+                opacity: cardSpring,
+                transform: `scale(${cardScale}) translateY(${interpolate(cardSpring, [0, 1], [20, 0])}px)`,
+              }}
+            >
+              <div
+                style={{
+                  width: 130,
+                  height: 130,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  boxShadow: `0 0 30px ${GD_ORANGE}70, 0 0 60px ${GD_ORANGE}40, 0 4px 16px rgba(0,0,0,0.4)`,
+                }}
+              >
+                <Img
+                  src={staticFile(org.face)}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    fontSize: TYPOGRAPHY.h6,
+                    fontWeight: 800,
+                    color: "#ffffff",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  {org.flag} {org.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: TYPOGRAPHY.caption,
+                    color: "rgba(255,255,255,0.55)",
+                    fontFamily: "'Inter', sans-serif",
+                    marginTop: 3,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {org.role}
+                </div>
+                <div
+                  style={{
+                    fontSize: TYPOGRAPHY.captionSmall,
+                    color: "rgba(255,255,255,0.4)",
+                    fontFamily: "'Inter', sans-serif",
+                    marginTop: 1,
+                  }}
+                >
+                  {org.country}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+
+// ── OutroScene (frames 780–929) ──
 
 const OutroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   const relFrame = frame - OUTRO_START;
@@ -387,6 +534,12 @@ export const OrganizersMarketingVideo: React.FC = () => {
       {frame >= ORG_START && frame <= ORG_END && (
         <AbsoluteFill style={{ zIndex: 10 }}>
           <OrganizerScene frame={frame} fps={fps} />
+        </AbsoluteFill>
+      )}
+
+      {frame >= AWS_START && frame <= AWS_END && (
+        <AbsoluteFill style={{ zIndex: 10 }}>
+          <AWSScene frame={frame} fps={fps} />
         </AbsoluteFill>
       )}
 

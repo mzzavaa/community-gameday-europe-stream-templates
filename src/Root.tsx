@@ -72,11 +72,21 @@ export const RemotionRoot: React.FC = () => {
         height={720}
       />
 
+      {/* 3a. Closing Winners (Part B): Shuffle + Reveal/Podium + ThankYou — updated live during stream */}
+      <Composition
+        id="GameDayClosingWinners"
+        component={GameDayClosingWinners}
+        durationInFrames={9000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
       {/* 4. Organizers Marketing Video: standalone 15s social media clip */}
       <Composition
         id="OrganizersMarketingVideo"
         component={OrganizersMarketingVideo}
-        durationInFrames={590}
+        durationInFrames={930}
         fps={30}
         width={1280}
         height={720}
