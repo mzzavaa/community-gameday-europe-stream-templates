@@ -24,6 +24,7 @@ import {
   GD_ACCENT,
   GD_ORANGE,
   GD_GOLD,
+  TYPOGRAPHY,
 } from "./shared/GameDayDesignSystem";
 
 // ── Audio Cue Banner Visibility ──
@@ -145,7 +146,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
       >
         <div
           style={{
-            fontSize: 18,
+            fontSize: TYPOGRAPHY.bodySmall,
             fontWeight: 700,
             color: GD_ACCENT,
             letterSpacing: 4,
@@ -157,7 +158,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
         </div>
         <div
           style={{
-            fontSize: 52,
+            fontSize: TYPOGRAPHY.timerSmall,
             fontWeight: 900,
             letterSpacing: 4,
             textTransform: "uppercase",
@@ -170,7 +171,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
         </div>
         <div
           style={{
-            fontSize: 16,
+            fontSize: TYPOGRAPHY.caption,
             fontWeight: 600,
             color: "#94a3b8",
             letterSpacing: 3,
@@ -209,7 +210,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
           >
             <div
               style={{
-                fontSize: 14,
+                fontSize: TYPOGRAPHY.captionSmall,
                 fontWeight: 700,
                 color: GD_PINK,
                 letterSpacing: 3,
@@ -221,7 +222,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
             </div>
             <div
               style={{
-                fontSize: 64,
+                fontSize: TYPOGRAPHY.timer,
                 fontWeight: 900,
                 color: GD_PINK,
                 fontFamily: "'Inter', monospace",
@@ -250,7 +251,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
           >
             <div
               style={{
-                fontSize: 14,
+                fontSize: TYPOGRAPHY.captionSmall,
                 fontWeight: 700,
                 color: GD_ACCENT,
                 letterSpacing: 3,
@@ -262,7 +263,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
             </div>
             <div
               style={{
-                fontSize: 64,
+                fontSize: TYPOGRAPHY.timer,
                 fontWeight: 900,
                 color: "white",
                 fontFamily: "'Inter', monospace",
@@ -289,7 +290,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
       >
         <div
           style={{
-            fontSize: 14,
+            fontSize: TYPOGRAPHY.captionSmall,
             fontWeight: 700,
             color: GD_ACCENT,
             letterSpacing: 3,
@@ -327,7 +328,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
                 >
                   <div
                     style={{
-                      fontSize: 18,
+                      fontSize: TYPOGRAPHY.bodySmall,
                       fontWeight: 700,
                       color: "white",
                     }}
@@ -336,7 +337,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
                   </div>
                   <div
                     style={{
-                      fontSize: 16,
+                      fontSize: TYPOGRAPHY.caption,
                       fontWeight: 600,
                       color: "#94a3b8",
                       fontFamily: "'Inter', monospace",
@@ -384,7 +385,7 @@ export const GameDayPreShow: React.FC<PreShowProps> = ({
             </svg>
             <div
               style={{
-                fontSize: 22,
+                fontSize: TYPOGRAPHY.h6,
                 fontWeight: 700,
                 color: GD_DARK,
               }}

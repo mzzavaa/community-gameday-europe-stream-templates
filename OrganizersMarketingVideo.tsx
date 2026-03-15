@@ -215,7 +215,7 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
               <div style={{ textAlign: "center" }}>
                 <div
                   style={{
-                    fontSize: 24,
+                    fontSize: TYPOGRAPHY.h6,
                     fontWeight: 800,
                     color: "#ffffff",
                     fontFamily: "'Inter', sans-serif",
@@ -225,7 +225,7 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                 </div>
                 <div
                   style={{
-                    fontSize: 16,
+                    fontSize: TYPOGRAPHY.caption,
                     color: "rgba(255,255,255,0.55)",
                     fontFamily: "'Inter', sans-serif",
                     marginTop: 3,
@@ -236,7 +236,7 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                 </div>
                 <div
                   style={{
-                    fontSize: 15,
+                    fontSize: TYPOGRAPHY.captionSmall,
                     color: "rgba(255,255,255,0.4)",
                     fontFamily: "'Inter', sans-serif",
                     marginTop: 1,
@@ -333,7 +333,7 @@ const OutroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =>
         <div
           style={{
             opacity: taglineOpacity,
-            fontSize: 24,
+            fontSize: TYPOGRAPHY.h6,
             fontWeight: 600,
             color: "white",
             letterSpacing: 1,
@@ -347,7 +347,7 @@ const OutroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =>
         <div
           style={{
             opacity: ctaOpacity,
-            fontSize: 20,
+            fontSize: TYPOGRAPHY.body,
             fontWeight: 700,
             color: GD_GOLD,
             letterSpacing: 2,

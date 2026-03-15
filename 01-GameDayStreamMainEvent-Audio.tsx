@@ -28,6 +28,7 @@ import {
   GD_PINK,
   GD_ACCENT,
   GD_ORANGE,
+  TYPOGRAPHY,
   ScheduleSegment,
   CardState,
 } from "./shared/GameDayDesignSystem";
@@ -96,7 +97,7 @@ const LAYOUT = {
   ORGANIZER_START_FRAME: 1800,
   ORGANIZER_END_FRAME: 9000,
   PHASE_TIMELINE_HEIGHT: 80,
-  LABEL_FONT_SIZE: 15,
+  LABEL_FONT_SIZE: TYPOGRAPHY.captionSmall,
 };
 
 // ── Speaker Face Mapping ──
@@ -315,7 +316,7 @@ const InfoCardDisplay: React.FC<{
         )}
         <div
           style={{
-            fontSize: 20,
+            fontSize: TYPOGRAPHY.body,
             fontWeight: 500,
             color: "white",
             fontFamily: "'Inter', sans-serif",
@@ -348,7 +349,7 @@ const InfoCardDisplay: React.FC<{
                 <div>
                   <div
                     style={{
-                      fontSize: 16,
+                      fontSize: TYPOGRAPHY.caption,
                       fontWeight: 700,
                       color: "white",
                       fontFamily: "'Inter', sans-serif",
@@ -358,7 +359,7 @@ const InfoCardDisplay: React.FC<{
                   </div>
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: TYPOGRAPHY.labelSmall,
                       color: "rgba(255,255,255,0.7)",
                       fontFamily: "'Inter', sans-serif",
                     }}
@@ -367,7 +368,7 @@ const InfoCardDisplay: React.FC<{
                   </div>
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: TYPOGRAPHY.labelSmall,
                       color: "rgba(255,255,255,0.7)",
                       fontFamily: "'Inter', sans-serif",
                       display: "flex",
@@ -500,7 +501,7 @@ const StreamHostCard: React.FC<{
           >
             <div
               style={{
-                fontSize: 22,
+                fontSize: TYPOGRAPHY.h6,
                 fontWeight: 800,
                 color: "white",
                 fontFamily: "'Inter', sans-serif",
@@ -521,7 +522,7 @@ const StreamHostCard: React.FC<{
             >
               <div
                 style={{
-                  fontSize: 14,
+                  fontSize: TYPOGRAPHY.captionSmall,
                   color: "#94a3b8",
                   fontFamily: "'Inter', sans-serif",
                   lineHeight: 1.4,
@@ -531,7 +532,7 @@ const StreamHostCard: React.FC<{
               </div>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: TYPOGRAPHY.label,
                   color: "#cbd5e1",
                   fontFamily: "'Inter', sans-serif",
                   marginTop: 6,
@@ -558,7 +559,7 @@ const StreamHostCard: React.FC<{
             >
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: TYPOGRAPHY.labelSmall,
                   color: "#94a3b8",
                   fontFamily: "'Inter', sans-serif",
                   lineHeight: 1.3,
@@ -609,7 +610,7 @@ const StreamHostCard: React.FC<{
                 >
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: TYPOGRAPHY.overline,
                       fontWeight: 700,
                       color: GD_ACCENT,
                       letterSpacing: 2,
@@ -710,7 +711,7 @@ const SpeakerBubbleGreeting: React.FC<{
       >
         <div
           style={{
-            fontSize: 18,
+            fontSize: TYPOGRAPHY.bodySmall,
             fontWeight: 500,
             color: "white",
             fontFamily: "'Inter', sans-serif",
@@ -788,7 +789,7 @@ const SpeakerBubbles: React.FC<{
         >
           <div
             style={{
-              fontSize: 10,
+              fontSize: TYPOGRAPHY.overline,
               color: "rgba(255,255,255,0.5)",
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
@@ -800,7 +801,7 @@ const SpeakerBubbles: React.FC<{
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: TYPOGRAPHY.overline,
               fontWeight: 600,
               color: "rgba(255,255,255,0.6)",
               fontFamily: "'Inter', sans-serif",
@@ -837,7 +838,7 @@ const SpeakerBubbles: React.FC<{
         />
         <div
           style={{
-            fontSize: 13,
+            fontSize: TYPOGRAPHY.label,
             fontWeight: 700,
             color: "white",
             fontFamily: "'Inter', sans-serif",
@@ -895,7 +896,7 @@ const ScheduleCard: React.FC<{
         <div>
           <div
             style={{
-              fontSize: compact ? 16 : 22,
+              fontSize: compact ? TYPOGRAPHY.caption : TYPOGRAPHY.h6,
               fontWeight: 700,
               color: textColor,
               fontFamily: "'Inter', sans-serif",
@@ -908,7 +909,7 @@ const ScheduleCard: React.FC<{
         {state === "active" && (
           <div
             style={{
-              fontSize: compact ? 11 : 13,
+              fontSize: compact ? TYPOGRAPHY.overline : TYPOGRAPHY.label,
               fontWeight: 700,
               color: GD_VIOLET,
               textTransform: "uppercase",
@@ -950,7 +951,7 @@ const PhaseMarker: React.FC<{
       <div>
         <div
           style={{
-            fontSize: 14,
+            fontSize: TYPOGRAPHY.captionSmall,
             fontWeight: 600,
             color: "#64748b",
             letterSpacing: 2,
@@ -963,7 +964,7 @@ const PhaseMarker: React.FC<{
         </div>
         <div
           style={{
-            fontSize: 22,
+            fontSize: TYPOGRAPHY.h6,
             fontWeight: 700,
             color: "white",
             fontFamily: "'Inter', sans-serif",
@@ -1035,7 +1036,7 @@ const PhaseTimeline: React.FC<{
         <div style={{ width: barLeftOffset - 36, flexShrink: 0 }}>
           <div
             style={{
-              fontSize: 12,
+              fontSize: TYPOGRAPHY.labelSmall,
               fontWeight: 700,
               color: GD_ACCENT,
               letterSpacing: 2,
@@ -1048,7 +1049,7 @@ const PhaseTimeline: React.FC<{
           </div>
           <div
             style={{
-              fontSize: 18,
+              fontSize: TYPOGRAPHY.bodySmall,
               fontWeight: 700,
               color: "white",
               fontFamily: "'Inter', sans-serif",
@@ -1135,7 +1136,7 @@ const PhaseTimeline: React.FC<{
                 style={{
                   position: "absolute",
                   top: -18,
-                  fontSize: 9,
+                  fontSize: TYPOGRAPHY.overline,
                   fontWeight: 600,
                   color: "rgba(255,255,255,0.5)",
                   fontFamily: "'Inter', sans-serif",
@@ -1155,7 +1156,7 @@ const PhaseTimeline: React.FC<{
               left: `${overallProgress * 100}%`,
               top: "50%",
               transform: "translate(-50%, -100%)",
-              fontSize: 20,
+              fontSize: TYPOGRAPHY.body,
               lineHeight: 1,
               transition: "left 0.1s linear",
             }}
@@ -1249,7 +1250,7 @@ const OrganizerSection: React.FC<{
         </div>
         <div
           style={{
-            fontSize: 13,
+            fontSize: TYPOGRAPHY.label,
             color: "rgba(255,255,255,0.6)",
             fontFamily: "'Inter', sans-serif",
             marginBottom: 16,
@@ -1284,7 +1285,7 @@ const OrganizerSection: React.FC<{
               <div>
                 <div
                   style={{
-                    fontSize: 16,
+                    fontSize: TYPOGRAPHY.caption,
                     fontWeight: 700,
                     color: "white",
                     fontFamily: "'Inter', sans-serif",
@@ -1294,7 +1295,7 @@ const OrganizerSection: React.FC<{
                 </div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: TYPOGRAPHY.labelSmall,
                     color: "rgba(255,255,255,0.6)",
                     fontFamily: "'Inter', sans-serif",
                   }}
@@ -1303,7 +1304,7 @@ const OrganizerSection: React.FC<{
                 </div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: TYPOGRAPHY.labelSmall,
                     color: "rgba(255,255,255,0.6)",
                     fontFamily: "'Inter', sans-serif",
                     display: "flex",
@@ -1466,7 +1467,7 @@ export const GameDayMainEvent: React.FC = () => {
             </div>
             <div
               style={{
-                fontSize: 56,
+                fontSize: TYPOGRAPHY.timerSmall,
                 fontWeight: 900,
                 color: GD_ORANGE,
                 fontFamily: "'Inter', monospace",
@@ -1555,7 +1556,7 @@ export const GameDayMainEvent: React.FC = () => {
       >
         <div
           style={{
-            fontSize: isCompact ? 13 : LAYOUT.LABEL_FONT_SIZE,
+            fontSize: isCompact ? TYPOGRAPHY.label : LAYOUT.LABEL_FONT_SIZE,
             fontWeight: 700,
             color: GD_ACCENT,
             letterSpacing: isCompact ? 2 : 3,

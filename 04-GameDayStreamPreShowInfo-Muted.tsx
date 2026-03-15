@@ -1,40 +1,57 @@
 import React from "react";
 import {
-  AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig, staticFile, Sequence,
+  AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, staticFile,
 } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import {
-  BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge,
+  BackgroundLayer, HexGridOverlay, AudioBadge,
   GD_DARK, GD_PURPLE, GD_VIOLET, GD_PINK, GD_ACCENT, GD_ORANGE, GD_GOLD,
   calculateCountdown, formatTime, STREAM_START, GAME_START,
 } from "./shared/GameDayDesignSystem";
-import { USER_GROUPS, COUNTRIES } from "./shared/userGroups";
+import { USER_GROUPS } from "./shared/userGroups";
+import { LOGO_MAP } from "./archive/CommunityGamedayEuropeV4";
 import { ORGANIZERS, AWS_SUPPORTERS } from "./shared/organizers";
 
 const F = "'Amazon Ember', 'Inter', sans-serif";
 const COMMUNITY_LOGO = staticFile("AWSCommunityGameDayEurope/AWSCommunityEurope_last_nobackground.png");
 const GAMEDAY_LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png");
 
-const SCHEDULE_CET = [
-  { time: "17:30", label: "Pre-Show", color: GD_ACCENT },
-  { time: "18:00", label: "Live Stream", color: GD_PINK },
-  { time: "18:30", label: "GameDay", color: GD_GOLD },
-  { time: "20:30", label: "Closing", color: GD_ORANGE },
+// Shuffle UGs deterministically
+const SHUFFLED = [...USER_GROUPS].sort((a, b) => {
+  const h = (s: string) => s.split("").reduce((n, c) => n + c.charCodeAt(0), 0);
+  return h(a.name) - h(b.name);
+});
+
+// Try to find logo - names differ slightly between userGroups.ts and LOGO_MAP
+function findLogo(name: string): string | null {
+  if (LOGO_MAP[name]) return LOGO_MAP[name];
+  // Try common variations
+  for (const key of Object.keys(LOGO_MAP)) {
+    if (key.includes(name.replace("AWS UG ", "AWS User Group ").replace(" – ", " – ")) ||
+        name.includes(key.replace("AWS User Group ", "AWS UG ").replace("-", " – "))) return LOGO_MAP[key];
+  }
+  return null;
+}
+
+const SIMPLE_SCHEDULE = [
+  { time: "T-30 min", label: "Pre-Show", muted: true },
+  { time: "T-0", label: "Live Stream", muted: false },
+  { time: "T+30 min", label: "GameDay", muted: true },
+  { time: "T+2h 30m", label: "Closing", muted: false },
 ];
 
-// Shuffle UGs deterministically for "random" spotlight order
-const SHUFFLED_UGS = [...USER_GROUPS].sort((a, b) => {
-  const ha = a.name.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
-  const hb = b.name.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
-  return ha - hb;
-});
-// Split into pages of 6
-const UG_PAGES: typeof USER_GROUPS[] = [];
-for (let i = 0; i < SHUFFLED_UGS.length; i += 6) UG_PAGES.push(SHUFFLED_UGS.slice(i, i + 6));
+const INFO_SLIDES = [
+  "53+ AWS User Groups across 20+ countries competing simultaneously",
+  "Connect your audio now — if it's not working, use the provided fallback video",
+  "This stream will be muted during gameplay — we'll be back to celebrate the winners",
+  "Everything behind this event was organized by volunteers — not employed by AWS",
+  "Teams of 4 compete on a gamified platform solving real-world AWS challenges",
+  "No prior experience needed — just curiosity and teamwork",
+];
 
-// ── Schedule Bar (persistent top) ──
+// ── Persistent top bar ──
 const Bar: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -47,23 +64,18 @@ const Bar: React.FC = () => {
       borderBottom: `1px solid ${GD_PURPLE}33`,
       display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 36px",
     }}>
-      <div style={{ display: "flex", gap: 28 }}>
-        {SCHEDULE_CET.map((s) => (
-          <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 5, background: s.color }} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: F }}>{s.time}</span>
-            <span style={{ fontSize: 13, color: GD_ACCENT, fontFamily: F }}>{s.label}</span>
-          </div>
-        ))}
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <Img src={COMMUNITY_LOGO} style={{ height: 36 }} />
+        <Img src={GAMEDAY_LOGO} style={{ height: 44 }} />
       </div>
       <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 11, color: GD_PINK, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>Stream</div>
+          <div style={{ fontSize: 11, color: GD_PINK, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>Stream In</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: GD_PINK, fontFamily: "monospace" }}>{formatTime(sc)}</div>
         </div>
         <div style={{ width: 1, height: 36, background: `${GD_PURPLE}44` }} />
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 11, color: GD_GOLD, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>Game</div>
+          <div style={{ fontSize: 11, color: GD_GOLD, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>Game In</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: GD_GOLD, fontFamily: "monospace" }}>{formatTime(gc)}</div>
         </div>
       </div>
@@ -71,20 +83,26 @@ const Bar: React.FC = () => {
   );
 };
 
-// ── Reusable section heading ──
-const Heading: React.FC<{ children: string }> = ({ children }) => (
-  <div style={{ fontSize: 20, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 4, marginBottom: 24, fontFamily: F, textAlign: "center" }}>
-    {children}
-  </div>
+const Wrap: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AbsoluteFill style={{ fontFamily: F, background: GD_DARK }}>
+    <BackgroundLayer darken={0.7} />
+    <HexGridOverlay />
+    <AudioBadge muted />
+    <Bar />
+    <div style={{ position: "absolute", top: 68, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>{children}</div>
+  </AbsoluteFill>
 );
 
-// ── Stagger helper ──
-function useStagger(index: number, gap = 4) {
+const Heading: React.FC<{ children: string; color?: string }> = ({ children, color = GD_ACCENT }) => (
+  <div style={{ fontSize: 22, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: 4, marginBottom: 28, fontFamily: F, textAlign: "center" }}>{children}</div>
+);
+
+function useStagger(i: number, gap = 5) {
   const frame = useCurrentFrame();
-  return interpolate(frame, [index * gap, index * gap + 15], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
+  return interpolate(frame, [i * gap, i * gap + 15], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
 }
 
-// ── Section: Hero ──
+// ── Hero with logos and countdown ──
 const Hero: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -94,14 +112,12 @@ const Hero: React.FC = () => {
   const pulse = interpolate(frame % 60, [0, 30, 60], [0.3, 1, 0.3]);
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 32 }}>
-        <Img src={COMMUNITY_LOGO} style={{ height: 90 }} />
-        <div style={{ width: 1, height: 56, background: `${GD_PURPLE}55` }} />
-        <Img src={GAMEDAY_LOGO} style={{ height: 120 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 36 }}>
+        <Img src={COMMUNITY_LOGO} style={{ height: 100 }} />
+        <div style={{ width: 1, height: 60, background: `${GD_PURPLE}55` }} />
+        <Img src={GAMEDAY_LOGO} style={{ height: 130 }} />
       </div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: GD_GOLD, textTransform: "uppercase", letterSpacing: 5, marginBottom: 18, fontFamily: F }}>
-        Game Starts In
-      </div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: GD_GOLD, textTransform: "uppercase", letterSpacing: 5, marginBottom: 18, fontFamily: F }}>Game Starts In</div>
       <div style={{ display: "flex", gap: 14, alignItems: "flex-end" }}>
         <TBox v={m} u="min" pulse={pulse} /><div style={{ fontSize: 52, color: GD_GOLD, opacity: 0.5, paddingBottom: 16 }}>:</div><TBox v={s} u="sec" pulse={pulse} />
       </div>
@@ -118,25 +134,71 @@ const TBox: React.FC<{ v: string; u: string; pulse: number }> = ({ v, u, pulse }
   </div>
 );
 
-// ── Section: UG Spotlight (6 groups per page) ──
-const UGSpotlight: React.FC<{ page: number }> = ({ page }) => {
-  const groups = UG_PAGES[page] || [];
+// ── Single UG Spotlight (one at a time, big) ──
+const UGSpotlight: React.FC<{ index: number }> = ({ index }) => {
+  const g = SHUFFLED[index % SHUFFLED.length];
+  const logo = findLogo(g.name);
+  const o = useStagger(0, 1);
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>{`User Group Spotlight (${page + 1}/${UG_PAGES.length})`}</Heading>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center", maxWidth: 1100 }}>
-        {groups.map((g, i) => {
+      <Heading>User Group Spotlight</Heading>
+      <div style={{ opacity: o, transform: `scale(${0.85 + o * 0.15})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+        {logo && <Img src={logo} style={{ width: 200, height: 200, borderRadius: 24, objectFit: "cover", border: `2px solid ${GD_PURPLE}44` }} />}
+        <span style={{ fontSize: 56, marginTop: logo ? 0 : 20 }}>{g.flag}</span>
+        <div style={{ fontSize: 32, fontWeight: 800, color: "white", fontFamily: F, textAlign: "center", maxWidth: 800 }}>{g.name}</div>
+        <div style={{ fontSize: 22, color: GD_ACCENT, fontFamily: F }}>{g.city}</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ── Schedule variant 1: Simple (like countdown page) ──
+const ScheduleSimple: React.FC = () => (
+  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+    <Heading>Schedule (All times relative)</Heading>
+    <div style={{ display: "flex", gap: 24 }}>
+      {SIMPLE_SCHEDULE.map((s, i) => {
+        const o = useStagger(i, 8);
+        return (
+          <div key={s.label} style={{
+            opacity: o, transform: `translateY(${(1 - o) * 20}px)`,
+            background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`,
+            borderRadius: 18, padding: "24px 28px", textAlign: "center", width: 220,
+          }}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: GD_GOLD, fontFamily: F }}>{s.time}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "white", marginTop: 10, fontFamily: F }}>{s.label}</div>
+            <div style={{ fontSize: 14, color: s.muted ? GD_PURPLE : "#22c55e", marginTop: 6 }}>{s.muted ? "Muted" : "Audio"}</div>
+          </div>
+        );
+      })}
+    </div>
+  </AbsoluteFill>
+);
+
+// ── Schedule variant 2: With descriptions ──
+const ScheduleDetailed: React.FC = () => {
+  const items = [
+    { time: "T-30 min", label: "Pre-Show", desc: "Audio & stream test at your location", color: GD_ACCENT },
+    { time: "T-0", label: "Live Stream", desc: "Welcome, speakers & GameDay instructions", color: GD_PINK },
+    { time: "T+30 min", label: "GameDay", desc: "2 hours of competitive cloud gaming", color: GD_GOLD },
+    { time: "T+2h 30m", label: "Closing", desc: "Winners & wrap-up", color: GD_ORANGE },
+  ];
+  return (
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <Heading>Event Schedule</Heading>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 700 }}>
+        {items.map((t, i) => {
           const o = useStagger(i, 6);
           return (
-            <div key={g.name} style={{
-              opacity: o, transform: `translateY(${(1 - o) * 20}px)`,
-              width: 320, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`,
-              borderRadius: 16, padding: "20px 24px", display: "flex", alignItems: "center", gap: 16,
+            <div key={t.label} style={{
+              opacity: o, transform: `translateX(${(1 - o) * 30}px)`,
+              display: "flex", alignItems: "center", gap: 18, padding: "14px 24px",
+              borderRadius: 14, background: "rgba(255,255,255,0.04)", borderLeft: `4px solid ${t.color}`,
             }}>
-              <span style={{ fontSize: 40 }}>{g.flag}</span>
+              <div style={{ fontSize: 24, fontWeight: 800, color: t.color, width: 120, fontFamily: F }}>{t.time}</div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: F }}>{g.name}</div>
-                <div style={{ fontSize: 14, color: GD_ACCENT, marginTop: 2 }}>{g.city}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "white", fontFamily: F }}>{t.label}</div>
+                <div style={{ fontSize: 15, color: "rgba(255,255,255,0.6)" }}>{t.desc}</div>
               </div>
             </div>
           );
@@ -146,27 +208,45 @@ const UGSpotlight: React.FC<{ page: number }> = ({ page }) => {
   );
 };
 
-// ── Section: Organizers ──
-const OrgSection: React.FC = () => {
-  const all = [...ORGANIZERS, ...AWS_SUPPORTERS];
+// ── Schedule variant 3: With faces (who speaks when) + stream host ──
+const ScheduleWithFaces: React.FC = () => {
+  const linda = ORGANIZERS.find((p) => p.name === "Linda")!;
+  const jerome = ORGANIZERS.find((p) => p.name === "Jerome")!;
+  const anda = ORGANIZERS.find((p) => p.name === "Anda")!;
+  const arnaud = AWS_SUPPORTERS.find((p) => p.name === "Arnaud")!;
+  const loic = AWS_SUPPORTERS.find((p) => p.name === "Loïc")!;
+  const timeline = [
+    { time: "T-0", label: "Community Intro", faces: [linda, jerome, anda] },
+    { time: "T+7 min", label: "Special Guest", faces: [] },
+    { time: "T+14 min", label: "GameDay Instructions", faces: [arnaud, loic] },
+    { time: "T+25 min", label: "Team Codes → Game ON", faces: [] },
+  ];
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>Organized by the Community</Heading>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 18, justifyContent: "center", maxWidth: 1050 }}>
-        {all.map((p, i) => {
-          const o = useStagger(i, 5);
+    <AbsoluteFill style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 48 }}>
+      {/* Stream host */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 3 }}>Stream Host</div>
+        <Img src={staticFile(linda.face)} style={{ width: 140, height: 140, borderRadius: 70, objectFit: "cover", border: `3px solid ${GD_VIOLET}44` }} />
+        <div style={{ fontSize: 22, fontWeight: 800, color: "white", fontFamily: F }}>Linda Mohamed</div>
+        <div style={{ fontSize: 14, color: GD_ACCENT }}>AWS Community Hero</div>
+      </div>
+      {/* Timeline */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <Heading>Live Stream Program</Heading>
+        {timeline.map((t, i) => {
+          const o = useStagger(i, 6);
           return (
-            <div key={p.name} style={{
-              opacity: o, transform: `translateY(${(1 - o) * 16}px)`,
-              display: "flex", alignItems: "center", gap: 14,
-              background: "rgba(255,255,255,0.05)", border: `1px solid ${p.type === "aws" ? GD_ORANGE : GD_PURPLE}33`,
-              borderRadius: 16, padding: "14px 20px", minWidth: 240,
+            <div key={t.label} style={{
+              opacity: o, display: "flex", alignItems: "center", gap: 16,
+              padding: "12px 20px", borderRadius: 14, background: "rgba(255,255,255,0.04)",
+              borderLeft: `3px solid ${GD_PINK}`,
             }}>
-              <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover" }} />
-              <div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: "white", fontFamily: F }}>{p.flag} {p.name}</div>
-                <div style={{ fontSize: 13, color: p.type === "aws" ? GD_ORANGE : GD_ACCENT }}>{p.role}</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{p.country}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: GD_PINK, width: 90, fontFamily: F }}>{t.time}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: F, flex: 1 }}>{t.label}</div>
+              <div style={{ display: "flex", gap: -8 }}>
+                {t.faces.map((f) => (
+                  <Img key={f.name} src={staticFile(f.face)} style={{ width: 40, height: 40, borderRadius: 20, objectFit: "cover", border: `2px solid ${GD_DARK}`, marginLeft: -8 }} />
+                ))}
               </div>
             </div>
           );
@@ -176,28 +256,93 @@ const OrgSection: React.FC = () => {
   );
 };
 
-// ── Section: Event Info ──
-const InfoSection: React.FC = () => {
-  const items = [
-    { t: "What is AWS GameDay?", d: "A competitive, team-based learning exercise where you solve real-world challenges on AWS. No prior experience needed — just curiosity and teamwork." },
-    { t: "How does it work?", d: "Teams of 4 compete on a gamified platform. You'll face scenarios that test your cloud skills. Points are earned by solving challenges correctly and quickly." },
-    { t: "What makes this special?", d: "For the first time ever, 53+ AWS User Groups across Europe are playing simultaneously. Same challenges, same leaderboard, one winner." },
-    { t: "What do you need?", d: "Just show up at your local User Group. Teams are formed on-site. Watch the live stream for instructions, then your UG leader distributes the team codes." },
+// ── Info slide (one message at a time, big) ──
+const InfoSlide: React.FC<{ index: number }> = ({ index }) => {
+  const text = INFO_SLIDES[index % INFO_SLIDES.length];
+  const o = useStagger(0, 1);
+  return (
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 100px" }}>
+      <div style={{ opacity: o, transform: `translateY(${(1 - o) * 20}px)` }}>
+        <div style={{ fontSize: 36, fontWeight: 700, color: "white", fontFamily: F, textAlign: "center", lineHeight: 1.5, maxWidth: 900 }}>{text}</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ── Community Organizers ──
+const CommunityOrg: React.FC = () => (
+  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+    <Heading>Community Organizers</Heading>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 18, justifyContent: "center", maxWidth: 1050 }}>
+      {ORGANIZERS.map((p, i) => {
+        const o = useStagger(i, 5);
+        return (
+          <div key={p.name} style={{
+            opacity: o, transform: `translateY(${(1 - o) * 16}px)`,
+            display: "flex", alignItems: "center", gap: 14,
+            background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`,
+            borderRadius: 16, padding: "14px 20px", minWidth: 240,
+          }}>
+            <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover" }} />
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: F }}>{p.flag} {p.name}</div>
+              <div style={{ fontSize: 13, color: GD_ACCENT }}>{p.role}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{p.country}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </AbsoluteFill>
+);
+
+// ── AWS Orga Support & Gamemasters (one line) ──
+const AWSSupport: React.FC = () => (
+  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+    <Heading color={GD_ORANGE}>AWS Orga Support & Gamemasters</Heading>
+    <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
+      {AWS_SUPPORTERS.map((p, i) => {
+        const o = useStagger(i, 6);
+        return (
+          <div key={p.name} style={{
+            opacity: o, transform: `scale(${0.85 + o * 0.15})`,
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+            background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}33`,
+            borderRadius: 20, padding: "24px 32px", width: 220,
+          }}>
+            <Img src={staticFile(p.face)} style={{ width: 80, height: 80, borderRadius: 40, objectFit: "cover" }} />
+            <div style={{ fontSize: 20, fontWeight: 700, color: "white", fontFamily: F }}>{p.name}</div>
+            <div style={{ fontSize: 13, color: GD_ORANGE, textAlign: "center" }}>{p.role}</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{p.country}</div>
+          </div>
+        );
+      })}
+    </div>
+  </AbsoluteFill>
+);
+
+// ── Stats ──
+const Stats: React.FC = () => {
+  const stats = [
+    { v: "53+", l: "User Groups", c: GD_GOLD },
+    { v: "20+", l: "Countries", c: GD_PINK },
+    { v: "4+", l: "Timezones", c: GD_VIOLET },
+    { v: "1st", l: "Edition", c: GD_ORANGE },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>About the Event</Heading>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 18, justifyContent: "center", maxWidth: 1100 }}>
-        {items.map((item, i) => {
+      <Heading>Community GameDay Europe</Heading>
+      <div style={{ display: "flex", gap: 32 }}>
+        {stats.map((s, i) => {
           const o = useStagger(i, 8);
           return (
-            <div key={item.t} style={{
-              opacity: o, transform: `translateY(${(1 - o) * 16}px)`,
-              width: 500, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}22`,
-              borderRadius: 16, padding: "22px 26px",
+            <div key={s.l} style={{
+              opacity: o, transform: `scale(${0.8 + o * 0.2})`,
+              background: "rgba(255,255,255,0.05)", border: `1px solid ${s.c}33`,
+              borderRadius: 20, padding: "28px 40px", textAlign: "center",
             }}>
-              <div style={{ fontSize: 19, fontWeight: 700, color: GD_GOLD, marginBottom: 10, fontFamily: F }}>{item.t}</div>
-              <div style={{ fontSize: 16, color: "rgba(255,255,255,0.8)", lineHeight: 1.6, fontFamily: F }}>{item.d}</div>
+              <div style={{ fontSize: 56, fontWeight: 800, color: s.c, fontFamily: F }}>{s.v}</div>
+              <div style={{ fontSize: 16, color: GD_ACCENT, marginTop: 8, fontFamily: F }}>{s.l}</div>
             </div>
           );
         })}
@@ -206,74 +351,16 @@ const InfoSection: React.FC = () => {
   );
 };
 
-// ── Section: Detailed Schedule ──
-const ScheduleSection: React.FC = () => {
-  const timeline = [
-    { time: "17:30", label: "Pre-Show begins", detail: "Optional — audio & stream test at your location", color: GD_ACCENT },
-    { time: "18:00", label: "Live Stream starts", detail: "Welcome, community intro, special guest", color: GD_PINK },
-    { time: "18:14", label: "GameDay Instructions", detail: "Arnaud & Loïc explain the rules and gameplay", color: GD_VIOLET },
-    { time: "18:25", label: "Team codes distributed", detail: "Your UG leader shares the codes locally", color: GD_GOLD },
-    { time: "18:30", label: "Game ON", detail: "2 hours of competitive cloud gaming — stream muted", color: GD_GOLD },
-    { time: "20:30", label: "Closing Ceremony", detail: "Winners announced, wrap-up", color: GD_ORANGE },
-    { time: "21:00", label: "Stream ends", detail: "Local User Groups continue with their own schedule", color: GD_ACCENT },
-  ];
-  return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>Detailed Schedule (CET)</Heading>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 750 }}>
-        {timeline.map((t, i) => {
-          const o = useStagger(i, 5);
-          return (
-            <div key={t.time + t.label} style={{
-              opacity: o, transform: `translateX(${(1 - o) * 30}px)`,
-              display: "flex", alignItems: "center", gap: 18,
-              padding: "12px 22px", borderRadius: 14,
-              background: "rgba(255,255,255,0.04)", borderLeft: `4px solid ${t.color}`,
-            }}>
-              <div style={{ fontSize: 24, fontWeight: 800, color: t.color, width: 70, fontFamily: F }}>{t.time}</div>
-              <div>
-                <div style={{ fontSize: 19, fontWeight: 700, color: "white", fontFamily: F }}>{t.label}</div>
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{t.detail}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// ── Section: Stream Host ──
-const HostSection: React.FC = () => {
-  const linda = ORGANIZERS.find((p) => p.name === "Linda")!;
-  return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>Your Stream Host</Heading>
-      <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
-        <Img src={staticFile(linda.face)} style={{ width: 180, height: 180, borderRadius: 90, objectFit: "cover", border: `3px solid ${GD_VIOLET}44` }} />
-        <div>
-          <div style={{ fontSize: 40, fontWeight: 800, color: "white", fontFamily: F }}>Linda Mohamed</div>
-          <div style={{ fontSize: 20, color: GD_ACCENT, marginTop: 6, fontFamily: F }}>AWS Community Hero</div>
-          <div style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", marginTop: 4, fontFamily: F }}>{linda.flag} AWS & Women's User Group Vienna, Austria</div>
-          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", marginTop: 14, maxWidth: 520, lineHeight: 1.6, fontFamily: F }}>
-            Organizing the first-ever pan-European AWS Community GameDay — connecting 53+ User Groups across 20+ countries for a shared competitive cloud experience.
-          </div>
-        </div>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// ── Section: Get Ready ──
-const ReadySection: React.FC = () => {
+// ── Get Ready ──
+const Ready: React.FC = () => {
   const items = [
     "Form your team locally before the stream",
     "Be seated with audio ready 5 minutes before start",
     "Watch the live stream for instructions",
-    "Team codes will be distributed locally by your UG leader",
-    "Game runs for 2 hours — stream is muted during gameplay",
-    "Stream returns for the closing ceremony at 20:30 CET",
-    "After the ceremony, local User Groups continue their own schedule",
+    "Team codes distributed locally by your UG leader",
+    "Game runs for 2 hours — stream is muted",
+    "Stream returns for the closing ceremony",
+    "After the ceremony, local UGs continue their schedule",
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -293,104 +380,89 @@ const ReadySection: React.FC = () => {
   );
 };
 
-// ── Section: Stats ──
-const StatsSection: React.FC = () => {
-  const stats = [
-    { v: "53+", l: "User Groups", c: GD_GOLD },
-    { v: "20+", l: "Countries", c: GD_PINK },
-    { v: "4+", l: "Timezones", c: GD_VIOLET },
-    { v: "1st", l: "Edition", c: GD_ORANGE },
-  ];
-  return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <Heading>Community GameDay Europe in Numbers</Heading>
-      <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
-        {stats.map((s, i) => {
-          const o = useStagger(i, 8);
-          return (
-            <div key={s.l} style={{
-              opacity: o, transform: `scale(${0.8 + o * 0.2})`,
-              background: "rgba(255,255,255,0.05)", border: `1px solid ${s.c}33`,
-              borderRadius: 20, padding: "28px 40px", textAlign: "center",
-            }}>
-              <div style={{ fontSize: 56, fontWeight: 800, color: s.c, fontFamily: F }}>{s.v}</div>
-              <div style={{ fontSize: 16, color: GD_ACCENT, marginTop: 8, fontFamily: F }}>{s.l}</div>
-            </div>
-          );
-        })}
-      </div>
-    </AbsoluteFill>
-  );
-};
+// ── Build section sequence ──
+// 30 min = 54000 frames. Each section 8s = 240 frames for UG spotlights, 40s = 1200 for others
+const S = 1200; // 40s for content sections
+const U = 240;  // 8s per UG spotlight
+const T = 20;   // transition duration
 
-// ── Wrap each section with the persistent background + bar ──
-const Wrap: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill style={{ fontFamily: F, background: GD_DARK }}>
-    <BackgroundLayer darken={0.7} />
-    <HexGridOverlay />
-    <AudioBadge muted />
-    <Bar />
-    <div style={{ position: "absolute", top: 68, left: 0, right: 0, bottom: 0 }}>{children}</div>
-  </AbsoluteFill>
-);
+function buildSections(): Array<{ key: string; dur: number; el: React.ReactNode }> {
+  const out: Array<{ key: string; dur: number; el: React.ReactNode }> = [];
+  let ugIdx = 0;
+  const nextUGs = (count: number) => {
+    for (let i = 0; i < count; i++) {
+      out.push({ key: `ug-${ugIdx}`, dur: U, el: <Wrap><UGSpotlight index={ugIdx} /></Wrap> });
+      ugIdx++;
+    }
+  };
+  let infoIdx = 0;
+  const nextInfo = () => {
+    out.push({ key: `info-${infoIdx}`, dur: S, el: <Wrap><InfoSlide index={infoIdx} /></Wrap> });
+    infoIdx++;
+  };
 
-// ── Build the section sequence ──
-// Each section 40s = 1200 frames, transition 20 frames
-// Sections: hero, 10 UG pages, organizers, info, schedule, host, ready, stats, then repeat UG pages
-// Total unique: 1 + 10 + 1 + 1 + 1 + 1 + 1 + 1 = 17 sections × 1200 = 20400 frames first pass
-// Then cycle: hero, UG pages again, organizers, schedule, ready, stats = fills 54000
-
-const SECTION_DUR = 1200; // 40s
-const TRANS_DUR = 20;
-
-function buildSections(): Array<{ key: string; el: React.ReactNode }> {
-  const sections: Array<{ key: string; el: React.ReactNode }> = [];
+  // Cycle pattern: hero, UGs, schedule variant, UGs, info, UGs, people, UGs, ...
   // Cycle 1
-  sections.push({ key: "hero1", el: <Wrap><Hero /></Wrap> });
-  for (let i = 0; i < UG_PAGES.length; i++) sections.push({ key: `ug1-${i}`, el: <Wrap><UGSpotlight page={i} /></Wrap> });
-  sections.push({ key: "org1", el: <Wrap><OrgSection /></Wrap> });
-  sections.push({ key: "info1", el: <Wrap><InfoSection /></Wrap> });
-  sections.push({ key: "sched1", el: <Wrap><ScheduleSection /></Wrap> });
-  sections.push({ key: "host1", el: <Wrap><HostSection /></Wrap> });
-  sections.push({ key: "ready1", el: <Wrap><ReadySection /></Wrap> });
-  sections.push({ key: "stats1", el: <Wrap><StatsSection /></Wrap> });
-  // Cycle 2
-  sections.push({ key: "hero2", el: <Wrap><Hero /></Wrap> });
-  for (let i = 0; i < UG_PAGES.length; i++) sections.push({ key: `ug2-${i}`, el: <Wrap><UGSpotlight page={i} /></Wrap> });
-  sections.push({ key: "org2", el: <Wrap><OrgSection /></Wrap> });
-  sections.push({ key: "sched2", el: <Wrap><ScheduleSection /></Wrap> });
-  sections.push({ key: "ready2", el: <Wrap><ReadySection /></Wrap> });
-  sections.push({ key: "stats2", el: <Wrap><StatsSection /></Wrap> });
-  return sections;
+  out.push({ key: "hero1", dur: S, el: <Wrap><Hero /></Wrap> });
+  nextUGs(6);
+  out.push({ key: "sched-simple", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
+  nextUGs(6);
+  nextInfo();
+  out.push({ key: "community-org", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
+  nextUGs(6);
+  out.push({ key: "sched-detailed", dur: S, el: <Wrap><ScheduleDetailed /></Wrap> });
+  nextUGs(6);
+  nextInfo();
+  out.push({ key: "aws-support", dur: S, el: <Wrap><AWSSupport /></Wrap> });
+  nextUGs(6);
+  out.push({ key: "sched-faces", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
+  nextUGs(6);
+  out.push({ key: "stats1", dur: S, el: <Wrap><Stats /></Wrap> });
+  nextUGs(6);
+  nextInfo();
+  out.push({ key: "ready1", dur: S, el: <Wrap><Ready /></Wrap> });
+  // Remaining UGs
+  while (ugIdx < SHUFFLED.length) nextUGs(1);
+  // Cycle 2 (fill remaining time)
+  out.push({ key: "hero2", dur: S, el: <Wrap><Hero /></Wrap> });
+  nextInfo();
+  out.push({ key: "sched-simple2", dur: S, el: <Wrap><ScheduleSimple /></Wrap> });
+  out.push({ key: "community-org2", dur: S, el: <Wrap><CommunityOrg /></Wrap> });
+  nextInfo();
+  out.push({ key: "sched-faces2", dur: S, el: <Wrap><ScheduleWithFaces /></Wrap> });
+  out.push({ key: "aws-support2", dur: S, el: <Wrap><AWSSupport /></Wrap> });
+  nextInfo();
+  out.push({ key: "stats2", dur: S, el: <Wrap><Stats /></Wrap> });
+  out.push({ key: "ready2", dur: S, el: <Wrap><Ready /></Wrap> });
+  out.push({ key: "hero3", dur: S, el: <Wrap><Hero /></Wrap> });
+
+  return out;
 }
 
-// ── Main Composition ──
+const presentations = [
+  () => fade(),
+  () => slide({ direction: "from-left" }),
+  () => fade(),
+  () => slide({ direction: "from-bottom" }),
+];
+
 export const GameDayPreShowInfo: React.FC = () => {
   const sections = buildSections();
-  // Alternate between fade and slide transitions
-  const presentations = [
-    () => fade(),
-    () => slide({ direction: "from-left" }),
-    () => fade(),
-    () => slide({ direction: "from-bottom" }),
-  ];
-
   return (
     <TransitionSeries>
       {sections.map((s, i) => {
         const items: React.ReactNode[] = [];
         if (i > 0) {
-          const pres = presentations[i % presentations.length]();
           items.push(
             <TransitionSeries.Transition
               key={`t-${s.key}`}
-              presentation={pres}
-              timing={linearTiming({ durationInFrames: TRANS_DUR })}
+              presentation={presentations[i % presentations.length]()}
+              timing={linearTiming({ durationInFrames: T })}
             />
           );
         }
         items.push(
-          <TransitionSeries.Sequence key={s.key} durationInFrames={SECTION_DUR}>
+          <TransitionSeries.Sequence key={s.key} durationInFrames={s.dur}>
             {s.el}
           </TransitionSeries.Sequence>
         );

@@ -16,6 +16,7 @@ import {
   getPhaseInfo,
   springConfig,
   staggeredEntry,
+  TYPOGRAPHY,
   GAME_START,
   GAME_END,
   GD_DARK,
@@ -76,7 +77,7 @@ const PhaseIndicator: React.FC<{
       <div>
         <div
           style={{
-            fontSize: 12,
+            fontSize: TYPOGRAPHY.labelSmall,
             fontWeight: 600,
             color: "#64748b",
             letterSpacing: 2,
@@ -89,7 +90,7 @@ const PhaseIndicator: React.FC<{
         </div>
         <div
           style={{
-            fontSize: 18,
+            fontSize: TYPOGRAPHY.bodySmall,
             fontWeight: 700,
             color: isFinal ? GD_ORANGE : "white",
             fontFamily: "'Inter', sans-serif",
@@ -208,7 +209,7 @@ export const GameDayGameplay: React.FC = () => {
         >
           <div
             style={{
-              fontSize: 11,
+              fontSize: TYPOGRAPHY.overline,
               fontWeight: 700,
               color: showUrgencyGlow ? GD_PINK : showFinal30 ? GD_ORANGE : GD_ACCENT,
               letterSpacing: 2,
@@ -221,7 +222,7 @@ export const GameDayGameplay: React.FC = () => {
           </div>
           <div
             style={{
-              fontSize: 28,
+              fontSize: TYPOGRAPHY.h5,
               fontWeight: 900,
               color: showUrgencyGlow ? GD_PINK : showFinal30 ? GD_ORANGE : "white",
               fontFamily: "'Inter', monospace",
@@ -263,7 +264,7 @@ export const GameDayGameplay: React.FC = () => {
         >
           <div
             style={{
-              fontSize: 16,
+              fontSize: TYPOGRAPHY.caption,
               fontWeight: 800,
               color: GD_ORANGE,
               letterSpacing: 3,
@@ -310,7 +311,7 @@ export const GameDayGameplay: React.FC = () => {
             </svg>
             <div
               style={{
-                fontSize: 22,
+                fontSize: TYPOGRAPHY.h6,
                 fontWeight: 700,
                 color: GD_DARK,
               }}

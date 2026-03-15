@@ -36,7 +36,7 @@
   - Mark task complete when tests are written, run, and passing on unfixed code
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [-] 3. Fix for AWS color mismatch and typography scale
+- [x] 3. Fix for AWS color mismatch and typography scale
 
   - [x] 3.1 Add TYPOGRAPHY scale to shared/GameDayDesignSystem.tsx
     - Export a `TYPOGRAPHY` constant object with 17 named font sizes:
@@ -71,32 +71,32 @@
     - _Preservation: Visual output unchanged — same numeric pixel values_
     - _Requirements: 2.4_
 
-  - [-] 3.4 Adopt TYPOGRAPHY scale in OrganizersMarketingVideo.tsx
+  - [x] 3.4 Adopt TYPOGRAPHY scale in OrganizersMarketingVideo.tsx
     - Import `TYPOGRAPHY` from `./shared/GameDayDesignSystem`
     - Replace hardcoded `fontSize` values: 36→h4, 24→h6, 20→body, 18→bodySmall, 16→caption, 15→captionSmall+1 (use captionSmall=14 or label=13)
     - _Requirements: 2.4_
 
-  - [~] 3.5 Adopt TYPOGRAPHY scale in 00-GameDayStreamPreShow-Muted.tsx
+  - [x] 3.5 Adopt TYPOGRAPHY scale in 00-GameDayStreamPreShow-Muted.tsx
     - Import `TYPOGRAPHY` from `./shared/GameDayDesignSystem`
     - Replace hardcoded `fontSize` values: 64→timer, 52→timerSmall (closest), 22→h6, 18→bodySmall, 16→caption, 14→captionSmall
     - _Requirements: 2.4_
 
-  - [~] 3.6 Adopt TYPOGRAPHY scale in 01-GameDayStreamMainEvent-Audio.tsx
+  - [x] 3.6 Adopt TYPOGRAPHY scale in 01-GameDayStreamMainEvent-Audio.tsx
     - Import `TYPOGRAPHY` from `./shared/GameDayDesignSystem`
     - Replace hardcoded `fontSize` values throughout the file with TYPOGRAPHY.* references
     - _Requirements: 2.4_
 
-  - [~] 3.7 Adopt TYPOGRAPHY scale in 02-GameDayStreamGameplay-Muted.tsx
+  - [x] 3.7 Adopt TYPOGRAPHY scale in 02-GameDayStreamGameplay-Muted.tsx
     - Import `TYPOGRAPHY` from `./shared/GameDayDesignSystem`
     - Replace hardcoded `fontSize` values: 28→h5, 22→h6, 18→bodySmall, 16→caption, 12→labelSmall, 11→overline
     - _Requirements: 2.4_
 
-  - [~] 3.8 Adopt TYPOGRAPHY scale in 04-GameDayStreamPreShowInfo-Muted.tsx
+  - [x] 3.8 Adopt TYPOGRAPHY scale in 04-GameDayStreamPreShowInfo-Muted.tsx
     - Import `TYPOGRAPHY` from `./shared/GameDayDesignSystem`
     - Replace hardcoded `fontSize` values: 56→timerSmall, 48→flag, 42→h3 (if present), 36→h4, 22→h6, 20→body, 18→bodySmall, 16→caption, 15→captionSmall+1, 14→captionSmall, 13→label, 12→labelSmall, 11→overline, 10→overline (smallest)
     - _Requirements: 2.4_
 
-  - [~] 3.9 Verify bug condition exploration test now passes
+  - [x] 3.9 Verify bug condition exploration test now passes
     - **Property 1: Expected Behavior** - AWS Supporter Color Uses GD_ORANGE
     - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
     - The test from task 1 encodes the expected behavior
@@ -105,12 +105,12 @@
     - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed and TYPOGRAPHY exists)
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [~] 3.10 Verify preservation tests still pass
+  - [x] 3.10 Verify preservation tests still pass
     - **Property 2: Preservation** - Community Organizer Colors and Design System Exports Unchanged
     - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
     - Run preservation property tests from step 2
     - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
     - Confirm all tests still pass after fix (no regressions)
 
-- [~] 4. Checkpoint - Ensure all tests pass
+- [x] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
