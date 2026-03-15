@@ -278,3 +278,135 @@ export const PODIUM_TEAMS: TeamData[] = [
 ```
 
 Scores are distinct and strictly descending. Index 0 = 1st place. All `logoUrl` fields are `null` (flag fallback) since actual logos are filled on game day.
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: Part A Contains Zero Winner Data References
+
+*For any* string in the source text of `03a-ClosingFixed.tsx`, the file shall not contain the identifiers `PODIUM_TEAMS`, `WINNING_CITY_TEAMS`, `TeamData`, or any reference to winner/podium data arrays.
+
+**Validates: Requirements 1.2**
+
+### Property 2: TeamData Interface Completeness
+
+*For any* object conforming to the `TeamData` interface, it shall have exactly the fields: `name` (string), `flag` (string), `city` (string), `country` (string), `score` (number), and `logoUrl` (string | null). No additional required fields exist, and no fields are missing.
+
+**Validates: Requirements 2.2**
+
+### Property 3: Placeholder Data Validity
+
+*For any* element in the `PODIUM_TEAMS` array: (a) the array has exactly 6 elements, (b) each element's `name` matches the pattern "Team #N" where N is 1–6, (c) no string field in any element contains "lorem", "ipsum", "dolor", "sit amet", or other lorem ipsum fragments, (d) scores are distinct and strictly descending by index.
+
+**Validates: Requirements 2.3, 2.4**
+
+### Property 4: Podium Bar Height Proportionality
+
+*For any* positive `teamScore` ≤ `maxScore` and positive `maxHeight`, the function `getPodiumBarHeight(teamScore, maxScore, maxHeight)` shall return `max(0.4, teamScore / maxScore) * maxHeight`. The result is always ≥ `0.4 * maxHeight` and ≤ `maxHeight`. For any two teams where `scoreA > scoreB`, `getPodiumBarHeight(scoreA, ...) > getPodiumBarHeight(scoreB, ...)`.
+
+**Validates: Requirements 3.2**
+
+### Property 5: Reveal Ordering
+
+*For any* frame in the reveal phase, `getRevealedPlacements(frame)` shall return ranks in the order they were revealed: 6th first, then 5th, 4th, 3rd, 2nd, 1st. At no frame shall a higher-ranked team be revealed before a lower-ranked team. The roll call sequence shall also present teams from 6th to 1st.
+
+**Validates: Requirements 4.1, 4.8**
+
+### Property 6: Total Frame Budget
+
+*For any* valid Part B timing configuration, the total frame count shall equal exactly 9000 frames. The sum of all phase durations (Shuffle + Reveal + Roll Call + ThankYou) shall not exceed 9000.
+
+**Validates: Requirements 5.1**
+
+### Property 7: Design System Compliance
+
+*For any* color literal in `03b-ClosingWinners.tsx`, it shall be one of the GD palette values (GD_DARK, GD_PURPLE, GD_VIOLET, GD_PINK, GD_ACCENT, GD_ORANGE, GD_GOLD) or a derived rgba/opacity variant. *For any* `fontFamily` declaration, it shall reference `'Inter'`. *For any* `fontSize` value, it shall reference a `TYPOGRAPHY` constant rather than a hardcoded number.
+
+**Validates: Requirements 5.2, 5.4, 5.5**
+
+### Property 8: Backward Compatibility Re-exports
+
+*For any* symbol previously exported from `03-GameDayStreamClosing-Audio.tsx` (Phase, PHASE_BOUNDARIES, getActivePhase, isTransitionFrame, getFadeOpacity, getCountUpValue, getPodiumBarHeight, getRevealedPlacements, getShowcasePage, getAllShowcasePages, getShuffleCycleSpeed, REVEAL_SCHEDULE, REVEAL_FRAMES, TeamData, PODIUM_TEAMS, WINNING_CITY_TEAMS), that symbol shall be importable from `shared/closing-utils.ts` after the split.
+
+**Validates: Requirements 6.4**
+
+## Error Handling
+
+This feature operates on static, compile-time data with no runtime user input or network calls. Error scenarios are minimal:
+
+1. **Missing logo URL**: When `logoUrl` is `null`, the PodiumBar renders the `flag` emoji as a visual fallback. This is the default state for all placeholder data.
+
+2. **Division by zero in bar height**: If `maxScore` is 0, `getPodiumBarHeight` would divide by zero. Since `PODIUM_TEAMS` scores are hardcoded positive integers, this cannot occur. The `Math.max(0.4, ...)` clamp provides a defensive floor regardless.
+
+3. **Frame out of range**: Spring animations gracefully handle negative elapsed frames (returning 0 progress). The phase routing logic uses `>=` comparisons that naturally handle boundary frames.
+
+4. **Import path breakage after split**: The `shared/closing-utils.ts` module serves as the single source of truth. If the old `03-GameDayStreamClosing-Audio.tsx` file is kept temporarily, it can re-export from `shared/closing-utils.ts` for backward compatibility. Once all consumers are updated, the old file is deleted.
+
+5. **Missing shared module**: If `shared/closing-utils.ts` is not created before the composition files, TypeScript compilation fails immediately with clear import errors. This is caught at build time, not runtime.
+
+## Testing Strategy
+
+### Property-Based Testing
+
+Use **fast-check** as the property-based testing library (already used in this project's existing tests).
+
+Each property test must:
+- Run a minimum of 100 iterations
+- Reference the design property with a tag comment
+- Use `fc.assert(fc.property(...))` pattern
+
+Property tests to implement:
+
+1. **Property 1 test**: Read `03a-ClosingFixed.tsx` source, verify zero occurrences of winner-related identifiers
+   - Tag: `Feature: closing-podium-template, Property 1: Part A Contains Zero Winner Data References`
+
+2. **Property 2 test**: Generate random TeamData objects using fast-check arbitraries, verify all required fields exist with correct types
+   - Tag: `Feature: closing-podium-template, Property 2: TeamData Interface Completeness`
+
+3. **Property 3 test**: Validate the static PODIUM_TEAMS array: 6 elements, "Team #N" naming, no lorem ipsum strings, descending scores
+   - Tag: `Feature: closing-podium-template, Property 3: Placeholder Data Validity`
+
+4. **Property 4 test**: Generate random (score, maxScore, maxHeight) triples, verify getPodiumBarHeight formula, bounds, and ordering
+   - Tag: `Feature: closing-podium-template, Property 4: Podium Bar Height Proportionality`
+
+5. **Property 5 test**: Generate random frames across the reveal phase range, verify getRevealedPlacements returns ranks in 6→1 order
+   - Tag: `Feature: closing-podium-template, Property 5: Reveal Ordering`
+
+6. **Property 6 test**: Verify the sum of all Part B phase durations equals 9000 frames
+   - Tag: `Feature: closing-podium-template, Property 6: Total Frame Budget`
+
+7. **Property 7 test**: Read `03b-ClosingWinners.tsx` source, scan for color literals, font families, and font sizes to verify design system compliance
+   - Tag: `Feature: closing-podium-template, Property 7: Design System Compliance`
+
+8. **Property 8 test**: Verify all previously exported symbols are importable from `shared/closing-utils.ts`
+   - Tag: `Feature: closing-podium-template, Property 8: Backward Compatibility Re-exports`
+
+### Unit Tests
+
+Unit tests complement property tests for specific examples and edge cases:
+
+- **getPodiumBarHeight edge cases**: score = maxScore (returns maxHeight), score = 0 (returns 0.4 * maxHeight), score = maxScore * 0.4 (boundary)
+- **getRevealedPlacements specific frames**: frame 0 → empty, frame 1800 → [6], frame 3600 → [6,5,4,3], frame 7200 → [6,5,4,3,2,1]
+- **Phase routing**: verify correct phase component renders at boundary frames
+- **Root.tsx registration**: verify composition IDs, frame counts, and resolution values
+
+### Test Configuration
+
+```typescript
+import fc from "fast-check";
+
+// All property tests use minimum 100 iterations
+const FC_CONFIG = { numRuns: 100 };
+
+fc.assert(
+  fc.property(/* arbitraries */, (/* values */) => {
+    // property assertion
+  }),
+  FC_CONFIG,
+);
+```
+
+Test file: `__tests__/closing-podium-template.property.test.ts`
+
+Pure utility functions (`getPodiumBarHeight`, `getRevealedPlacements`, `getActivePhase`, etc.) are exported from `shared/closing-utils.ts` for direct testing without React rendering context.
