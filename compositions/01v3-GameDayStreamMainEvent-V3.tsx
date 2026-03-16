@@ -116,11 +116,20 @@ const S = {
   // Scene 7  - Mihaly support video (full-screen, 86s × 30fps = 2580 frames)
   VIDEO_IN:   10800, VIDEO_OUT:  13379,
 
-  // Scene 8  - Linda transition back: introduces AWS special guest
-  LINDA_BACK_IN:  13380, LINDA_BACK_OUT: 15179,
+  // Scene 8  - Linda back on screen for glue talk; boxes overlay while she speaks (~73 s)
+  LINDA_BACK_IN:  13380, LINDA_BACK_OUT: 15600,  // 2220 frames = 74 s
 
   // Scene 9  - Special Guest (AWS)
-  GUEST_IN:   15180,
+  // Collab sequence starts immediately when Linda appears (Phase A = 5s empty)
+  //   Phase A (150 fr =  5 s): empty - just Linda, no boxes, no backdrop
+  //   Phase B (600 fr = 20 s): community GlassCard centred, staggered face reveals
+  //   Phase C (150 fr =  5 s): hold all faces visible
+  //   Phase D (600 fr = 20 s): community slides left, AWS GlassCard enters right
+  //   Phase E (150 fr =  5 s): hold both boxes
+  //   Phase F (300 fr = 10 s): guest card (orange), sidebar backdrop fades, Linda intro
+  GUEST_IN:   13380,
+  COLLAB_IN:  13380,   // starts immediately when Linda appears
+  COLLAB_OUT: 15330,   // 13380 + 1950 = 65 s total collab sequence
 
   // Scene 10  - Arnaud & Loïc Gamemasters intro (23400–44999)
   // Appears at ~16:59 countdown; disappears 5 min before game start so codes can be distributed
@@ -129,6 +138,11 @@ const S = {
 
 // Frame at which Arnaud & Loïc take over from Linda's Gamemasters intro
 const GAMEMASTER_SPEAKING = 25200;
+
+// ── Magic-move transition window: MihalyIntroCard → SupportVideoBody lower-third
+// Starts 55 frames before the video, completes 28 frames into the video.
+const MAGIC_MOVE_START = S.VIDEO_IN - 55;   // 10745
+const MAGIC_MOVE_END   = S.VIDEO_IN + 28;   // 10828  (≤ MIHALY_OUT=10850 ✓)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT ZONES
@@ -1248,6 +1262,219 @@ const ArnaudLoicCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SCENE 11  - CODE DISTRIBUTION (45000 – 53999)
+// Exactly 5 minutes before game start. Local UG leaders and volunteers
+// are now distributing access codes. Agreed timing: codes shared from 18:25 CET
+// so all teams are ready at game start (18:30 CET).
+// This scene plays through the full 5-minute distribution window.
+// ─────────────────────────────────────────────────────────────────────────────
+const DIST_IN  = 45000;
+const DIST_OUT = 53999;
+
+const CodeDistributionScene: React.FC<{
+  frame: number; fps: number; gameCountdownSeconds: number;
+}> = ({ frame, fps, gameCountdownSeconds }) => {
+  if (frame < DIST_IN || frame > DIST_OUT) return null;
+
+  const rel = frame - DIST_IN;
+  const op  = fadeWindow(frame, DIST_IN, DIST_OUT, 30);
+
+  // Entry springs – staggered
+  const titleSp   = spring({ frame: rel,                    fps, config: springConfig.entry });
+  const cardSp    = spring({ frame: Math.max(0, rel - 12),  fps, config: springConfig.entry });
+  const detailSp  = spring({ frame: Math.max(0, rel - 24),  fps, config: springConfig.entry });
+  const logosSp   = spring({ frame: Math.max(0, rel - 36),  fps, config: springConfig.entry });
+  const footerSp  = spring({ frame: Math.max(0, rel - 46),  fps, config: springConfig.entry });
+
+  // Formatted countdown mm:ss
+  const secs = Math.max(0, gameCountdownSeconds);
+  const mm   = String(Math.floor(secs / 60)).padStart(2, "0");
+  const ss   = String(Math.floor(secs % 60)).padStart(2, "0");
+
+  // Urgency: violet → orange → gold as the clock runs down
+  const urgencyT = interpolate(secs, [0, 60, 120, 300], [1, 0.75, 0.35, 0], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+  const accentC = secs < 60 ? GD_GOLD : GD_ORANGE; // orange throughout, shifts to gold under 1 min
+
+  // Badge pulse
+  const badgePulse = Math.sin(frame * 0.12) * 0.15 + 0.85;
+
+  // Concentric rings (3 phases)
+  const rings = [0, 1, 2].map(i => Math.sin(frame * 0.055 + i * 2.09) * 0.5 + 0.5);
+
+  return (
+    <div style={{
+      position: "absolute",
+      top: 0, left: 0, right: 0, bottom: L.PROGRESS_H,
+      display: "flex", flexDirection: "column" as const,
+      alignItems: "center", justifyContent: "center",
+      gap: 18,
+      opacity: op,
+      zIndex: 34,
+      padding: "0 40px",
+      boxSizing: "border-box" as const,
+    }}>
+
+      {/* ── Status badge ── */}
+      <div style={{
+        opacity: titleSp * badgePulse,
+        transform: `translateY(${interpolate(titleSp, [0, 1], [-18, 0])}px)`,
+        display: "inline-flex", alignItems: "center", gap: 10,
+        background: `${accentC}14`,
+        border: `1px solid ${accentC}44`,
+        borderRadius: 100, padding: "8px 26px",
+      }}>
+        <ZapIcon s={12} c={accentC} />
+        <div style={{
+          fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: accentC,
+          letterSpacing: 5, textTransform: "uppercase" as const, fontFamily: FF,
+        }}>
+          Code Distribution In Progress
+        </div>
+        <ZapIcon s={12} c={accentC} />
+      </div>
+
+      {/* ── Headline ── */}
+      <div style={{
+        textAlign: "center",
+        opacity: titleSp,
+        transform: `translateY(${interpolate(titleSp, [0, 1], [14, 0])}px)`,
+      }}>
+        <div style={{
+          fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white",
+          fontFamily: FF, lineHeight: 1.1, marginBottom: 8,
+        }}>
+          Local UG Leaders &amp; Volunteers
+        </div>
+        <div style={{
+          fontSize: TYPOGRAPHY.h6, fontWeight: 500, color: "rgba(255,255,255,0.6)",
+          fontFamily: FF,
+        }}>
+          are now distributing GameDay access codes to all teams
+        </div>
+      </div>
+
+      {/* ── Big countdown card with pulsing rings ── */}
+      <div style={{
+        position: "relative",
+        opacity: cardSp,
+        transform: `scale(${interpolate(cardSp, [0, 1], [0.92, 1])})`,
+      }}>
+        {/* Rings */}
+        {rings.map((pulse, i) => (
+          <div key={i} style={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%,-50%)",
+            width:  230 + i * 34 + pulse * 18,
+            height: 230 + i * 34 + pulse * 18,
+            borderRadius: "50%",
+            border: `1.5px solid ${accentC}`,
+            opacity: (0.28 - i * 0.08) * pulse,
+            pointerEvents: "none",
+          }} />
+        ))}
+        <GlassCard style={{
+          padding: "22px 64px",
+          borderTop: `3px solid ${accentC}`,
+          textAlign: "center",
+        }}>
+          <div style={{
+            fontSize: TYPOGRAPHY.overline, fontWeight: 700,
+            color: "rgba(255,255,255,0.38)",
+            letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+            marginBottom: 4,
+          }}>
+            Game Starts In
+          </div>
+          <div style={{
+            fontSize: 88,
+            fontWeight: 900,
+            color: accentC,
+            fontFamily: FF,
+            lineHeight: 1,
+            letterSpacing: -2,
+            textShadow: `0 0 40px ${accentC}66`,
+            fontVariantNumeric: "tabular-nums" as const,
+          }}>
+            {mm}:{ss}
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* ── Instructions row ── */}
+      <div style={{
+        textAlign: "center",
+        opacity: detailSp,
+        transform: `translateY(${interpolate(detailSp, [0, 1], [10, 0])}px)`,
+      }}>
+        <div style={{
+          fontSize: TYPOGRAPHY.body, fontWeight: 500,
+          color: "rgba(255,255,255,0.55)", fontFamily: FF, lineHeight: 1.6,
+        }}>
+          Find your local organizer · Receive your team code · Form your team &amp; get ready!
+        </div>
+        <div style={{
+          fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.28)",
+          fontFamily: FF, marginTop: 6,
+        }}>
+          All codes distributed by 18:25 CET · Game starts at 18:30 CET sharp
+        </div>
+      </div>
+
+      {/* ── UG logos row ── */}
+      <div style={{
+        display: "flex", gap: 10, alignItems: "center",
+        opacity: logosSp,
+        transform: `translateY(${interpolate(logosSp, [0, 1], [8, 0])}px)`,
+      }}>
+        {[UG_VIE_LOGO, UG_BEL_LOGO, UG_GEN_LOGO, UG_BUD_LOGO].map((logo, i) => (
+          <div key={i} style={{
+            width: 56, height: 56, borderRadius: 12,
+            background: "rgba(255,255,255,0.05)",
+            border: `1px solid rgba(255,255,255,0.07)`,
+            padding: 6,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Img src={logo} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+          </div>
+        ))}
+        <div style={{
+          fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.28)",
+          fontFamily: FF, marginLeft: 6,
+        }}>
+          + 49 more user groups across Europe
+        </div>
+      </div>
+
+      {/* ── Footer: GameDay logo ── */}
+      <div style={{
+        opacity: footerSp,
+        transform: `translateY(${interpolate(footerSp, [0, 1], [6, 0])}px)`,
+        display: "flex", alignItems: "center", gap: 12,
+      }}>
+        <Img
+          src={staticFile("AWSCommunityGameDayEurope/unicorn_logo.png")}
+          style={{ width: 28, height: 28, objectFit: "contain", opacity: 0.4 }}
+        />
+        <div style={{
+          fontSize: TYPOGRAPHY.label, fontWeight: 700,
+          color: "rgba(255,255,255,0.25)", fontFamily: FF, letterSpacing: 3,
+          textTransform: "uppercase" as const,
+        }}>
+          AWS Community GameDay Europe 2025
+        </div>
+        <Img
+          src={staticFile("AWSCommunityGameDayEurope/unicorn_logo.png")}
+          style={{ width: 28, height: 28, objectFit: "contain", opacity: 0.4 }}
+        />
+      </div>
+
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SCHEDULE SIDEBAR (from frame 1320, right side)
 // ─────────────────────────────────────────────────────────────────────────────
 const ScheduleSidebar: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
@@ -1375,35 +1602,19 @@ const MihalyIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
   const textSp  = spring({ frame: frame - S.MIHALY_IN - 12, fps, config: springConfig.entry });
   const logoSp  = spring({ frame: frame - S.MIHALY_IN - 22, fps, config: springConfig.entry });
 
-  // Exit: Mihaly's face (at ≈x263, y323 in frame) tracks to support video lower-third
-  // Lower-third face center: (x260, y527). Transform pivot: card content center (x464, y335).
-  // At target scale 0.34: face_local_offset*scale + pivot + translation = target_pos
-  // → exitTx=-136, exitTy=196, exitScale=0.34 lands face precisely at lower-third.
-  // Exit completes exactly at VIDEO_IN so no z-index conflict with video overlay.
-  const EXIT_START = S.VIDEO_IN - 40; // start 40 frames before video
-
-  const isExiting = frame >= EXIT_START;
-  const rawExit = interpolate(frame, [EXIT_START, S.VIDEO_IN], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  const exitT     = rawExit * rawExit * (3 - 2 * rawExit); // smoothstep
-  const exitTx    = exitT * (-136);  // face tracks to lower-third x=260
-  const exitTy    = exitT *   196;   // face tracks to lower-third y=527
-  const exitScale = 1 - exitT * (1 - 0.34);
-
-  // Opacity: fade in on entry; fade out in the last 30% of exit so face arrives then vanishes
+  // Exit: when magic-move overlay takes over, the card (border + background)
+  // fades out quickly. The MihalyMagicMoveOverlay then carries the face/name/UG.
   const entryOp = Math.min(1, interpolate(frame,
     [S.MIHALY_IN, S.MIHALY_IN + 20], [0, 1],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   ));
-  const exitOp = isExiting
-    ? interpolate(rawExit, [0.7, 1], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 1;
+  const exitOp = interpolate(frame,
+    [MAGIC_MOVE_START, MAGIC_MOVE_START + 15], [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   const op = entryOp * exitOp;
 
-  const cardTransform = isExiting
-    ? `translate(${exitTx}px, ${exitTy}px) scale(${exitScale})`
-    : `translateY(${off}px)`;
+  const cardTransform = `translateY(${off}px)`;
 
   return (
     <div style={{
@@ -1537,6 +1748,107 @@ const MihalyIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// MAGIC MOVE OVERLAY  - floats Mihaly's face, name and UG name from the intro
+// card position to the support-video lower-third position.
+// Only visible during MAGIC_MOVE_START → MAGIC_MOVE_END.
+// zIndex 62: above SupportVideoBody (z=55) so the elements visually fly on top
+// of the video background as they drift toward their destination.
+//
+// Source layout (MihalyIntroCard steady-state, card maxWidth=620 centred in
+// left area left=40..888, card padding=36/44):
+//   card_left = 40 + (848-620)/2 = 154 px
+//   flex-row top  ≈ 258 px (card_top 183 + padding 36 + label+gap 39)
+//   face top-left ≈ (198, 258), size 130
+//   name left=364 top=284  (h5=28)
+//   UG   left=364 top=320  (h6 gradient ~20px)
+//
+// Target layout (lower-third inside video, video center=(640,316) at -44px):
+//   video left=190, bottom=569
+//   lower-third h=86, content-row center y≈524
+//   face top-left ≈ (238, 502), size 44
+//   name left=298  top=510  (h6=24)
+//   UG   left=298  top=537  (caption=16)
+// ─────────────────────────────────────────────────────────────────────────────
+const MihalyMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }) => {
+  if (frame < MAGIC_MOVE_START || frame > MAGIC_MOVE_END) return null;
+
+  const rawT = interpolate(frame, [MAGIC_MOVE_START, MAGIC_MOVE_END], [0, 1], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+  // Cubic ease-in-out: slow escape, smooth cruise, gentle landing
+  const t = rawT < 0.5
+    ? 4 * rawT * rawT * rawT
+    : 1 - Math.pow(-2 * rawT + 2, 3) / 2;
+
+  // Fade: pop in immediately, stay fully visible, dissolve as lower-third fades in
+  const op = interpolate(rawT, [0, 0.05, 0.85, 1.0], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+
+  const lerp = (a: number, b: number) => a + (b - a) * t;
+
+  // ── source (card) ──────────────────────────────────────────────────────────
+  const SF_X = 198, SF_Y = 258, SF_SZ = 130;   // face top-left, size
+  const SN_L = 364, SN_T  = 284;               // name left, top
+  const SU_L = 364, SU_T  = 320;               // ug left, top
+
+  // ── target (lower-third, video at translateY(-44px)) ──────────────────────
+  const TF_X = 238, TF_Y = 502, TF_SZ = 44;
+  const TN_L = 298, TN_T  = 510;
+  const TU_L = 298, TU_T  = 537;
+
+  return (
+    <div style={{ position: "absolute", inset: 0, zIndex: 62, pointerEvents: "none", opacity: op }}>
+
+      {/* ── Flying face photo ── */}
+      <Img
+        src={staticFile("AWSCommunityGameDayEurope/faces/mihaly.jpg")}
+        style={{
+          position: "absolute",
+          left: lerp(SF_X, TF_X),
+          top:  lerp(SF_Y, TF_Y),
+          width:  lerp(SF_SZ, TF_SZ),
+          height: lerp(SF_SZ, TF_SZ),
+          borderRadius: "50%",
+          objectFit: "cover",
+          boxShadow: `0 0 0 ${lerp(4, 2)}px ${GD_VIOLET}55, 0 0 ${lerp(32, 14)}px ${GD_VIOLET}44`,
+        }}
+      />
+
+      {/* ── Flying name ── */}
+      <div style={{
+        position: "absolute",
+        left: lerp(SN_L, TN_L),
+        top:  lerp(SN_T, TN_T),
+        fontSize: lerp(TYPOGRAPHY.h5, TYPOGRAPHY.h6),
+        fontWeight: 800,
+        color: "white",
+        fontFamily: FF,
+        lineHeight: 1.1,
+        whiteSpace: "nowrap",
+      }}>
+        Mihaly Balassy
+      </div>
+
+      {/* ── Flying UG name ── */}
+      <div style={{
+        position: "absolute",
+        left: lerp(SU_L, TU_L),
+        top:  lerp(SU_T, TU_T),
+        fontSize: lerp(TYPOGRAPHY.h6, TYPOGRAPHY.caption),
+        fontWeight: 600,
+        color: `rgba(255,255,255,${lerp(0.7, 0.5)})`,
+        fontFamily: FF,
+        whiteSpace: "nowrap",
+      }}>
+        AWS User Group Budapest
+      </div>
+
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SCENE 7  - MIHALY SUPPORT VIDEO
 // ─────────────────────────────────────────────────────────────────────────────
 // IMPORTANT: This component must be rendered inside a <Sequence from={S.VIDEO_IN}>.
@@ -1550,22 +1862,18 @@ const SupportVideoBody: React.FC = () => {
   const { fps } = useVideoConfig();
   const DURATION = S.VIDEO_OUT - S.VIDEO_IN; // 1799 frames
 
-  const relSec = frame / fps;
-
   const fadeIn  = spring({ frame, fps, config: springConfig.entry });
   const fadeOut = interpolate(frame, [DURATION - 30, DURATION], [1, 0], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
   const op = fadeIn * fadeOut;
 
-  const activeSub = SUBTITLES.find((s) => relSec >= s.s && relSec < s.e);
-  const subFade   = activeSub
-    ? spring({ frame: frame - Math.round(activeSub.s * fps), fps, config: springConfig.entry })
-    : 0;
-
-  // Lower-third reveal: slides up from bottom of video over first 1s
-  const lowerThirdSp = spring({ frame, fps, config: { damping: 16, mass: 0.8, stiffness: 80 } });
-  const lowerThirdOff = interpolate(lowerThirdSp, [0, 1], [60, 0]);
+  // Lower-third: no slide animation — the MihalyMagicMoveOverlay carries the
+  // face/name/UG to this position. Lower-third fades in as the overlay arrives.
+  const lowerThirdOff = 0;
+  const lowerThirdOp  = interpolate(frame, [30, 48], [0, 1], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill style={{ opacity: op, zIndex: 55 }}>
@@ -1587,11 +1895,12 @@ const SupportVideoBody: React.FC = () => {
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
 
-        {/* Lower-third bar  - slides up from bottom edge of video, broadcast style */}
+        {/* Lower-third bar — no slide, fades in as MihalyIntroCard magic-moves here */}
         <div style={{
           position: "absolute",
           bottom: 0, left: 0, right: 0,
           transform: `translateY(${lowerThirdOff}px)`,
+          opacity: lowerThirdOp,
           zIndex: 58,
           overflow: "hidden",
         }}>
@@ -1645,31 +1954,8 @@ const SupportVideoBody: React.FC = () => {
         </div>
       </div>
 
-      {/* Subtitles  - plain text below the video, no background box */}
-      {activeSub && (
-        <div style={{
-          position: "absolute",
-          // video bottom is at: 50% - 44px + 253px = ~569px from top (720px frame)
-          // progress bar is at bottom: 68px → top: 652px
-          // we place text centered between video bottom and progress bar
-          bottom: L.PROGRESS_H + 14,
-          left: "50%",
-          transform: "translateX(-50%)",
-          maxWidth: 860,
-          width: 860,
-          opacity: subFade,
-          zIndex: 57,
-          textAlign: "center",
-        }}>
-          <div style={{
-            fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "white",
-            fontFamily: FF, lineHeight: 1.4,
-            textShadow: "0 1px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.8)",
-          }}>
-            {activeSub.t}
-          </div>
-        </div>
-      )}
+      {/* Subtitles are rendered at root level (main composition z=80) so they
+          appear above the dim overlay that covers the progress bar area.      */}
     </AbsoluteFill>
   );
 };
@@ -1680,6 +1966,7 @@ const SupportVideoBody: React.FC = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 const LindaGuestIntro: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.LINDA_BACK_IN || frame > S.LINDA_BACK_OUT) return null;
+  if (frame >= S.COLLAB_IN) return null;  // collab scene takes over at COLLAB_IN
 
   const rel = frame - S.LINDA_BACK_IN;
   const op  = fadeWindow(frame, S.LINDA_BACK_IN, S.LINDA_BACK_OUT, 25);
@@ -1764,6 +2051,316 @@ const LindaGuestIntro: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
         </GlassCard>
       </div>
     </>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCENE 9a  - COLLAB INTRO (15330 - 17100)  3-phase reveal:
+//   Phase 1 (rel 0-300):   Community GlassCard alone, centred (~10 s)
+//   Phase 2 (rel 300-900): Community slides left, AWS card enters right,
+//                          headline "joint event" appears (~20 s)
+//   Phase 3 (rel 900+):    Both cards fade, special guest card + sidebar visible
+// No schedule sidebar in phases 1+2 (backdrop covers it - filler content).
+// ─────────────────────────────────────────────────────────────────────────────
+const COMMUNITY_FACES = [
+  "jerome","anda","linda","mihaly",
+  "andreas","lucian","manuel","marcel",
+] as const;
+
+// AWS supporter data (shown in the AWS GlassCard)
+const AWS_SUPPORTERS = [
+  { key: "arnaud",  name: "Arnaud",  title: "Developer Advocate",      sub: "Gamemaster"          },
+  { key: "loic",    name: "Loïc",    title: "Sr. Tech Account Manager", sub: "Gamemaster"          },
+  { key: "uliana",  name: "Uliana",  title: "Community Manager",        sub: "DACH, CEE & MENAT"   },
+  { key: "natalia", name: "Natalia", title: "DevEx Community Manager",  sub: "EMEA / Europe South" },
+] as const;
+
+// Phase breakpoints (frames relative to COLLAB_IN) — each value = end of that phase
+const COLLAB_PA = 150;   //  5 s - Phase A ends: just Linda, no boxes, no backdrop
+const COLLAB_PB = 750;   // 20 s - Phase B ends: community box fully revealed
+const COLLAB_PC = 900;   //  5 s - Phase C ends: hold all faces
+const COLLAB_PD = 1500;  // 20 s - Phase D ends: both boxes + headline
+const COLLAB_PE = 1650;  //  5 s - Phase E ends: hold both boxes
+const COLLAB_PF = 1950;  // 10 s - Phase F ends: guest card + schedule (= COLLAB_OUT - COLLAB_IN)
+
+// Card geometry (px, absolute positioning)
+const COLLAB_W   = 560;
+const COLLAB_CTR = Math.round((1280 - COLLAB_W) / 2); // 360 - centred x
+const COLLAB_LX  = L.MARGIN;                           //  40 - left slot
+const COLLAB_RX  = 1280 - L.MARGIN - COLLAB_W;        // 680 - right slot
+
+const CollabIntroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  if (frame < S.COLLAB_IN || frame > S.COLLAB_OUT) return null;
+
+  const clamp = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as const };
+  const rel   = frame - S.COLLAB_IN;
+
+  // ── Backdrop: invisible in Phase A, fades in at Phase B, covers sidebar through Phase E,
+  //              fades out at Phase F so schedule sidebar becomes visible
+  const backdropOp = interpolate(
+    rel,
+    [COLLAB_PA, COLLAB_PA + 20, COLLAB_PE, COLLAB_PE + 60],
+    [0, 1, 1, 0],
+    clamp,
+  );
+
+  // ── Community card opacity: fades in at Phase B start, fades out at Phase F start
+  const commOp = interpolate(
+    rel,
+    [COLLAB_PA, COLLAB_PA + 20, COLLAB_PE, COLLAB_PE + 40],
+    [0, 1, 1, 0],
+    clamp,
+  );
+
+  // Phase C→D transition: community card slides from centre to left slot
+  const rawMoveT  = interpolate(rel, [COLLAB_PC, COLLAB_PC + 90], [0, 1], clamp);
+  const moveEased = rawMoveT < 0.5
+    ? 4 * rawMoveT * rawMoveT * rawMoveT
+    : 1 - Math.pow(-2 * rawMoveT + 2, 3) / 2;
+  const communityX = COLLAB_CTR - (COLLAB_CTR - COLLAB_LX) * moveEased;
+
+  // Community card entry spring (starts at Phase B)
+  const commEntrySp = spring({ frame: Math.max(0, rel - COLLAB_PA), fps, config: springConfig.entry });
+
+  // ── Headline: appears at Phase D start, fades out at Phase F start
+  const headlineSp = spring({ frame: Math.max(0, rel - COLLAB_PC), fps, config: springConfig.entry });
+  const headlineOp = interpolate(
+    rel,
+    [COLLAB_PC, COLLAB_PC + 30, COLLAB_PE, COLLAB_PE + 40],
+    [0, 1, 1, 0],
+    clamp,
+  );
+
+  // ── AWS card: enters from right at Phase D start, fades out at Phase F start
+  const awsEntrySp = spring({ frame: Math.max(0, rel - COLLAB_PC + 8), fps, config: springConfig.entry });
+  const awsX       = interpolate(awsEntrySp, [0, 1], [1320, COLLAB_RX]);
+  const awsOp      = interpolate(
+    rel,
+    [COLLAB_PC, COLLAB_PC + 30, COLLAB_PE, COLLAB_PE + 40],
+    [0, 1, 1, 0],
+    clamp,
+  );
+
+  // ── Phase F: Guest card fades in as backdrop fades out + sidebar appears
+  const guestOp    = interpolate(rel, [COLLAB_PE, COLLAB_PE + 60], [0, 1], clamp);
+  const guestSlide = interpolate(rel, [COLLAB_PE, COLLAB_PE + 60], [18, 0], clamp);
+
+  return (
+    <div style={{
+      position: "absolute", top: 0, left: 0, right: 0, bottom: L.PROGRESS_H,
+      zIndex: 34,
+      overflow: "hidden",
+    }}>
+
+      {/* Backdrop - invisible in Phase A, covers sidebar in B-E, fades out in F */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "rgba(8,4,20,0.88)",
+        opacity: backdropOp,
+        pointerEvents: "none",
+      }} />
+
+      {/* ── Headline (phases D+E only) ── */}
+      <div style={{
+        position: "absolute", top: 52, left: 0, right: 0,
+        textAlign: "center",
+        opacity: headlineOp,
+        transform: `translateY(${interpolate(headlineSp, [0, 1], [14, 0])}px)`,
+        pointerEvents: "none",
+      }}>
+        <div style={{
+          fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_ACCENT,
+          letterSpacing: 5, textTransform: "uppercase" as const, fontFamily: FF, marginBottom: 8,
+        }}>
+          A Collaborative Event
+        </div>
+        <div style={{
+          fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white",
+          fontFamily: FF, lineHeight: 1.1,
+        }}>
+          AWS Community&nbsp;&nbsp;&times;&nbsp;&nbsp;Amazon Web Services
+        </div>
+      </div>
+
+      {/* ── Community GlassCard
+            Phase B: centred, staggered face reveals (one every ~2s)
+            Phase C: hold all faces
+            Phase D: slides left as AWS box enters
+            Phase E: hold left + AWS box
+            Phase F: fades out
+      ── */}
+      {rel >= COLLAB_PA - 10 && rel < COLLAB_PE + 50 && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: communityX,
+          width: COLLAB_W,
+          transform: `translateY(calc(-50% + ${interpolate(commEntrySp, [0, 1], [22, 0])}px))`,
+          opacity: commEntrySp * commOp,
+        }}>
+          <GlassCard style={{ padding: "24px 28px 28px", borderLeft: `4px solid ${GD_VIOLET}`, boxSizing: "border-box" as const }}>
+
+            <div style={{
+              fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_VIOLET,
+              letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+              marginBottom: 18, display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: GD_VIOLET }} />
+              AWS Community
+            </div>
+
+            {/* Program logos - no box wrapper, no label text */}
+            <div style={{ display: "flex", gap: 20, marginBottom: 20, alignItems: "center" }}>
+              {(["awsheroes.png", "Usergroups-badges_leader-dark.png", "aws-community-builder-logo.png"] as const).map((src, i) => {
+                const lSp = spring({ frame: Math.max(0, rel - COLLAB_PA - 8 - i * 8), fps, config: springConfig.entry });
+                return (
+                  <div key={src} style={{ opacity: lSp, transform: `scale(${interpolate(lSp, [0, 1], [0.5, 1])})` }}>
+                    <Img
+                      src={staticFile(`AWSCommunityGameDayEurope/${src}`)}
+                      style={{ width: 60, height: 60, objectFit: "contain" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ height: 1, background: `${GD_VIOLET}22`, marginBottom: 16 }} />
+
+            {/* Organiser face circles — staggered ~2s apart across 20s window, all 56px */}
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+              {COMMUNITY_FACES.map((name, i) => {
+                // face[0] starts at COLLAB_PA+30, face[7] at COLLAB_PA+30+7*65=635 — all settled by COLLAB_PB=750
+                const fSp = spring({ frame: Math.max(0, rel - COLLAB_PA - 30 - i * 65), fps, config: springConfig.entry });
+                return (
+                  <div key={name} style={{ opacity: fSp, transform: `scale(${interpolate(fSp, [0, 1], [0.45, 1])})` }}>
+                    <Img
+                      src={staticFile(`AWSCommunityGameDayEurope/faces/${name}.jpg`)}
+                      style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover",
+                        boxShadow: `0 0 0 2px ${GD_VIOLET}99, 0 0 12px ${GD_VIOLET}44` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+          </GlassCard>
+        </div>
+      )}
+
+      {/* ── AWS GlassCard (phases D+E: enters from right, fades out at Phase F) ── */}
+      {rel >= COLLAB_PC - 8 && rel < COLLAB_PE + 50 && (
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: awsX,
+          width: COLLAB_W,
+          transform: `translateY(-50%)`,
+          opacity: awsOp,
+        }}>
+          <GlassCard style={{ padding: "24px 28px 28px", borderLeft: `4px solid ${GD_ORANGE}`, boxSizing: "border-box" as const }}>
+
+            <div style={{
+              fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_ORANGE,
+              letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+              marginBottom: 4, display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: GD_ORANGE }} />
+              Amazon Web Services
+            </div>
+
+            <div style={{
+              fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
+              fontFamily: FF, marginBottom: 18,
+            }}>
+              Orga Support &amp; Gamemasters making this event possible
+            </div>
+
+            <div style={{ height: 1, background: `${GD_ORANGE}22`, marginBottom: 18 }} />
+
+            {/* 4 AWS supporter faces - no names, Linda thanks them verbally at the end */}
+            <div style={{ display: "flex", gap: 14, justifyContent: "center", marginBottom: 18 }}>
+              {AWS_SUPPORTERS.map((person, i) => {
+                const pSp = spring({ frame: Math.max(0, rel - COLLAB_PC - 20 - i * 8), fps, config: springConfig.entry });
+                return (
+                  <div key={person.key} style={{ opacity: pSp, transform: `scale(${interpolate(pSp, [0, 1], [0.5, 1])})` }}>
+                    <Img
+                      src={staticFile(`AWSCommunityGameDayEurope/faces/${person.key}.jpg`)}
+                      style={{ width: 66, height: 66, borderRadius: "50%", objectFit: "cover",
+                        boxShadow: `0 0 0 2px ${GD_ORANGE}aa, 0 0 14px ${GD_ORANGE}55` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Marketing sentences about AWS support */}
+            <div style={{
+              fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.65)",
+              fontFamily: FF, lineHeight: 1.7,
+            }}>
+              AWS provides the <span style={{ color: GD_ORANGE, fontWeight: 700 }}>GameDay infrastructure</span> -
+              challenge environments, team AWS accounts, scoring, and support -
+              enabling participants across Europe to learn hands-on with real AWS services.
+              Without their support, none of this would be possible.
+            </div>
+
+          </GlassCard>
+        </div>
+      )}
+
+      {/* ── Phase F: Special guest card
+            Orange GlassCard — transitions in from AWS box position as backdrop fades,
+            sidebar becomes visible behind. Linda does quick 10s introduction.
+      ── */}
+      {rel >= COLLAB_PE - 30 && (
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, right: L.SIDEBAR_W, bottom: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          opacity: guestOp,
+          transform: `translateY(${guestSlide}px)`,
+        }}>
+          <div style={{ width: 600 }}>
+            <GlassCard style={{ padding: "36px 52px", borderTop: `4px solid ${GD_ORANGE}`, textAlign: "center" as const }}>
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 10,
+                background: `${GD_ORANGE}14`, border: `1px solid ${GD_ORANGE}40`,
+                borderRadius: 100, padding: "6px 20px", marginBottom: 24,
+              }}>
+                <StarIcon s={12} c={GD_ORANGE} />
+                <div style={{
+                  fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ORANGE,
+                  letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+                }}>
+                  AWS Special Guest - Joining Live
+                </div>
+              </div>
+              <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white", fontFamily: FF, lineHeight: 1.1, marginBottom: 10 }}>
+                Special Guest
+              </div>
+              <div style={{
+                fontSize: TYPOGRAPHY.h6, fontWeight: 600,
+                background: `linear-gradient(90deg, ${GD_ORANGE}, ${GD_GOLD})`,
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                fontFamily: FF, marginBottom: 20,
+              }}>
+                from Amazon Web Services
+              </div>
+              <div style={{ width: 48, height: 2, margin: "0 auto 20px", background: `linear-gradient(90deg, transparent, ${GD_ORANGE}, transparent)` }} />
+              <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.72)", fontFamily: FF, lineHeight: 1.65, marginBottom: 18 }}>
+                A familiar face to many of you - someone who has traveled to community events,
+                meetups and community days across Europe, year after year.
+              </div>
+              <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.35)", fontFamily: FF }}>
+                AWS provides the infrastructure and environments that make GameDay possible
+                for 80+ user groups across Europe.
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 };
 
@@ -1986,8 +2583,8 @@ export const GameDayMainEventV3: React.FC = () => {
 
   const gameCountdown  = calculateCountdown(frame, STREAM_START, GAME_START, fps);
   const isDistribute   = frame >= 45000;
-  // Suppress old scenes during video and during Linda's transition back
-  const isVideoScene   = frame >= S.VIDEO_IN && frame <= S.LINDA_BACK_OUT;
+  // Suppress sidebar/speakers during video, Linda's thank-you, and the dark hold up to collab start
+  const isVideoScene   = frame >= S.VIDEO_IN && frame < S.COLLAB_IN + COLLAB_PA; // hide sidebar during Phase A too
 
   const STATS: StatDef[] = [
     {
@@ -2025,8 +2622,8 @@ export const GameDayMainEventV3: React.FC = () => {
       {/* ── Scene 1: Welcome hero (0–270) ── */}
       <WelcomeHero frame={frame} fps={fps} />
 
-      {/* ── Countdown: top-right (60+) ── */}
-      <CountdownTimer frame={frame} fps={fps} seconds={gameCountdown} isDistribute={isDistribute} />
+      {/* ── Countdown: top-right (60+, hidden during code distribution) ── */}
+      {!isDistribute && <CountdownTimer frame={frame} fps={fps} seconds={gameCountdown} isDistribute={isDistribute} />}
 
       {/* ── Scene 2: Stats, one at a time (270–870) ── */}
       {!isVideoScene && STATS.map((def) => (
@@ -2057,14 +2654,20 @@ export const GameDayMainEventV3: React.FC = () => {
       {/* ── Scene 6b: Mihaly "Coming Up" (9300–10850) – Linda's transition to support process ── */}
       <MihalyIntroCard frame={frame} fps={fps} />
 
+      {/* ── Magic-move overlay: face+name+UG fly from intro card to lower-third ── */}
+      <MihalyMagicMoveOverlay frame={frame} />
+
       {/* ── Scene 10: Arnaud & Loïc Gamemasters (23400–44999) ── */}
       <ArnaudLoicCard frame={frame} fps={fps} />
 
-      {/* ── Schedule sidebar (1320+) ── */}
-      {!isVideoScene && <ScheduleSidebar frame={frame} fps={fps} />}
+      {/* ── Scene 11: Code distribution (45000–53999, 5 min before game start) ── */}
+      <CodeDistributionScene frame={frame} fps={fps} gameCountdownSeconds={gameCountdown} />
 
-      {/* ── Speaker indicator (1800+) ── */}
-      {!isVideoScene && <SpeakerIndicator frame={frame} fps={fps} />}
+      {/* ── Schedule sidebar (1320+, hidden during code distribution) ── */}
+      {!isVideoScene && !isDistribute && <ScheduleSidebar frame={frame} fps={fps} />}
+
+      {/* ── Speaker indicator (1800+, hidden during code distribution) ── */}
+      {!isVideoScene && !isDistribute && <SpeakerIndicator frame={frame} fps={fps} />}
 
       {/* ── Audio badge ── */}
       <AudioBadge muted={false} />
@@ -2077,6 +2680,9 @@ export const GameDayMainEventV3: React.FC = () => {
 
       {/* ── Scene 8: Linda transition back → AWS special guest intro (13380–15179) ── */}
       <LindaGuestIntro frame={frame} fps={fps} />
+
+      {/* ── Scene 9a: Collab intro – 5 s hold then community × AWS cards (15330–15660) ── */}
+      <CollabIntroScene frame={frame} fps={fps} />
 
       {/* ── Progress bar (always) ── */}
       <ProgressBar frame={frame} totalFrames={54000} gameCountdownSeconds={gameCountdown} />
@@ -2100,6 +2706,46 @@ export const GameDayMainEventV3: React.FC = () => {
           ),
         }} />
       )}
+
+      {/* ── Support video subtitles – rendered at root (z=80) so they sit ABOVE   ── */}
+      {/* ── the dim overlay (z=76) that darkens the progress bar area.           ── */}
+      {/* ── Positioned below the video bottom, inside the dark overlay band.     ── */}
+      {frame >= S.VIDEO_IN && frame <= S.VIDEO_OUT && (() => {
+        const relSec   = (frame - S.VIDEO_IN) / fps;
+        const relFrame = frame - S.VIDEO_IN;
+        const activeSub = SUBTITLES.find((s) => relSec >= s.s && relSec < s.e);
+        if (!activeSub) return null;
+        const subFade = spring({
+          frame: relFrame - Math.round(activeSub.s * fps),
+          fps,
+          config: springConfig.entry,
+        });
+        return (
+          <div style={{
+            position: "absolute",
+            // Fixed 72px zone between video bottom and progress bar.
+            // Flex centering so 1-line and 2-line subtitles both sit in the middle.
+            bottom: L.PROGRESS_H + 6,
+            left: "50%",
+            transform: "translateX(-50%)",
+            maxWidth: 860, width: 860,
+            height: 72,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: subFade,
+            zIndex: 80,
+            textAlign: "center",
+            pointerEvents: "none",
+          }}>
+            <div style={{
+              fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "white",
+              fontFamily: FF, lineHeight: 1.4,
+              textShadow: "0 1px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.8)",
+            }}>
+              {activeSub.t}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Remotion Studio chapter markers ── */}
       {CHAPTERS.map((seg) => (

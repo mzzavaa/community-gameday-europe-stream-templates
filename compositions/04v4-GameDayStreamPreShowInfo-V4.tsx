@@ -77,11 +77,24 @@ const SHUFFLED = [...USER_GROUPS].sort((a, b) => {
 // ─── Logo lookup (handles UG / User Group name variations) ────────────────────
 function findLogo(name: string): string | null {
   if (LOGO_MAP[name]) return LOGO_MAP[name];
+  
+  // Special case mappings for known mismatches
+  const specialMappings: Record<string, string> = {
+    "AWS User Group Geneva": "AWS Swiss User Group-Geneva",
+    "AWS User Group Frankfurt": "Frankfurt AWS User Group",
+  };
+  if (specialMappings[name] && LOGO_MAP[specialMappings[name]]) {
+    return LOGO_MAP[specialMappings[name]];
+  }
+  
   for (const key of Object.keys(LOGO_MAP)) {
+    // Normalize: expand "UG" to "User Group" in both directions
     const normName = name
+      .replace("AWS Women's UG ", "AWS Women's User Group ")
       .replace("AWS UG ", "AWS User Group ")
       .replace(/\s*–\s*/g, " – ");
     const normKey = key
+      .replace("AWS Women's User Group ", "AWS Women's UG ")
       .replace("AWS User Group ", "AWS UG ")
       .replace(/\s*-\s*/g, " – ");
     if (key.includes(normName) || normKey.includes(name)) return LOGO_MAP[key];
@@ -180,11 +193,12 @@ export const VolumeIcon: React.FC<IconProps> = ({ size = 20, color = "currentCol
 
 export const TrophyIcon: React.FC<IconProps> = ({ size = 20, color = "currentColor" }) => (
   <Icon size={size} color={color}>
-    <polyline points="8 21 12 17 16 21" />
-    <line x1="12" y1="17" x2="12" y2="11" />
-    <path d="M7 4H4a2 2 0 0 0-2 2v2a6 6 0 0 0 6 6 6 6 0 0 0 6-6V6a2 2 0 0 0-2-2h-3" />
-    <path d="M17 4h3a2 2 0 0 1 2 2v2a6 6 0 0 1-6 6" />
-    <rect x="7" y="2" width="10" height="5" rx="1" />
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" fill={color} fillOpacity={0.2} />
   </Icon>
 );
 
@@ -312,11 +326,11 @@ const TopBar: React.FC = () => {
 };
 
 // ─── Slide wrapper ─────────────────────────────────────────────────────────────
-const Wrap: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const Wrap: React.FC<{ children: React.ReactNode; muted?: boolean }> = ({ children, muted = true }) => (
   <AbsoluteFill style={{ fontFamily: F, background: GD_DARK }}>
     <BackgroundLayer darken={0.72} />
     <HexGridOverlay />
-    <AudioBadge muted />
+    <AudioBadge muted={muted} />
     <TopBar />
     <div style={{ position: "absolute", top: 72, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 60px" }}>
       {children}
@@ -383,9 +397,9 @@ const SlideHero: React.FC = () => {
   const statsE = useStagger(12, 8);
 
   const stats = [
-    { v: "57", l: "User Groups", c: GD_GOLD },
-    { v: "20+", l: "Countries", c: GD_PINK },
-    { v: "4+", l: "Timezones", c: GD_VIOLET },
+    { v: "53", l: "User Groups", c: GD_GOLD },
+    { v: "23", l: "Countries", c: GD_PINK },
+    { v: "4", l: "Timezones", c: GD_VIOLET },
     { v: "1st", l: "Edition", c: GD_ORANGE },
   ];
 
@@ -434,10 +448,10 @@ const SlideHero: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideWhatsHappening: React.FC = () => {
   const cards = [
-    { icon: <BroadcastIcon size={28} color={GD_VIOLET} />, title: "One Stream, 57 Cities", body: "Right now, AWS User Groups all over Europe are watching this exact stream at their local venue. You are part of the first-ever pan-European AWS Community GameDay.", c: GD_VIOLET },
-    { icon: <VolumeMuteIcon size={28} color={GD_PINK} />, title: "Why Is It Muted Right Now?", body: "This is the 30-minute pre-show loop that plays before the live stream begins at 18:00 CET. Use this time to test your audio - you'll need it soon!", c: GD_PINK },
-    { icon: <GamepadIcon size={28} color={GD_GOLD} />, title: "The Competition", body: "At 18:30 CET all 57 groups start a 2-hour AWS challenge simultaneously. Stream goes mute during gameplay. Your local UG leader gives your team access codes.", c: GD_GOLD },
-    { icon: <TrophyIcon size={28} color={GD_ORANGE} />, title: "Stay for the Closing!", body: "At 20:30 CET the stream returns live. Winners are revealed globally, together. Don't leave - celebrate with 57 cities across Europe all at once.", c: GD_ORANGE },
+    { icon: <BroadcastIcon size={28} color={GD_VIOLET} />, title: "One Stream, 53 Cities", body: "Right now, AWS User Groups all over Europe are watching this exact stream at their local venue. You are part of the first-ever pan-European AWS Community GameDay.", c: GD_VIOLET },
+    { icon: <VolumeMuteIcon size={28} color={GD_PINK} />, title: "Why Is It Muted Right Now?", body: "This is the pre-show loop before the live stream at 18:00 CET. At 17:55 CET the stream host will do a ~30 second audio test - make sure you can hear it!", c: GD_PINK },
+    { icon: <GamepadIcon size={28} color={GD_GOLD} />, title: "The Competition", body: "At 18:30 CET all 53 groups start a 2-hour AWS challenge simultaneously. Your local UG leader gives your team access codes at 18:25 CET.", c: GD_GOLD },
+    { icon: <TrophyIcon size={28} color={GD_ORANGE} />, title: "Stay for the Closing!", body: "At 20:30 CET the stream returns live. Winners are revealed globally, together. Don't leave - celebrate with 53 cities across Europe all at once.", c: GD_ORANGE },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -466,7 +480,7 @@ const SlideMeetLinda: React.FC = () => {
   const noteE = useStagger(10, 8);
 
   const points = [
-    { entry: p1, text: "Your host for today's GameDay Europe stream - broadcasting live across ~57 cities" },
+    { entry: p1, text: "Your host for today's GameDay Europe stream - broadcasting live across 53 cities" },
     { entry: p2, text: "Leader of AWS User Group Vienna & AWS Women's User Group Vienna" },
     { entry: p3, text: "Chairwoman of Förderverein AWS Community DACH e.V." },
     { entry: p4, text: "Vice Chair of the largest open source foundation in Austria" },
@@ -526,8 +540,8 @@ const SlideMeetAndaJerome: React.FC = () => {
   const noteE = useStagger(8, 8);
 
   const people = [
-    { person: anda, c: GD_PINK, logo: findLogo("AWS User Group Geneva") ?? findLogo("AWS Swiss User Group-Geneva"), desc: "AWS Community Builder and initiator of this GameDay. Anda had the original vision for a pan-European AWS community event and brought together volunteer organizers from ~57 User Groups across the continent." },
-    { person: jerome, c: GD_VIOLET, logo: findLogo("AWS User Group Belgium"), desc: "AWS User Group Belgium leader and co-founder of this initiative. Jerome co-architected the event structure, competition framework, and built the network of ~57 User Groups across 20+ countries." },
+    { person: anda, c: GD_PINK, logo: findLogo("AWS User Group Geneva") ?? findLogo("AWS Swiss User Group-Geneva"), desc: "AWS Community Builder and initiator of this GameDay. Anda had the original vision for a pan-European AWS community event and brought together volunteer organizers from 53 User Groups across the continent." },
+    { person: jerome, c: GD_VIOLET, logo: findLogo("AWS User Group Belgium"), desc: "AWS User Group Belgium leader and co-founder of this initiative. Jerome co-architected the event structure, competition framework, and built the network of 53 User Groups across 23 countries." },
   ];
 
   return (
@@ -545,14 +559,18 @@ const SlideMeetAndaJerome: React.FC = () => {
             <GlassCard style={{ padding: "22px 24px", borderLeft: `4px solid ${c}`, height: "100%" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
                 <Img src={staticFile(person.face)} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover", flexShrink: 0, boxShadow: `0 0 20px ${c}44` }} />
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{ fontSize: TYPOGRAPHY.h5, fontWeight: 900, color: "white" }}>{person.flag} {person.name}</div>
                   <div style={{ fontSize: TYPOGRAPHY.caption, color: c, marginTop: 3, fontWeight: 600 }}>{person.role}</div>
                   <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
                     <LocationIcon size={11} color={GD_ACCENT} /> {person.country}
                   </div>
                 </div>
-                {logo && <Img src={logo} style={{ marginLeft: "auto", maxWidth: 70, maxHeight: 40, objectFit: "contain", opacity: 0.85 }} />}
+                {logo && (
+                  <div style={{ width: 130, height: 75, borderRadius: 10, overflow: "hidden", flexShrink: 0, background: "rgba(255,255,255,0.05)" }}>
+                    <Img src={logo} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                )}
               </div>
               <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>{desc}</div>
             </GlassCard>
@@ -562,7 +580,7 @@ const SlideMeetAndaJerome: React.FC = () => {
 
       <div style={{ opacity: noteE, transform: `translateY(${interpolate(noteE, [0, 1], [12, 0])}px)`, width: "100%", maxWidth: 1060, background: `${GD_PURPLE}22`, border: `1px solid ${GD_PURPLE}44`, borderRadius: 14, padding: "12px 24px", fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", textAlign: "center", lineHeight: 1.6 }}>
         <HeartIcon size={14} color={GD_ACCENT} style={{ display: "inline", marginRight: 6 }} />
-        <strong style={{ color: GD_ACCENT }}>None of this is their job.</strong> Anda and Jerome are User Group leaders who organize events and build things for the AWS community in their free time, just like so many others. They will share the story behind this GameDay live on stream in a quick introduction.
+        <strong style={{ color: GD_ACCENT }}>None of this is their job.</strong> Anda and Jerome are AWS User Group Leaders and AWS Community Builders who organize events and build things for the AWS community in their free time, just like so many others. They will share the story behind this GameDay live on stream.
       </div>
     </AbsoluteFill>
   );
@@ -579,7 +597,7 @@ const SlideMeetGamemasters: React.FC = () => {
   const noteE = useStagger(8, 8);
 
   const people = [
-    { person: arnaud, c: GD_ORANGE, desc: "Developer Advocate at AWS. Arnaud will deliver the official GameDay instructions at 18:14 CET and guide all 57 teams through the competition format, rules, and scoring system." },
+    { person: arnaud, c: GD_ORANGE, desc: "Developer Advocate at AWS. Arnaud will deliver the official GameDay instructions at ~18:10 CET and guide all 53 teams through the competition format, rules, and scoring system." },
     { person: loic, c: GD_GOLD, desc: "Sr. Technical Account Manager at AWS. Loïc co-delivers the GameDay instructions and is available as a gamemaster throughout the competition to help with any technical questions." },
   ];
 
@@ -590,7 +608,7 @@ const SlideMeetGamemasters: React.FC = () => {
           <GamepadIcon size={14} color={GD_ACCENT} /> GameDay Instructors
         </div>
         <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>Meet Arnaud &amp; Loïc</div>
-        <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>AWS Gamemasters - delivering instructions live at 18:14 CET</div>
+        <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>AWS Gamemasters - delivering instructions live at ~18:10 CET</div>
       </div>
 
       <div style={{ display: "flex", gap: 24, width: "100%", maxWidth: 1060, marginBottom: 20 }}>
@@ -618,8 +636,8 @@ const SlideMeetGamemasters: React.FC = () => {
         <GlassCard style={{ padding: "14px 24px" }}>
           <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
             {[
-              { time: "18:13 CET", label: "Linda introduces the gamemasters", icon: <MicIcon size={14} color={GD_ACCENT} /> },
-              { time: "18:14 CET", label: "Arnaud & Loïc deliver GameDay instructions", icon: <GamepadIcon size={14} color={GD_GOLD} /> },
+              { time: "~18:08 CET", label: "Linda introduces the gamemasters", icon: <MicIcon size={14} color={GD_ACCENT} /> },
+              { time: "~18:10 CET", label: "Arnaud & Loïc deliver GameDay instructions", icon: <GamepadIcon size={14} color={GD_GOLD} /> },
               { time: "18:25 CET", label: "Team codes distributed at your venue", icon: <CheckCircleIcon size={14} color="#4ade80" /> },
             ].map((item) => (
               <div key={item.time} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.7)" }}>
@@ -642,7 +660,7 @@ const SlideAWSCommunity: React.FC = () => {
   const cards = [
     { icon: <HeartIcon size={32} color={GD_VIOLET} />, title: "Volunteers, not employees", body: "The AWS Community is made up of developers, architects, and cloud enthusiasts who are NOT employed by Amazon. They organize events and share knowledge purely out of passion." },
     { icon: <UsersIcon size={32} color={GD_PINK} />, title: "Local User Groups", body: "AWS User Groups are local communities in cities around the world. They hold regular meetups, workshops, and technical talks - driven entirely by volunteer leaders." },
-    { icon: <GlobeIcon size={32} color={GD_GOLD} />, title: "57 Groups Here Today", body: "Every group competing today is run by a volunteer leader. This event is the first time all these groups have ever competed together in a single event at the same time." },
+    { icon: <GlobeIcon size={32} color={GD_GOLD} />, title: "53 Groups Here Today", body: "Every group competing today is run by a volunteer leader. This event is the first time all these groups have ever competed together in a single event at the same time." },
   ];
   const quoteE = useStagger(4, 8);
   return (
@@ -671,8 +689,8 @@ const SlideUGLeader: React.FC = () => {
   const badgeE = useEntry(0);
   const noteE = useStagger(5, 8);
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 12 }}>
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 12, marginTop: -8 }}>
         <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
           <Img src={staticFile("AWSCommunityGameDayEurope/Usergroups-badges_leader-dark.png")} style={{ width: 112, height: "auto", objectFit: "contain" }} />
         </div>
@@ -697,8 +715,8 @@ const SlideCommunityBuilder: React.FC = () => {
   const badgeE = useEntry(0);
   const noteE = useStagger(5, 8);
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 8 }}>
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 8, marginTop: -8 }}>
         <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
           <Img src={staticFile("AWSCommunityGameDayEurope/aws-community-builder-logo.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
         </div>
@@ -732,34 +750,34 @@ const SlideCommunityHero: React.FC = () => {
   const noteE = useStagger(9, 8);
 
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <SectionLabel icon={<ShieldIcon size={20} color={GD_GOLD} />} text="What is an AWS Hero?" color={GD_GOLD} />
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 48, width: "100%", maxWidth: 1060 }}>
-        {/* Hero program logo */}
-        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, minHeight: 280 }}>
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 48, width: "100%", maxWidth: 1060 }}>
+        {/* Hero program logo - middle aligned with content */}
+        <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ opacity: heroE, transform: `scale(${interpolate(heroE, [0, 1], [0.85, 1])})` }}>
-            <Img src={staticFile("AWSCommunityGameDayEurope/hero-white.png")} style={{ width: 220, height: "auto", objectFit: "contain" }} />
+            <Img src={staticFile("AWSCommunityGameDayEurope/awsheroes.png")} style={{ width: 200, height: "auto", objectFit: "contain" }} />
           </div>
         </div>
 
         {/* Explanation */}
         <div style={{ flex: 1 }}>
+          <SectionLabel icon={<ShieldIcon size={20} color={GD_ACCENT} />} text="What is an AWS Hero?" />
           <div style={{ opacity: textE, transform: `translateX(${interpolate(textE, [0, 1], [22, 0])}px)`, marginBottom: 20 }}>
             <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white", lineHeight: 1 }}>AWS Heroes</div>
             <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>A worldwide recognition program for passionate AWS advocates and technical leaders</div>
           </div>
-          <GlassCard style={{ padding: "20px 24px", borderLeft: `4px solid ${GD_GOLD}` }}>
+          <GlassCard style={{ padding: "20px 24px", borderLeft: `4px solid ${GD_VIOLET}` }}>
             {[
-              { entry: p1, icon: <StarIcon size={16} color={GD_GOLD} />, text: "AWS Heroes are recognized for their real-world expertise, knowledge sharing, and impact on the broader AWS community" },
-              { entry: p2, icon: <UsersIcon size={16} color={GD_GOLD} />, text: "They educate, inspire, and support others through talks, blog posts, open-source projects, and community leadership" },
-              { entry: p3, icon: <ShieldIcon size={16} color={GD_GOLD} />, text: "Hero categories include Community, Data, Machine Learning, Serverless, DevTools, Container, Security, and more" },
+              { entry: p1, icon: <StarIcon size={16} color={GD_VIOLET} />, text: "AWS Heroes are recognized for their real-world expertise, knowledge sharing, and impact on the broader AWS community" },
+              { entry: p2, icon: <UsersIcon size={16} color={GD_VIOLET} />, text: "They educate, inspire, and support others through talks, blog posts, open-source projects, and community leadership" },
+              { entry: p3, icon: <ShieldIcon size={16} color={GD_VIOLET} />, text: "Hero categories include Community, Data, Machine Learning, Serverless, DevTools, Container, Security, and more" },
             ].map(({ entry, icon, text }, i) => (
               <div key={i} style={{ opacity: entry, transform: `translateX(${interpolate(entry, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "flex-start", gap: 10, marginBottom: i < 2 ? 12 : 0, fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
                 {icon}<span>{text}</span>
               </div>
             ))}
           </GlassCard>
-          <div style={{ opacity: noteE, marginTop: 14, background: `${GD_GOLD}12`, border: `1px solid ${GD_GOLD}30`, borderRadius: 12, padding: "12px 18px", fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>
+          <div style={{ opacity: noteE, marginTop: 14, background: `${GD_PURPLE}22`, border: `1px solid ${GD_PURPLE}44`, borderRadius: 12, padding: "12px 18px", fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>
             AWS Heroes are <strong style={{ color: GD_ACCENT }}>NOT AWS employees</strong>. They are independent community members selected by AWS for their outstanding contributions.
           </div>
         </div>
@@ -772,32 +790,47 @@ const SlideCommunityHero: React.FC = () => {
 // SLIDE 10 - What are AWS Cloud Clubs?
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideCloudClubs: React.FC = () => {
+  const badgeE = useEntry(0);
   const cards = [
     { icon: <GraduationIcon size={32} color={GD_VIOLET} />, title: "Student-focused groups", body: "AWS Cloud Clubs are communities for students and young professionals at universities and colleges. They focus on learning cloud technology early in people's careers." },
     { icon: <BookOpenIcon size={32} color={GD_PINK} />, title: "Hands-on learning", body: "Cloud Clubs run workshops, study sessions, and certification prep. Members get hands-on access to AWS and learn by building real projects together." },
     { icon: <RocketIcon size={32} color={GD_GOLD} />, title: "The next generation", body: "Cloud Clubs are growing rapidly across Europe. They represent the future of the AWS Community - today's students become tomorrow's User Group leaders and Heroes." },
   ];
   const noteE = useStagger(4, 8);
+  const overviewE = useStagger(5, 8);
+  
+  const programs = [
+    { logo: staticFile("AWSCommunityGameDayEurope/Usergroups-badges_leader-dark.png"), label: "User Groups", sub: "For professionals" },
+    { logo: staticFile("AWSCommunityGameDayEurope/cloudclubs.png"), label: "Cloud Clubs", sub: "For students" },
+    { logo: staticFile("AWSCommunityGameDayEurope/aws-community-builder-logo.png"), label: "Builders", sub: "For content creators" },
+    { logo: staticFile("AWSCommunityGameDayEurope/awsheroes.png"), label: "Heroes", sub: "For top contributors" },
+  ];
+  
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <SectionLabel icon={<GraduationIcon size={20} color={GD_ACCENT} />} text="What are AWS Cloud Clubs?" />
-      <div style={{ display: "flex", gap: 18, width: "100%", maxWidth: 1060, marginBottom: 18 }}>
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 8, marginTop: -8 }}>
+        <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
+          <Img src={staticFile("AWSCommunityGameDayEurope/cloudclubs.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
+        </div>
+        <SectionLabel icon={<GraduationIcon size={20} color={GD_ACCENT} />} text="What are AWS Cloud Clubs?" />
+      </div>
+      <div style={{ display: "flex", gap: 18, width: "100%", maxWidth: 1060, marginBottom: 14 }}>
         {cards.map((c, i) => <InfoCard key={c.title} icon={c.icon} title={c.title} body={c.body} accent={[GD_VIOLET, GD_PINK, GD_GOLD][i]} delay={i} />)}
       </div>
+      <div style={{ opacity: overviewE, transform: `translateY(${interpolate(overviewE, [0, 1], [8, 0])}px)`, width: "100%", maxWidth: 1060, marginBottom: 10, marginTop: 10 }}>
+        <div style={{ fontSize: TYPOGRAPHY.body, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 3, textAlign: "center" }}>
+          All AWS Community Programs
+        </div>
+      </div>
       <div style={{ opacity: noteE, transform: `translateY(${interpolate(noteE, [0, 1], [12, 0])}px)`, width: "100%", maxWidth: 1060 }}>
-        <GlassCard style={{ padding: "16px 24px" }}>
-          <div style={{ display: "flex", gap: 36, justifyContent: "center", flexWrap: "wrap" }}>
-            {[
-              { icon: <UsersIcon size={16} color={GD_VIOLET} />, label: "User Groups", sub: "For professionals" },
-              { icon: <GraduationIcon size={16} color={GD_PINK} />, label: "Cloud Clubs", sub: "For students" },
-              { icon: <RocketIcon size={16} color={GD_GOLD} />, label: "Community Builders", sub: "For content creators" },
-              { icon: <ShieldIcon size={16} color={GD_ORANGE} />, label: "Community Heroes", sub: "For top contributors" },
-            ].map((item) => (
-              <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.7)" }}>
-                {item.icon}
+        <GlassCard style={{ padding: "22px 40px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {programs.map((item) => (
+              <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <Img src={item.logo} style={{ height: 64, width: "auto", objectFit: "contain" }} />
                 <div>
-                  <div style={{ color: "white", fontWeight: 700 }}>{item.label}</div>
-                  <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{item.sub}</div>
+                  <div style={{ color: "white", fontWeight: 700, fontSize: TYPOGRAPHY.h6 }}>{item.label}</div>
+                  <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)" }}>{item.sub}</div>
                 </div>
               </div>
             ))}
@@ -816,9 +849,19 @@ const SlideSchedule: React.FC = () => {
   const { fps } = useVideoConfig();
   const sc = calculateCountdown(frame, 0, STREAM_START, fps);
   const gc = calculateCountdown(frame, 0, GAME_START, fps);
+  // Audio test is 5 min before stream (17:55 CET)
+  const audioTestCountdown = sc - 5 * 60;
+
+  // Helper to format countdown as "in X min"
+  const formatMinutes = (seconds: number) => {
+    if (seconds <= 0) return "now";
+    const mins = Math.ceil(seconds / 60);
+    return `in ${mins} min`;
+  };
 
   const phases = [
-    { time: "17:30", label: "Pre-Show Loop", desc: "This muted loop - test your audio now!", c: GD_ACCENT, audio: false, countdown: null },
+    { time: "17:30", label: "Pre-Show Loop", desc: "This muted loop plays until the live stream begins", c: GD_ACCENT, audio: false, countdown: null },
+    { time: "17:55", label: "Audio Test", desc: "Test your audio setup - 5 minutes before the live stream starts", c: GD_VIOLET, audio: true, countdown: audioTestCountdown > 0 ? audioTestCountdown : null },
     { time: "18:00", label: "Live Stream Begins", desc: "Linda · Anda & Jerome · Special guest · Arnaud & Loïc - GameDay instructions", c: GD_PINK, audio: true, countdown: sc },
     { time: "18:30", label: "GameDay Starts!", desc: "2 hours of competitive AWS challenges - stream muted", c: GD_GOLD, audio: false, countdown: gc, hl: true },
     { time: "20:30", label: "Closing Ceremony", desc: "Winners revealed globally - audio returns!", c: GD_ORANGE, audio: true, countdown: null },
@@ -827,28 +870,33 @@ const SlideSchedule: React.FC = () => {
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <SectionLabel icon={<CalendarIcon size={20} color={GD_ACCENT} />} text="Today's Schedule (CET)" />
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 860 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 900 }}>
         {phases.map((ph, i) => {
-          const o = useStagger(i, 8);
+          const o = useStagger(i, 7);
           return (
-            <div key={ph.label} style={{ opacity: o, transform: `translateX(${interpolate(o, [0, 1], [26, 0])}px)`, display: "flex", alignItems: "center", gap: 18, padding: "16px 22px", borderRadius: 16, background: ph.hl ? `${GD_GOLD}0a` : "rgba(255,255,255,0.04)", border: `1px solid ${ph.c}${ph.hl ? "33" : "22"}`, borderLeft: `4px solid ${ph.c}` }}>
-              <div style={{ flexShrink: 0, textAlign: "center", width: 80 }}>
+            <div key={ph.label} style={{ opacity: o, transform: `translateX(${interpolate(o, [0, 1], [26, 0])}px)`, display: "flex", alignItems: "center", gap: 16, padding: "14px 20px", borderRadius: 16, background: ph.hl ? `${GD_GOLD}0a` : "rgba(255,255,255,0.04)", border: `1px solid ${ph.c}${ph.hl ? "33" : "22"}`, borderLeft: `4px solid ${ph.c}` }}>
+              <div style={{ flexShrink: 0, textAlign: "center", width: 90 }}>
                 <div style={{ fontSize: TYPOGRAPHY.h5, fontWeight: 800, color: ph.c, fontFamily: "monospace", lineHeight: 1 }}>{ph.time}</div>
-                <div style={{ fontSize: TYPOGRAPHY.overline, color: ph.audio ? "#4ade80" : "#f87171", marginTop: 4, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
-                  {ph.audio ? <VolumeIcon size={11} color="#4ade80" /> : <VolumeMuteIcon size={11} color="#f87171" />}
+                <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>CET</div>
+                <div style={{ fontSize: TYPOGRAPHY.overline, color: ph.audio ? "#4ade80" : "#f87171", marginTop: 2, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
+                  {ph.audio ? <VolumeIcon size={10} color="#4ade80" /> : <VolumeMuteIcon size={10} color="#f87171" />}
                   {ph.audio ? "Audio" : "Muted"}
                 </div>
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 700, color: "white" }}>{ph.label}</div>
-                <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", marginTop: 3 }}>{ph.desc}</div>
+                <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{ph.desc}</div>
               </div>
-              {ph.countdown != null && <div style={{ flexShrink: 0, fontFamily: "monospace", fontSize: TYPOGRAPHY.h5, fontWeight: 700, color: ph.c, minWidth: 88, textAlign: "right" }}>{formatTime(ph.countdown)}</div>}
+              {ph.countdown != null && ph.countdown > 0 && (
+                <div style={{ flexShrink: 0, fontSize: TYPOGRAPHY.bodySmall, fontWeight: 600, color: ph.c, minWidth: 80, textAlign: "right" }}>
+                  {formatMinutes(ph.countdown)}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-      {(() => { const o = useStagger(5, 8); return <div style={{ opacity: o, marginTop: 14, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>All times CET · Broadcast simultaneously to all 57 User Groups across Europe</div>; })()}
+      {(() => { const o = useStagger(6, 7); return <div style={{ opacity: o, marginTop: 12, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>Broadcast simultaneously to all 53 User Groups across Europe</div>; })()}
     </AbsoluteFill>
   );
 };
@@ -858,24 +906,24 @@ const SlideSchedule: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideHowItWorks: React.FC = () => {
   const steps = [
-    { n: "1", icon: <UsersIcon size={26} color={GD_VIOLET} />, title: "Form your team", body: "Gather your team at your local venue before the stream. Your organizer will tell you the team size." },
-    { n: "2", icon: <VolumeIcon size={26} color={GD_PINK} />, title: "Watch the instructions", body: "At 18:00 the live stream explains all rules. Arnaud & Loïc cover everything at 18:14 CET." },
-    { n: "3", icon: <CheckCircleIcon size={26} color={GD_GOLD} />, title: "Get your team code", body: "At 18:30 your local UG leader gives your team an AWS access code to enter the challenge." },
-    { n: "4", icon: <CodeIcon size={26} color={GD_ORANGE} />, title: "Compete for 2 hours", body: "Complete AWS challenges, earn points, and try to be the best team across all 57 cities." },
-    { n: "5", icon: <TrophyIcon size={26} color={GD_ACCENT} />, title: "Watch the closing", body: "At 20:30 the stream returns live. Global winners revealed. Stay and celebrate with everyone!" },
+    { n: "1", icon: <UsersIcon size={24} color={GD_VIOLET} />, title: "Form your team", body: "Gather your team at your local venue before the stream. Your organizer will tell you the team size." },
+    { n: "2", icon: <VolumeIcon size={24} color={GD_PINK} />, title: "Watch the instructions", body: "At 18:00 CET the live stream explains all rules. Arnaud & Loïc cover everything at ~18:10 CET." },
+    { n: "3", icon: <CheckCircleIcon size={24} color={GD_GOLD} />, title: "Get your team code", body: "At 18:25 CET your local UG leader gives your team an AWS access code - 5 minutes before the game starts." },
+    { n: "4", icon: <CodeIcon size={24} color={GD_ORANGE} />, title: "Compete for 2 hours", body: "Complete AWS challenges, earn points, and try to be the best team across all 53 cities." },
+    { n: "5", icon: <TrophyIcon size={24} color={GD_ACCENT} />, title: "Watch the closing", body: "At 20:30 CET the stream returns live. Global winners revealed. Stay and celebrate with everyone!" },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-      <SectionLabel icon={<GamepadIcon size={20} color={GD_ACCENT} />} text="How GameDay Works" />
+      <SectionLabel icon={<GamepadIcon size={20} color={GD_ACCENT} />} text="How the AWS Community GameDay Europe Works" />
       <div style={{ display: "flex", gap: 14, width: "100%", maxWidth: 1060 }}>
         {steps.map((step, i) => {
           const o = useStagger(i, 7);
           return (
             <div key={step.n} style={{ flex: 1, opacity: o, transform: `translateY(${interpolate(o, [0, 1], [20, 0])}px)`, background: "rgba(255,255,255,0.04)", border: `1px solid ${GD_VIOLET}28`, borderRadius: 16, padding: "20px 14px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: `linear-gradient(135deg, ${GD_PURPLE}, ${GD_VIOLET})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: TYPOGRAPHY.captionSmall, fontWeight: 800, color: "white", marginBottom: 10 }}>{step.n}</div>
-              <div style={{ marginBottom: 10 }}>{step.icon}</div>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white", marginBottom: 8 }}>{step.title}</div>
-              <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>{step.body}</div>
+              <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", lineHeight: 1.55, marginBottom: 12 }}>{step.body}</div>
+              <div style={{ marginTop: "auto" }}>{step.icon}</div>
             </div>
           );
         })}
@@ -888,35 +936,39 @@ const SlideHowItWorks: React.FC = () => {
 // SLIDE 13 - All Organizers
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideAllOrganizers: React.FC = () => (
-  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+  <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -25 }}>
     <SectionLabel icon={<UsersIcon size={20} color={GD_ACCENT} />} text="The Team Behind This Event" />
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 1060, marginBottom: 16 }}>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", maxWidth: 1140, marginBottom: 24 }}>
       {ORGANIZERS.map((p, i) => {
         const o = useStagger(i, 5);
         const logo = findLogo(p.role.replace("AWS ", "AWS User Group ").split(",")[0]) ?? findLogo(p.role);
         return (
-          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`, borderRadius: 14, padding: "12px 16px", minWidth: 232 }}>
-            <Img src={staticFile(p.face)} style={{ width: 52, height: 52, borderRadius: 26, objectFit: "cover", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
+          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`, borderRadius: 14, padding: "14px 18px", width: 350 }}>
+            <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover", flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white" }}>{p.flag} {p.name}</div>
               <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ACCENT, marginTop: 2 }}>{p.role}</div>
               <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.country}</div>
             </div>
-            {logo && <Img src={logo} style={{ maxWidth: 44, maxHeight: 28, objectFit: "contain", opacity: 0.7 }} />}
+            {logo && (
+              <div style={{ width: 130, height: 75, borderRadius: 10, overflow: "hidden", flexShrink: 0, background: "rgba(255,255,255,0.05)" }}>
+                <Img src={logo} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            )}
           </div>
         );
       })}
     </div>
     {(() => {
       const o = useStagger(ORGANIZERS.length, 5);
-      return <div style={{ opacity: o, fontSize: TYPOGRAPHY.labelSmall, fontWeight: 700, color: GD_ORANGE, textTransform: "uppercase", letterSpacing: 3, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}><GamepadIcon size={12} color={GD_ORANGE} /> AWS Support &amp; Gamemasters</div>;
+      return <div style={{ opacity: o, fontSize: TYPOGRAPHY.body, fontWeight: 700, color: GD_ORANGE, textTransform: "uppercase", letterSpacing: 3, marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}><GamepadIcon size={20} color={GD_ORANGE} /> AWS Support &amp; Gamemasters</div>;
     })()}
-    <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", maxWidth: 1060 }}>
+    <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", maxWidth: 1140 }}>
       {AWS_SUPPORTERS.map((p, i) => {
         const o = useStagger(ORGANIZERS.length + 1 + i, 5);
         return (
-          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [12, 0])}px)`, display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}28`, borderRadius: 14, padding: "12px 16px", minWidth: 232 }}>
-            <Img src={staticFile(p.face)} style={{ width: 52, height: 52, borderRadius: 26, objectFit: "cover", flexShrink: 0 }} />
+          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [12, 0])}px)`, display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}28`, borderRadius: 14, padding: "14px 18px", width: 265 }}>
+            <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover", flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white" }}>{p.flag} {p.name}</div>
               <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ORANGE, marginTop: 2 }}>{p.role}</div>
@@ -935,9 +987,9 @@ const SlideAllOrganizers: React.FC = () => (
 const SlideGetReady: React.FC = () => {
   const items = [
     { icon: <UsersIcon size={20} color={GD_VIOLET} />, text: "Form your team locally before the stream starts" },
-    { icon: <CalendarIcon size={20} color={GD_PINK} />, text: "Be seated with audio ready 5 minutes before 18:00 CET" },
-    { icon: <VolumeIcon size={20} color={GD_GOLD} />, text: "Watch the live stream carefully - the rules are explained live by Arnaud & Loïc" },
-    { icon: <CheckCircleIcon size={20} color={GD_ORANGE} />, text: "Your UG leader will distribute team codes at 18:30 CET" },
+    { icon: <CalendarIcon size={20} color={GD_PINK} />, text: "Be seated with audio ready 5 minutes before 18:00 CET", subtext: "Audio test at 17:55 CET (~30 sec) - make sure you can hear the stream host" },
+    { icon: <BroadcastIcon size={20} color={GD_ACCENT} />, text: "Watch the live stream carefully - the rules are explained live by Arnaud & Loïc" },
+    { icon: <CheckCircleIcon size={20} color={GD_ORANGE} />, text: "Your UG leader will distribute team codes at 18:25 CET (5 min before game)" },
     { icon: <GamepadIcon size={20} color={GD_ACCENT} />, text: "Gameplay runs for 2 hours - stream is muted during this time" },
     { icon: <TrophyIcon size={20} color={GD_GOLD} />, text: "Stay in the stream - audio returns at 20:30 for the global winners reveal" },
     { icon: <HeartIcon size={20} color={GD_PINK} />, text: "After the ceremony your local UG continues with their own local schedule" },
@@ -950,7 +1002,18 @@ const SlideGetReady: React.FC = () => {
           const o = useStagger(i, 6);
           return (
             <div key={i} style={{ opacity: o, transform: `translateX(${interpolate(o, [0, 1], [20, 0])}px)`, display: "flex", alignItems: "center", gap: 14, padding: "12px 18px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.88)" }}>
-              {item.icon}<span style={{ lineHeight: 1.4 }}>{item.text}</span>
+              {item.icon}
+              <div style={{ display: "flex", flexDirection: "column", gap: item.subtext ? 6 : 0 }}>
+                <span style={{ lineHeight: 1.4 }}>{item.text}</span>
+                {item.subtext && (
+                  <>
+                    <div style={{ height: 1, background: "rgba(255,255,255,0.1)", width: "100%" }} />
+                    <span style={{ lineHeight: 1.4, fontSize: TYPOGRAPHY.bodySmall, color: GD_GOLD, display: "flex", alignItems: "center", gap: 8 }}>
+                      <VolumeIcon size={16} color={GD_GOLD} />{item.subtext}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           );
         })}
@@ -960,31 +1023,62 @@ const SlideGetReady: React.FC = () => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SLIDE 15 - Audio Check
+// SLIDE 15 - Audio Check Countdown (shows time until live audio check)
 // ═══════════════════════════════════════════════════════════════════════════════
-const SlideAudioCheck: React.FC = () => {
+// Audio check happens at 17:55 CET (5 minutes before stream at 18:00)
+// That's 25 minutes into the preshow (which starts at 17:30)
+const AUDIO_CHECK_TIME = 25; // minutes from event start
+
+const SlideAudioCheckCountdown: React.FC = () => {
+  const frame = useContext(GlobalFrameCtx);
+  const { fps } = useVideoConfig();
+  // Calculate countdown to audio check (25 min from event start = 17:55 CET)
+  const audioCheckCountdown = calculateCountdown(frame, 0, AUDIO_CHECK_TIME, fps);
   const pulse = usePulse(48);
   const o = useEntry(0);
-  const items = [
-    { icon: <CheckCircleIcon size={20} color="#4ade80" />, text: "Make sure your venue audio is connected to this stream", c: "#4ade80" },
-    { icon: <VolumeIcon size={20} color="#4ade80" />, text: "The live stream at 18:00 CET requires audio - test NOW", c: "#4ade80" },
-    { icon: <BookOpenIcon size={20} color={GD_GOLD} />, text: "If audio fails, use the backup video link your organizer provided", c: GD_GOLD },
-    { icon: <VolumeMuteIcon size={20} color={GD_ACCENT} />, text: "Important: stream is muted again during gameplay (18:30–20:30 CET)", c: GD_ACCENT },
-  ];
+  const itemsE = useStagger(3, 7);
+
   return (
-    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20 }}>
       <div style={{ opacity: o, transform: `scale(${interpolate(o, [0, 1], [0.88, 1])})`, textAlign: "center" }}>
         <div style={{ transform: `scale(${pulse})`, display: "flex", justifyContent: "center" }}>
-          <VolumeIcon size={88} color={GD_GOLD} />
+          <VolumeIcon size={80} color={GD_GOLD} />
         </div>
-        <div style={{ fontSize: TYPOGRAPHY.h2, fontWeight: 900, color: GD_GOLD, letterSpacing: -1, marginTop: 12, transform: `scale(${pulse})`, textShadow: `0 0 40px ${GD_ORANGE}66` }}>AUDIO CHECK</div>
-        <div style={{ fontSize: TYPOGRAPHY.h5, color: "white", fontWeight: 600, marginTop: 8 }}>Can you hear this stream?</div>
+        <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: GD_GOLD, letterSpacing: -1, marginTop: 12, textShadow: `0 0 40px ${GD_ORANGE}66` }}>AUDIO CHECK COMING UP</div>
+        <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.7)", fontWeight: 500, marginTop: 8 }}>Linda will speak live at 17:55 CET to test your audio</div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 680 }}>
-        {items.map((item, i) => {
-          const io = useStagger(2 + i, 7);
+
+      {/* Countdown to audio check */}
+      <div style={{ opacity: o, display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+        <div style={{ fontSize: TYPOGRAPHY.label, color: GD_PINK, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" as const }}>
+          Audio check in
+        </div>
+        <div style={{
+          fontFamily: "monospace",
+          fontSize: TYPOGRAPHY.h3,
+          fontWeight: 800,
+          color: GD_PINK,
+          background: `${GD_PURPLE}33`,
+          border: `1px solid ${GD_PINK}44`,
+          borderRadius: 12,
+          padding: "8px 20px",
+          transform: `scale(${pulse})`,
+        }}>
+          {formatTime(audioCheckCountdown)}
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div style={{ opacity: itemsE, transform: `translateY(${interpolate(itemsE, [0, 1], [12, 0])}px)`, display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 680, marginTop: 8 }}>
+        {[
+          { icon: <CheckCircleIcon size={18} color="#4ade80" />, text: "Make sure your venue audio is connected to this stream", c: "#4ade80" },
+          { icon: <VolumeIcon size={18} color="#4ade80" />, text: "When the audio check starts, you should hear Linda speaking", c: "#4ade80" },
+          { icon: <BookOpenIcon size={18} color={GD_GOLD} />, text: "If audio fails, use the backup video that the GameDay organizers shared", c: GD_GOLD },
+          { icon: <VolumeMuteIcon size={18} color={GD_ACCENT} />, text: "Stream is muted again during gameplay (18:30–20:30 CET)", c: GD_ACCENT },
+        ].map((item, i) => {
+          const io = useStagger(4 + i, 6);
           return (
-            <div key={i} style={{ opacity: io, transform: `translateX(${interpolate(io, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 }}>
+            <div key={i} style={{ opacity: io, transform: `translateX(${interpolate(io, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "center", gap: 14, padding: "12px 18px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12 }}>
               {item.icon}<span style={{ fontSize: TYPOGRAPHY.bodySmall, color: item.c, fontWeight: 500, lineHeight: 1.4 }}>{item.text}</span>
             </div>
           );
@@ -995,13 +1089,294 @@ const SlideAudioCheck: React.FC = () => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE - Live Audio Check (5 minutes before stream, Linda speaking)
+// ═══════════════════════════════════════════════════════════════════════════════
+const SlideLiveAudioCheck: React.FC = () => {
+  const linda = ORGANIZERS.find((p) => p.name === "Linda")!;
+  const frame = useContext(GlobalFrameCtx);
+  const { fps } = useVideoConfig();
+  const sc = calculateCountdown(frame, 0, STREAM_START, fps);
+  const pulse = usePulse(36);
+  const o = useEntry(0);
+  const textE = useStagger(3, 8);
+  const itemsE = useStagger(6, 8);
+  const noteE = useStagger(10, 8);
+
+  // Speaking animation - pulsing ring around Linda's photo
+  const speakPulse = interpolate(frame % 30, [0, 15, 30], [1, 1.08, 1]);
+
+  return (
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+      {/* Linda speaking indicator */}
+      <div style={{ opacity: o, display: "flex", alignItems: "center", gap: 28 }}>
+        <div style={{ position: "relative" }}>
+          {/* Pulsing ring to indicate speaking */}
+          <div style={{
+            position: "absolute",
+            top: -8,
+            left: -8,
+            right: -8,
+            bottom: -8,
+            borderRadius: "50%",
+            border: `3px solid ${GD_ORANGE}`,
+            transform: `scale(${speakPulse})`,
+            opacity: 0.6,
+          }} />
+          <div style={{
+            width: 110,
+            height: 110,
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: `4px solid ${GD_ORANGE}`,
+            boxShadow: `0 0 40px ${GD_ORANGE}55`,
+          }}>
+            <Img src={staticFile(linda.face)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+          {/* Speaking icon */}
+          <div style={{
+            position: "absolute",
+            bottom: -4,
+            right: -4,
+            background: GD_ORANGE,
+            borderRadius: "50%",
+            width: 32,
+            height: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transform: `scale(${pulse})`,
+          }}>
+            <VolumeIcon size={18} color="white" />
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: TYPOGRAPHY.label, color: GD_ORANGE, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase" as const, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+            <BroadcastIcon size={14} color={GD_ORANGE} /> Live Audio
+          </div>
+          <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>Linda Mohamed</div>
+          <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: GD_ACCENT, marginTop: 2 }}>Stream Host</div>
+        </div>
+      </div>
+
+      {/* Main message */}
+      <div style={{ opacity: textE, transform: `translateY(${interpolate(textE, [0, 1], [16, 0])}px)`, textAlign: "center", marginTop: 4 }}>
+        <div style={{ fontSize: TYPOGRAPHY.h2, fontWeight: 900, color: GD_GOLD, letterSpacing: -1, textShadow: `0 0 40px ${GD_ORANGE}55` }}>
+          Find a Seat
+        </div>
+        <div style={{ fontSize: TYPOGRAPHY.h5, color: "white", fontWeight: 500, marginTop: 8 }}>
+          The live stream begins shortly
+        </div>
+      </div>
+
+      {/* Countdown */}
+      <div style={{ opacity: textE, display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+        <div style={{ fontSize: TYPOGRAPHY.label, color: GD_PINK, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" as const }}>
+          Stream starts in
+        </div>
+        <div style={{
+          fontFamily: "monospace",
+          fontSize: TYPOGRAPHY.h3,
+          fontWeight: 800,
+          color: GD_PINK,
+          background: `${GD_PURPLE}33`,
+          border: `1px solid ${GD_PINK}44`,
+          borderRadius: 12,
+          padding: "8px 20px",
+          transform: `scale(${pulse})`,
+        }}>
+          {formatTime(sc)}
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div style={{ opacity: itemsE, transform: `translateY(${interpolate(itemsE, [0, 1], [12, 0])}px)`, display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 720, marginTop: 8 }}>
+        {[
+          { icon: <VolumeIcon size={18} color="#4ade80" />, text: "Audio is ON - can you hear Linda?", c: "#4ade80" },
+          { icon: <UsersIcon size={18} color={GD_GOLD} />, text: "Gather your team and get comfortable", c: GD_GOLD },
+          { icon: <BroadcastIcon size={18} color={GD_ACCENT} />, text: "Keep the stream on - all important info will be displayed on screen", c: GD_ACCENT },
+        ].map((item, i) => (
+          <div key={i} style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            padding: "10px 18px",
+            background: "rgba(255,255,255,0.05)",
+            border: `1px solid ${item.c}33`,
+            borderRadius: 12,
+          }}>
+            {item.icon}
+            <span style={{ fontSize: TYPOGRAPHY.bodySmall, color: item.c, fontWeight: 500 }}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Backup video note */}
+      <div style={{ opacity: noteE, transform: `translateY(${interpolate(noteE, [0, 1], [10, 0])}px)`, width: "100%", maxWidth: 720, marginTop: 6, background: `${GD_PURPLE}22`, border: `1px solid ${GD_PURPLE}44`, borderRadius: 12, padding: "10px 18px", fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, textAlign: "center" }}>
+        <strong style={{ color: GD_ACCENT }}>Audio issues?</strong> Use the backup video that the GameDay organizers shared. A backup video for the instructions will also be sent.
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE - Last Checklist (20-15 seconds before stream - teams formed, ready to go)
+// ═══════════════════════════════════════════════════════════════════════════════
+const SlideLastChecklist: React.FC = () => {
+  const frame = useContext(GlobalFrameCtx);
+  const { fps } = useVideoConfig();
+  const sc = calculateCountdown(frame, 0, STREAM_START, fps);
+  const o = useEntry(0);
+  const itemsE = useStagger(2, 6);
+
+  const items = [
+    { icon: <CheckCircleIcon size={20} color="#4ade80" />, text: "Audio test complete - you heard Linda at 17:55", done: true },
+    { icon: <UsersIcon size={20} color="#4ade80" />, text: "Team formed and sitting together", done: true },
+    { icon: <VolumeIcon size={20} color="#4ade80" />, text: "Stream audio is ON", done: true },
+    { icon: <BroadcastIcon size={20} color={GD_GOLD} />, text: "Stream starts in seconds - stay tuned!", done: false },
+  ];
+
+  return (
+    <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ opacity: o, textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT, letterSpacing: 4, textTransform: "uppercase" as const, marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <CheckCircleIcon size={16} color={GD_ACCENT} /> Ready to Go
+        </div>
+        <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white" }}>You're All Set!</div>
+      </div>
+
+      {/* Countdown */}
+      <div style={{ opacity: o, display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+        <div style={{ fontSize: TYPOGRAPHY.label, color: GD_PINK, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" as const }}>
+          Stream in
+        </div>
+        <div style={{
+          fontFamily: "monospace",
+          fontSize: TYPOGRAPHY.h3,
+          fontWeight: 800,
+          color: GD_PINK,
+          background: `${GD_PURPLE}33`,
+          border: `1px solid ${GD_PINK}44`,
+          borderRadius: 12,
+          padding: "8px 20px",
+        }}>
+          {formatTime(sc)}
+        </div>
+      </div>
+
+      {/* Checklist items */}
+      <div style={{ opacity: itemsE, transform: `translateY(${interpolate(itemsE, [0, 1], [12, 0])}px)`, display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 580 }}>
+        {items.map((item, i) => (
+          <div key={i} style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            padding: "14px 20px",
+            background: item.done ? "rgba(74, 222, 128, 0.08)" : "rgba(255,255,255,0.05)",
+            border: `1px solid ${item.done ? "rgba(74, 222, 128, 0.25)" : `${GD_GOLD}33`}`,
+            borderRadius: 12,
+          }}>
+            {item.icon}
+            <span style={{ fontSize: TYPOGRAPHY.body, color: item.done ? "#4ade80" : GD_GOLD, fontWeight: 600 }}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE - Final Countdown (last 15 seconds before stream starts at 18:00)
+// ═══════════════════════════════════════════════════════════════════════════════
+const SlideFinalCountdown: React.FC = () => {
+  const frame = useContext(GlobalFrameCtx);
+  const { fps } = useVideoConfig();
+  const sc = calculateCountdown(frame, 0, STREAM_START, fps);
+  const o = useEntry(0);
+  
+  // Gentle pulse - not aggressive
+  const gentlePulse = interpolate(frame % 45, [0, 22, 45], [1, 1.03, 1]);
+
+  return (
+    <AbsoluteFill style={{ 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "center", 
+      justifyContent: "center",
+    }}>
+      {/* Header */}
+      <div style={{ 
+        opacity: o, 
+        fontSize: TYPOGRAPHY.label, 
+        fontWeight: 700, 
+        color: GD_ACCENT, 
+        letterSpacing: 4, 
+        textTransform: "uppercase" as const,
+        marginBottom: 12,
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}>
+        <BroadcastIcon size={16} color={GD_ACCENT} />
+        Stream Starting
+      </div>
+
+      {/* Countdown number - large but calm */}
+      <div style={{ 
+        opacity: o,
+        transform: `scale(${gentlePulse})`,
+        fontFamily: "monospace",
+        fontSize: 180,
+        fontWeight: 900,
+        color: GD_GOLD,
+        lineHeight: 1,
+        textShadow: `0 0 40px ${GD_GOLD}44`,
+        marginBottom: 20,
+      }}>
+        {sc}
+      </div>
+
+      {/* Audio reminder - subtle */}
+      <div style={{ 
+        opacity: o,
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        background: `${GD_PURPLE}22`,
+        border: `1px solid ${GD_GOLD}33`,
+        borderRadius: 16,
+        padding: "14px 28px",
+      }}>
+        <VolumeIcon size={24} color={GD_GOLD} />
+        <div style={{ 
+          fontSize: TYPOGRAPHY.h5, 
+          fontWeight: 600, 
+          color: "white",
+        }}>
+          Audio should be ON
+        </div>
+      </div>
+
+      {/* Subtext */}
+      <div style={{ 
+        opacity: o,
+        fontSize: TYPOGRAPHY.bodySmall, 
+        color: "rgba(255,255,255,0.5)", 
+        marginTop: 16,
+      }}>
+        The live stream begins shortly
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SLIDE 16 - Stats V3
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideStats: React.FC = () => {
   const stats = [
-    { v: "57", l: "User Groups", sub: "Cities across Europe", c: GD_GOLD },
-    { v: "20+", l: "Countries", sub: "From Iceland to Turkey", c: GD_PINK },
-    { v: "4+", l: "Timezones", sub: "UTC-1 through UTC+3", c: GD_VIOLET },
+    { v: "53", l: "User Groups", sub: "Cities across Europe", c: GD_GOLD },
+    { v: "23", l: "Countries", sub: "From Iceland to Turkey", c: GD_PINK },
+    { v: "4", l: "Timezones", sub: "UTC+0 through UTC+3", c: GD_VIOLET },
     { v: "1st", l: "Edition", sub: "History being made today", c: GD_ORANGE },
   ];
   const mapE = useStagger(5, 8);
@@ -1020,8 +1395,8 @@ const SlideStats: React.FC = () => {
           );
         })}
       </div>
-      <div style={{ opacity: mapE, transform: `translateY(${interpolate(mapE, [0, 1], [18, 0])}px)`, maxWidth: 640 }}>
-        <Img src={EUROPE_MAP} style={{ width: "100%", opacity: 0.5, borderRadius: 12, filter: "hue-rotate(230deg) saturate(1.4)" }} />
+      <div style={{ opacity: mapE, transform: `translateY(${interpolate(mapE, [0, 1], [18, 0])}px)`, maxWidth: 720, overflow: "hidden", borderRadius: 16 }}>
+        <Img src={EUROPE_MAP} style={{ width: "100%", transform: "scale(1.3)", transformOrigin: "center center", opacity: 0.85, borderRadius: 12 }} />
       </div>
     </AbsoluteFill>
   );
@@ -1045,19 +1420,14 @@ const SlideUGSpotlight: React.FC<{ index: number }> = ({ index }) => {
         <StarIcon size={12} color={GD_ACCENT} /> Competing Today
       </div>
 
-      {/* Logo or flag */}
+      {/* Logo (bigger) or flag (only if no logo) */}
       <div style={{ opacity: flagE, transform: `scale(${interpolate(flagE, [0, 1], [0.7, 1]) * pulse})`, marginBottom: 20 }}>
         {logo ? (
-          <Img src={logo} style={{ maxWidth: 340, maxHeight: 140, objectFit: "contain", borderRadius: 16 }} />
+          <Img src={logo} style={{ maxWidth: 420, maxHeight: 180, objectFit: "contain", borderRadius: 16 }} />
         ) : (
           <div style={{ fontSize: 130, lineHeight: 1, filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.5))" }}>{g.flag}</div>
         )}
       </div>
-
-      {/* Flag shown below logo when logo exists */}
-      {logo && (
-        <div style={{ opacity: nameE, transform: `translateY(${interpolate(nameE, [0, 1], [12, 0])}px)`, fontSize: TYPOGRAPHY.flag, lineHeight: 1, marginBottom: 8 }}>{g.flag}</div>
-      )}
 
       {/* Name */}
       <div style={{ opacity: nameE, transform: `translateY(${interpolate(nameE, [0, 1], [22, 0])}px)`, textAlign: "center", marginBottom: 10 }}>
@@ -1067,16 +1437,16 @@ const SlideUGSpotlight: React.FC<{ index: number }> = ({ index }) => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ opacity: detailsE, transform: `translateY(${interpolate(detailsE, [0, 1], [14, 0])}px)`, display: "flex", gap: 14, marginTop: 10 }}>
+      {/* Stats - bigger */}
+      <div style={{ opacity: detailsE, transform: `translateY(${interpolate(detailsE, [0, 1], [14, 0])}px)`, display: "flex", gap: 18, marginTop: 14 }}>
         {[
           { label: "Group", value: `${displayNum} of ${USER_GROUPS.length}`, c: GD_VIOLET },
           { label: "Country", value: `${g.flag} ${g.city.split(", ")[1]?.trim()}`, c: GD_GOLD },
           { label: "City", value: g.city.split(",")[0]?.trim(), c: "#4ade80" },
         ].map((stat) => (
-          <div key={stat.label} style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${stat.c}33`, borderRadius: 12, padding: "9px 18px", textAlign: "center" }}>
-            <div style={{ fontSize: TYPOGRAPHY.overline, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 2, marginBottom: 3 }}>{stat.label}</div>
-            <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: stat.c }}>{stat.value}</div>
+          <div key={stat.label} style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${stat.c}33`, borderRadius: 14, padding: "12px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: TYPOGRAPHY.label, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>{stat.label}</div>
+            <div style={{ fontSize: TYPOGRAPHY.body, fontWeight: 700, color: stat.c }}>{stat.value}</div>
           </div>
         ))}
       </div>
@@ -1106,7 +1476,7 @@ const CONTENT_SLIDES: { key: string; name: string; el: React.ReactNode }[] = [
   { key: "all-organizers", name: "The Full Team", el: <SlideAllOrganizers /> },
   { key: "stats", name: "By the Numbers", el: <SlideStats /> },
   { key: "get-ready", name: "Get Ready", el: <SlideGetReady /> },
-  { key: "audio-check", name: "Audio Check", el: <SlideAudioCheck /> },
+  { key: "audio-check-countdown", name: "Audio Check Countdown", el: <SlideAudioCheckCountdown /> },
 ];
 
 const NUM_CYCLES = 2;
@@ -1148,28 +1518,71 @@ const TRANSITIONS = [
   () => slide({ direction: "from-right" }),
 ];
 
+// ─── Live Audio Check timing ──────────────────────────────────────────────────
+// 5 minutes before stream starts = 25 minutes into preshow
+// At 30fps: 25 * 60 * 30 = 45000 frames
+// Duration: 30 seconds = 900 frames
+const LIVE_AUDIO_CHECK_START = 45000;
+const LIVE_AUDIO_CHECK_DURATION = 900;
+
+// ─── Final sequence timing ────────────────────────────────────────────────────
+// Stream starts at 30 minutes = 30 * 60 * 30 = 54000 frames
+// Last checklist: 00:20 to 00:15 before stream (frames 53400 to 53550)
+// Final countdown: 00:15 to 00:00 before stream (frames 53550 to 54000)
+const STREAM_START_FRAME = 54000;
+const LAST_CHECKLIST_START = 53400;  // 20 seconds before stream
+const FINAL_COUNTDOWN_START = 53550; // 15 seconds before stream
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROOT EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 export const GameDayPreShowInfoV4: React.FC = () => {
   const frame = useCurrentFrame();
   const sections = buildSections();
+
+  // Check if we're in the live audio check window (17:55 CET, 30 seconds)
+  const isLiveAudioCheck = frame >= LIVE_AUDIO_CHECK_START && frame < LIVE_AUDIO_CHECK_START + LIVE_AUDIO_CHECK_DURATION;
+  
+  // Check if we're in the last checklist window (20-15 seconds before stream)
+  const isLastChecklist = frame >= LAST_CHECKLIST_START && frame < FINAL_COUNTDOWN_START;
+  
+  // Check if we're in the final countdown window (last 15 seconds before 18:00)
+  const isFinalCountdown = frame >= FINAL_COUNTDOWN_START && frame < STREAM_START_FRAME;
+
   return (
     <GlobalFrameCtx.Provider value={frame}>
-      <TransitionSeries>
-        {sections.map((s, i) => {
-          const items: React.ReactNode[] = [];
-          if (i > 0) {
+      {isFinalCountdown ? (
+        // Final 15-second countdown
+        <Wrap muted={false}>
+          <SlideFinalCountdown />
+        </Wrap>
+      ) : isLastChecklist ? (
+        // Last checklist (20-15 seconds before stream)
+        <Wrap muted={false}>
+          <SlideLastChecklist />
+        </Wrap>
+      ) : isLiveAudioCheck ? (
+        // Show the live audio check slide with audio ON
+        <Wrap muted={false}>
+          <SlideLiveAudioCheck />
+        </Wrap>
+      ) : (
+        // Normal preshow loop
+        <TransitionSeries>
+          {sections.map((s, i) => {
+            const items: React.ReactNode[] = [];
+            if (i > 0) {
+              items.push(
+                <TransitionSeries.Transition key={`t-${s.key}`} presentation={TRANSITIONS[i % TRANSITIONS.length]()} timing={linearTiming({ durationInFrames: T })} />
+              );
+            }
             items.push(
-              <TransitionSeries.Transition key={`t-${s.key}`} presentation={TRANSITIONS[i % TRANSITIONS.length]()} timing={linearTiming({ durationInFrames: T })} />
+              <TransitionSeries.Sequence key={s.key} durationInFrames={s.dur} name={s.name}>{s.el}</TransitionSeries.Sequence>
             );
-          }
-          items.push(
-            <TransitionSeries.Sequence key={s.key} durationInFrames={s.dur} name={s.name}>{s.el}</TransitionSeries.Sequence>
-          );
-          return items;
-        })}
-      </TransitionSeries>
+            return items;
+          })}
+        </TransitionSeries>
+      )}
     </GlobalFrameCtx.Provider>
   );
 };

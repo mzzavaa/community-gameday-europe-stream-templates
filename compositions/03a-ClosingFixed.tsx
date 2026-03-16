@@ -27,6 +27,23 @@ import {
 import { USER_GROUPS, LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
 import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
+// ── Logo lookup (handles UG / User Group name variations) ──
+function findLogo(name: string): string | null {
+  if (LOGO_MAP[name]) return LOGO_MAP[name];
+  for (const key of Object.keys(LOGO_MAP)) {
+    const normName = name
+      .replace("AWS Women's UG ", "AWS Women's User Group ")
+      .replace("AWS UG ", "AWS User Group ")
+      .replace(/\s*–\s*/g, " – ");
+    const normKey = key
+      .replace("AWS Women's User Group ", "AWS Women's UG ")
+      .replace("AWS User Group ", "AWS UG ")
+      .replace(/\s*-\s*/g, " – ");
+    if (key.includes(normName) || normKey.includes(name)) return LOGO_MAP[key];
+  }
+  return null;
+}
+
 // ── SVG Icons ──
 const ServerIcon: React.FC<{ size?: number; color?: string }> = ({ size = 22, color = GD_ORANGE }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +96,7 @@ const PART_A_TOTAL_FRAMES = 4200; // ~2min20s
 // ── Showcase Sub-Phase Timing ──
 const HERO_INTRO_END = 1599;
 const FAST_SCROLL_START = 1600;
-const FAST_SCROLL_END = 1899;
+const FAST_SCROLL_END = 1929; // extended +30 frames (1 sec) so last UG logos stay visible longer
 const SHUFFLE_START = 1900;
 const SHUFFLE_END = 3449;
 const FINALE_START = 3270;
@@ -513,7 +530,7 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
   const scrollDuration = FAST_SCROLL_END - FAST_SCROLL_START;
 
   const entryOpacity = interpolate(frame, [1580, 1620], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const exitOpacity = interpolate(frame, [1860, 1899], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const exitOpacity = interpolate(frame, [1860, 1929], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const scrollProgress = interpolate(scrollFrame, [15, scrollDuration], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const eased = scrollProgress < 0.5 ? 2 * scrollProgress * scrollProgress : 1 - Math.pow(-2 * scrollProgress + 2, 2) / 2;
 
@@ -549,7 +566,7 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
             const cardOpacity = interpolate(distFromCenter, [0, VIEWPORT_HEIGHT_PX * 0.45, VIEWPORT_HEIGHT_PX * 0.6], [1, 0.85, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
             const entrySpring = spring({ frame: Math.max(0, scrollFrame - i), fps, config: { damping: 18, stiffness: 100 } });
             const accentColor = CARD_ACCENTS[i % CARD_ACCENTS.length];
-            const logoUrl = LOGO_MAP[group.name];
+            const logoUrl = findLogo(group.name);
 
             return (
               <div key={i} style={{
@@ -664,7 +681,7 @@ const WinnersTeaser: React.FC<{ frame: number }> = ({ frame }) => {
 // ── ShufflePhase: Bell Curve Horizontal Scroll ──
 // All 53 groups scroll right-to-left as vertical bars. Bars in the center of the screen
 // are tallest (bell curve peak), bars at edges are shorter.
-const SHUFFLE_VISUAL_START = 1860; // bars start appearing here (40-frame overlap with FastScroll)
+const SHUFFLE_VISUAL_START = 1860; // bars start appearing here (crossfade with FastScroll at timer ~01:16)
 
 const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
@@ -676,18 +693,12 @@ const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   // Crossfade exit: fades out as WinnersTeaser takes over
   const exitOpacity = interpolate(frame, [FINALE_START, SHUFFLE_END], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  // Scroll starts immediately — bars enter from right edge
+  // Scroll starts immediately — bars enter from right edge, constant speed throughout
   const scrollProgress = interpolate(frameInPhase, [0, phaseDuration - 30], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  // Custom ease: fast initial ramp (bars slide in during crossfade), then smooth ease-in-out for the rest
-  // First 5% is linear-ish for quick entry, then standard ease-in-out
-  const t = scrollProgress;
-  const easedScroll = t < 0.05
-    ? t * 6 // ~6x speed for first 5% so bars enter quickly
-    : 0.3 + 0.7 * ((t - 0.05) / 0.95 < 0.5
-        ? 2 * Math.pow((t - 0.05) / 0.95, 2)
-        : 1 - Math.pow(-2 * (t - 0.05) / 0.95 + 2, 2) / 2);
+  // Linear scroll — same speed from start to finish
+  const easedScroll = scrollProgress;
 
   const totalWidth = USER_GROUPS.length * (SHUFFLE_BAR_WIDTH + SHUFFLE_BAR_GAP);
   const totalScrollDist = totalWidth + 1280;
@@ -757,15 +768,9 @@ const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
                 <div style={{
                   width: "85%", height: barHeight, borderRadius: "10px 10px 0 0",
                   background: `linear-gradient(180deg, ${accentColor}cc, ${GD_PURPLE}90)`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
                   boxShadow: `0 0 24px ${accentColor}25`, border: `1px solid ${accentColor}30`, borderBottom: "none",
                   position: "relative",
-                }}>
-                  <div style={{
-                    fontSize: TYPOGRAPHY.bodySmall, fontWeight: 800, color: "white", fontFamily: "'Inter', sans-serif",
-                    fontVariantNumeric: "tabular-nums", textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                  }}>{Math.round(group.score)}</div>
-                </div>
+                }} />
               </div>
             );
           })}
