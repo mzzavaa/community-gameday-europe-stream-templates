@@ -1,0 +1,13 @@
+Hi everyone, I'm Mihai Balashi, AWS user group leader from Budapest and part of the organizing team.
+While we're getting everything ready to roll, let me quickly walk you through how to get help today.
+Because knowing this will save you a lot of time once the game is live.
+First, have your builder ID ready and your browser updated.
+Sounds small, but it keeps you in the game if anything goes wrong.
+No builder ID yet? No rush. You have plenty of time, it's free and quick to set up.
+Once you're playing, feel free to use the hints. Some are free, no points lost and they can completely unblock you.
+Amazon Q developer is already set up in your environment. Use it like a teammate, not a last resort.
+And if you're still stuck, just raise your hand right there in the room.
+Your AWS user group leaders and AWS team members on site are right there to help you.
+Don't wait, don't struggle quietly. Ask early.
+Okay, that's all you need. Now get ready because things are about to get exciting.
+Back to you, Linda.

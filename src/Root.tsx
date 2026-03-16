@@ -11,7 +11,9 @@ import { OrganizersMarketingVideo } from "../compositions/OrganizersMarketingVid
 import { GameDayPreShowInfo } from "../compositions/04-GameDayStreamPreShowInfo-Muted";
 import { GameDayPreShowInfoV2 } from "../compositions/04v2-GameDayStreamPreShowInfo-V2";
 import { GameDayPreShowInfoV3 } from "../compositions/04v3-GameDayStreamPreShowInfo-V3";
+import { GameDayPreShowInfoV4 } from "../compositions/04v4-GameDayStreamPreShowInfo-V4";
 import { GameDayMainEventV2 } from "../compositions/01v2-GameDayStreamMainEvent-V2";
+import { GameDayMainEventV3 } from "../compositions/01v3-GameDayStreamMainEvent-V3";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -40,6 +42,16 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="GameDayMainEventV2"
         component={GameDayMainEventV2}
+        durationInFrames={54000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
+      {/* 1v3. Main Event V3 (Audio): true cinematic scene-by-scene, one focus at a time, no overlaps */}
+      <Composition
+        id="GameDayMainEventV3"
+        component={GameDayMainEventV3}
         durationInFrames={54000}
         fps={30}
         width={1280}
@@ -110,6 +122,16 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="GameDayPreShowInfoV3"
         component={GameDayPreShowInfoV3}
+        durationInFrames={54000}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+
+      {/* 5v4. Pre-Show Info V4 (Muted): borderless logos, country/city stats, program badges, generic Hero slide */}
+      <Composition
+        id="GameDayPreShowInfoV4"
+        component={GameDayPreShowInfoV4}
         durationInFrames={54000}
         fps={30}
         width={1280}

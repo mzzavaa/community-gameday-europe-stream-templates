@@ -930,20 +930,26 @@ const SpeakerIndicator: React.FC<{ frame: number; fps: number }> = ({ frame, fps
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT 12 — MIHALY SUPPORT VIDEO (frames 10800–12599, full-screen takeover)
+// Must be rendered inside <Sequence from={P.SUPPORT_IN}> — see main composition.
+// Without Sequence, Video's internal useCurrentFrame() returns the absolute frame
+// (10800+) and tries to seek the video to second 360 of an 86-second file → black.
 // ─────────────────────────────────────────────────────────────────────────────
-const SupportVideoSection: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  if (frame < P.SUPPORT_IN || frame > P.SUPPORT_OUT + 30) return null;
+const SupportVideoSection: React.FC = () => {
+  const frame  = useCurrentFrame();   // relative: 0 when absoluteFrame = P.SUPPORT_IN
+  const { fps } = useVideoConfig();
+  const DURATION = P.SUPPORT_OUT - P.SUPPORT_IN; // 1799 frames
 
-  const rel = frame - P.SUPPORT_IN;
-  const relSec = rel / fps;
+  const relSec = frame / fps;
 
-  const fadeIn  = spring({ frame: rel, fps, config: springConfig.entry });
-  const fadeOut = spring({ frame: frame - P.SUPPORT_OUT, fps, config: springConfig.exit });
-  const opacity = fadeIn * interpolate(fadeOut, [0, 1], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeIn  = spring({ frame, fps, config: springConfig.entry });
+  const fadeOut = interpolate(frame, [DURATION - 30, DURATION], [1, 0], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+  const opacity = fadeIn * fadeOut;
 
   const activeSub = SUBTITLES.find((s) => relSec >= s.s && relSec < s.e);
   const subFadeIn = activeSub
-    ? spring({ frame: rel - Math.round(activeSub.s * fps), fps, config: springConfig.entry })
+    ? spring({ frame: frame - Math.round(activeSub.s * fps), fps, config: springConfig.entry })
     : 0;
 
   return (
@@ -992,8 +998,6 @@ const SupportVideoSection: React.FC<{ frame: number; fps: number }> = ({ frame, 
       }}>
         <Video
           src={SUPPORT_VIDEO}
-          startFrom={0}
-          endAt={1800}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </div>
@@ -1178,7 +1182,10 @@ export const GameDayMainEventV2: React.FC = () => {
       <AudioBadge muted={false} />
 
       {/* ── Layer 13: Mihaly support video (full-screen, frames 10800–12599) ── */}
-      <SupportVideoSection frame={frame} fps={fps} />
+      {/* Sequence resets useCurrentFrame() to 0 so Video seeks correctly */}
+      <Sequence from={P.SUPPORT_IN} durationInFrames={P.SUPPORT_OUT - P.SUPPORT_IN + 1} layout="none">
+        <SupportVideoSection />
+      </Sequence>
 
       {/* ── Layer 14: Progress bar (always, bottom strip) ── */}
       <ProgressBar frame={frame} totalFrames={54000} />

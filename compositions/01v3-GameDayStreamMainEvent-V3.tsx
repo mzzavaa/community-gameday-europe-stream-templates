@@ -1,29 +1,30 @@
 /**
- * GameDayMainEventV3 — AWS Community GameDay Europe
+ * GameDayMainEventV3  - AWS Community GameDay Europe
  *
  * ╔══════════════════════════════════════════════════════════════════════╗
- * ║  TRUE CINEMATIC REVEAL — one scene, one focus, nothing stacked.     ║
- * ║  Each phase is a full "beat" — content enters, breathes, exits.     ║
+ * ║  TRUE CINEMATIC REVEAL  - one scene, one focus, nothing stacked.     ║
+ * ║  Each phase is a full "beat"  - content enters, breathes, exits.     ║
  * ║  Typography is large and clear at every point.                      ║
  * ║                                                                      ║
  * ║  SCENE TIMELINE (30 fps):                                           ║
  * ║   0  – 270   WELCOME          Full-screen hero title                ║
  * ║  60  –  ∞    COUNTDOWN        Top-right corner (small, always)      ║
  * ║ 150  – 1800  MAP              europe-map.png, dimmed backdrop        ║
- * ║ 270  – 420   STAT 1           "53+" User Groups — centered, BIG     ║
+ * ║ 270  – 420   STAT 1           "53+" User Groups  - centered, BIG     ║
  * ║ 420  – 570   STAT 2           "20+" Countries                       ║
  * ║ 570  – 720   STAT 3           "4+" Timezones                        ║
  * ║ 720  – 870   STAT 4           "1st" Edition ever                    ║
- * ║ 870  – 1080  VIENNA           Vienna spotlight — centered           ║
+ * ║ 870  – 1080  VIENNA           Vienna spotlight  - centered           ║
  * ║ 1080 – 1320  LINDA INTRO      Full-screen host presentation card    ║
  * ║ 1320 – 1800  LINDA SPEAKING   Compact host strip + sidebar + cards  ║
  * ║ 1320 – 1500  SPEECH BUBBLE    Greeting bubble above compact strip   ║
  * ║ 1500 – 1620  INFO: AUDIO      One info card at a time, left side    ║
  * ║ 1620 – 1740  INFO: MUTE       One info card at a time               ║
  * ║ 1740 – 1800  INFO: THANKS     One info card at a time               ║
- * ║ 1800 – 9300  JEROME & ANDA    Organizer intro card — NO text cards  ║
+ * ║ 1800 – 9300  JEROME & ANDA    Organizer intro card  - NO text cards  ║
  * ║ 1800 –  ∞    SPEAKER          Speaker indicator bottom-right        ║
- * ║10800 –12599  SUPPORT VIDEO    Mihaly full-screen H.264 + subtitles  ║
+ * ║10800 –13379  SUPPORT VIDEO    Mihaly Balassy full-screen + subtitles ║
+ * ║13380 –15179  LINDA BACK       Transition + AWS Special Guest teaser ║
  * ╚══════════════════════════════════════════════════════════════════════╝
  */
 
@@ -63,11 +64,11 @@ import {
 } from "../shared/GameDayDesignSystem";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE CONSTANTS — single source of truth for every frame gate
-// Each scene is EXCLUSIVE — no two heavy elements share the same frame range.
+// SCENE CONSTANTS  - single source of truth for every frame gate
+// Each scene is EXCLUSIVE  - no two heavy elements share the same frame range.
 // ─────────────────────────────────────────────────────────────────────────────
 const S = {
-  // Scene 1 — Welcome hero (fullscreen, only countdown allowed alongside)
+  // Scene 1  - Welcome hero (fullscreen, only countdown allowed alongside)
   WELCOME_IN:   0,
   WELCOME_OUT:  270,
 
@@ -79,38 +80,44 @@ const S = {
   MAP_ZOOM_AT:  780,   // starts zooming toward Vienna
   MAP_OUT:      1800,
 
-  // Scene 2a–2d — Stats, one at a time, centered
+  // Scene 2a–2d  - Stats, one at a time, centered
   STAT1_IN:     270,  STAT1_OUT:  420,   // 53+ User Groups
   STAT2_IN:     420,  STAT2_OUT:  570,   // 20+ Countries
   STAT3_IN:     570,  STAT3_OUT:  720,   // 4+ Timezones
   STAT4_IN:     720,  STAT4_OUT:  870,   // 1st Edition
 
-  // Scene 3 — Vienna spotlight (centered)
+  // Scene 3  - Vienna spotlight (centered)
   VIENNA_IN:    870,  VIENNA_OUT: 1080,
 
-  // Scene 4 — Linda full intro card (large centered)
+  // Scene 4  - Linda full intro card (large centered)
   LINDA_IN:    1080,  LINDA_OUT:  1320,
 
-  // Scene 5 — Linda compact strip (bottom) + sidebar
+  // Scene 5  - Linda compact strip (bottom) + sidebar
   COMPACT_IN:  1320,  COMPACT_OUT: 1800,
   SIDEBAR_IN:  1320,
 
-  // Scene 5a — Greeting bubble (above compact strip)
+  // Scene 5a  - Greeting bubble (above compact strip)
   BUBBLE_IN:   1320,  BUBBLE_OUT: 1500,
 
-  // Scene 5b-5d — Info cards (left side, ONE at a time, large text)
+  // Scene 5b-5d  - Info cards (left side, ONE at a time, large text)
   CARD_A_IN:   1500,  CARD_A_OUT: 1620,  // Audio check
   CARD_B_IN:   1620,  CARD_B_OUT: 1740,  // Mute warning
   CARD_C_IN:   1740,  CARD_C_OUT: 1800,  // Thank you
 
-  // Scene 6 — Jerome & Anda organizer card (NO text cards)
+  // Scene 6  - Jerome & Anda organizer card (NO text cards)
   ORG_IN:      1800,  ORG_OUT:    9300,
 
   // Speaker indicator (from organizer section onward)
   SPEAKER_IN:  1800,
 
-  // Scene 7 — Mihaly support video (full-screen)
-  VIDEO_IN:   10800, VIDEO_OUT:  12599,
+  // Scene 7  - Mihaly support video (full-screen, 86s × 30fps = 2580 frames)
+  VIDEO_IN:   10800, VIDEO_OUT:  13379,
+
+  // Scene 8  - Linda transition back: introduces AWS special guest
+  LINDA_BACK_IN:  13380, LINDA_BACK_OUT: 15179,
+
+  // Scene 9  - Special Guest (AWS)
+  GUEST_IN:   15180,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -140,13 +147,15 @@ const GameIcon   = ({ s = 14, c = GD_ACCENT }) => <svg width={s} height={s} view
 const InfoIcon   = ({ s = 14, c = GD_ACCENT }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
 const CheckIcon  = ({ s = 12, c = "#334155" }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2.5} strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>;
 const HeartIcon  = ({ s = 16, c = GD_PINK }) => <svg width={s} height={s} viewBox="0 0 24 24" fill={c} stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
-const VolumeIcon = ({ s = 14, c = GD_ORANGE }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
+const VolumeIcon    = ({ s = 14, c = GD_ORANGE }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
+const VolumeOffIcon = ({ s = 14, c = "rgba(255,255,255,0.3)" }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>;
+const ZapIcon       = ({ s = 12, c = GD_GOLD }) => <svg width={s} height={s} viewBox="0 0 24 24" fill={c} stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STATIC ASSETS
 // ─────────────────────────────────────────────────────────────────────────────
 const GD_MAP       = staticFile("AWSCommunityGameDayEurope/europe-map.png");
-const GAMEDAY_LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric.png");
+const GAMEDAY_LOGO = staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png");
 const SUPPORT_VID  = staticFile("AWSCommunityGameDayEurope/support-process-h264.mp4");
 const UG_VIE_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3A7f5dcfa0-c808-411f-85e7-b8b2283e2c5a%3AAWS_Vienna_-_Vienna_Austria.jpg?table=block&id=3090df17-987f-80a9-a26b-de59a394b30a&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
 
@@ -155,21 +164,21 @@ const UG_VIE_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3A7f
 // ─────────────────────────────────────────────────────────────────────────────
 const SEGMENTS: ScheduleSegment[] = [
   { label: "Community Intro",       startFrame: 0,     endFrame: 10799 },
-  { label: "Support Process",       startFrame: 10800, endFrame: 12599 },
-  { label: "Special Guest",         startFrame: 12600, endFrame: 23399 },
+  { label: "Support Process",       startFrame: 10800, endFrame: 13379 },
+  { label: "Special Guest",         startFrame: 13380, endFrame: 23399 },
   { label: "AWS Gamemasters Intro", startFrame: 23400, endFrame: 25199 },
   { label: "GameDay Instructions",  startFrame: 25200, endFrame: 44999 },
   { label: "Distribute Codes",      startFrame: 45000, endFrame: 53999 },
 ];
 
 const CHAPTERS: ScheduleSegment[] = [
-  { label: "Linda — Welcome",           startFrame: 0,     endFrame: 1799,  speakers: "Linda Mohamed" },
+  { label: "Linda  - Welcome",           startFrame: 0,     endFrame: 1799,  speakers: "Linda Mohamed" },
   { label: "Jerome & Anda",             startFrame: 1800,  endFrame: 9299,  speakers: "Jerome & Anda" },
-  { label: "Linda — Transition",        startFrame: 9300,  endFrame: 10799, speakers: "Linda Mohamed" },
-  { label: "Mihaly — Support Process",  startFrame: 10800, endFrame: 12599, speakers: "Mihaly" },
-  { label: "Linda — Intro Guest",       startFrame: 12600, endFrame: 14399, speakers: "Linda Mohamed" },
-  { label: "Special Guest",             startFrame: 14400, endFrame: 23399 },
-  { label: "Linda — Intro Gamemasters", startFrame: 23400, endFrame: 25199, speakers: "Linda Mohamed" },
+  { label: "Linda  - Transition",        startFrame: 9300,  endFrame: 10799, speakers: "Linda Mohamed" },
+  { label: "Mihaly  - Support Process",  startFrame: 10800, endFrame: 13379, speakers: "Mihaly Balassy" },
+  { label: "Linda  - Intro Guest",       startFrame: 13380, endFrame: 15179, speakers: "Linda Mohamed" },
+  { label: "Special Guest",             startFrame: 15180, endFrame: 23399 },
+  { label: "Linda  - Intro Gamemasters", startFrame: 23400, endFrame: 25199, speakers: "Linda Mohamed" },
   { label: "GameDay Rules & Scoring",   startFrame: 25200, endFrame: 32399, speakers: "Arnaud & Loïc" },
   { label: "Challenge Walkthrough",     startFrame: 32400, endFrame: 39599, speakers: "Arnaud & Loïc" },
   { label: "Tips & Final Prep",         startFrame: 39600, endFrame: 44999, speakers: "Arnaud & Loïc" },
@@ -180,17 +189,23 @@ const CHAPTERS: ScheduleSegment[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 // MIHALY SUBTITLES
 // ─────────────────────────────────────────────────────────────────────────────
+// Timestamps from whisper transcription (exact).
+// Note: the full video is 86s; composition window VIDEO_IN→VIDEO_OUT is 60s at 30fps.
+// Extend VIDEO_OUT to 13380 (86s × 30fps + 10800) if you want the full video to play.
 const SUBTITLES: Array<{ s: number; e: number; t: string }> = [
-  { s: 0,  e: 5,  t: "Hello everyone! I'm Mihaly from AWS User Group Budapest." },
-  { s: 5,  e: 13, t: "I'll explain how the support process works during GameDay." },
-  { s: 13, e: 22, t: "If your team hits a technical issue, re-read the challenge description carefully." },
-  { s: 22, e: 32, t: "For platform issues, use the in-app support button — our team monitors it constantly." },
-  { s: 32, e: 41, t: "For AWS console or permission issues, contact your local UG organizer directly." },
-  { s: 41, e: 51, t: "Hints are available for each challenge — they cost points, so use them wisely!" },
-  { s: 51, e: 60, t: "Our support team will respond as quickly as possible — don't get stuck, ask early." },
-  { s: 60, e: 70, t: "Stay calm, communicate with your team, and most importantly — have fun!" },
-  { s: 70, e: 80, t: "Good luck to all 53+ user groups out there — let's make history together!" },
-  { s: 80, e: 87, t: "Back to you, Linda — and see you all after the game!" },
+  { s:  0, e:  9, t: "Hi everyone, I'm Mihaly Balassy, AWS User Group leader from Budapest and part of the organizing team." },
+  { s:  9, e: 16, t: "While we're getting everything ready to roll, let me quickly walk you through how to get help today." },
+  { s: 16, e: 22, t: "Because knowing this will save you a lot of time once the game is live." },
+  { s: 22, e: 28, t: "First, have your builder ID ready and your browser updated." },
+  { s: 28, e: 33, t: "Sounds small, but it keeps you in the game if anything goes wrong." },
+  { s: 33, e: 41, t: "No builder ID yet? No rush. You have plenty of time, it's free and quick to set up." },
+  { s: 41, e: 50, t: "Once you're playing, feel free to use the hints. Some are free, no points lost and they can completely unblock you." },
+  { s: 50, e: 59, t: "Amazon Q developer is already set up in your environment. Use it like a teammate, not a last resort." },
+  { s: 59, e: 65, t: "And if you're still stuck, just raise your hand right there in the room." },
+  { s: 65, e: 72, t: "Your AWS user group leaders and AWS team members on site are right there to help you." },
+  { s: 72, e: 77, t: "Don't wait, don't struggle quietly. Ask early." },
+  { s: 77, e: 84, t: "Okay, that's all you need. Now get ready because things are about to get exciting." },
+  { s: 84, e: 86, t: "Back to you, Linda." },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -204,7 +219,7 @@ function fadeWindow(frame: number, inAt: number, outAt: number, fadeLen = 20): n
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 1 — WELCOME HERO (0–270, full-screen)
+// SCENE 1  - WELCOME HERO (0–270, full-screen)
 // ─────────────────────────────────────────────────────────────────────────────
 const WelcomeHero: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame >= S.WELCOME_OUT) return null;
@@ -231,8 +246,8 @@ const WelcomeHero: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
 
       <div style={{ textAlign: "center", transform: `scale(${scl})` }}>
         <div style={{
-          fontSize: TYPOGRAPHY.overline + 2, fontWeight: 700, color: GD_ACCENT,
-          letterSpacing: 10, textTransform: "uppercase" as const, fontFamily: FF,
+          fontSize: 32, fontWeight: 700, color: GD_ACCENT,
+          letterSpacing: 8, textTransform: "uppercase" as const, fontFamily: FF,
           marginBottom: 24,
           opacity: interpolate(sp, [0, 1], [0, 1]),
         }}>
@@ -265,7 +280,7 @@ const WelcomeHero: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
             fontSize: TYPOGRAPHY.h6, fontWeight: 500,
             color: "rgba(255,255,255,0.7)", fontFamily: FF, letterSpacing: 2,
           }}>
-            The first edition — March 17, 2026
+            The first edition  - March 17, 2026
           </div>
           <div style={{ width: 80, height: 1, background: `linear-gradient(90deg, ${GD_ACCENT}66, transparent)` }} />
         </div>
@@ -326,7 +341,7 @@ const CountdownTimer: React.FC<{ frame: number; fps: number; seconds: number; is
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MAP BACKDROP (150–1800, very subtle — a sense of geography)
+// MAP BACKDROP (150–1800, very subtle  - a sense of geography)
 // ─────────────────────────────────────────────────────────────────────────────
 const MapBackdrop: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.MAP_IN || frame > S.MAP_OUT) return null;
@@ -365,7 +380,7 @@ const MapBackdrop: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 2 — BIG STAT (one at a time, centered, cinematic)
+// SCENE 2  - BIG STAT (one at a time, centered, cinematic)
 // ─────────────────────────────────────────────────────────────────────────────
 interface StatDef {
   value: string;
@@ -444,7 +459,7 @@ const BigStat: React.FC<{ frame: number; fps: number; def: StatDef }> = ({ frame
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 3 — VIENNA SPOTLIGHT (centered, 870–1080)
+// SCENE 3  - VIENNA SPOTLIGHT (centered, 870–1080)
 // ─────────────────────────────────────────────────────────────────────────────
 const ViennaScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.VIENNA_IN || frame > S.VIENNA_OUT) return null;
@@ -484,8 +499,8 @@ const ViennaScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
             fontSize: TYPOGRAPHY.h4, fontWeight: 800, color: "white",
             fontFamily: FF, lineHeight: 1.25, marginBottom: 16,
           }}>
-            GameDay is happening<br />
-            right here too!
+            Hello and welcome<br />
+            from Vienna!
           </div>
 
           {/* Detail */}
@@ -493,8 +508,7 @@ const ViennaScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
             fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.72)",
             fontFamily: FF, lineHeight: 1.6,
           }}>
-            AWS &amp; Women's User Group Vienna<br />
-            My co-organizers are hosting it in the room right next door!
+            AWS User Group Vienna is participating today too - my co-organizers are hosting it in the room right next door!
           </div>
         </GlassCard>
       </div>
@@ -503,7 +517,7 @@ const ViennaScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 4 — LINDA FULL INTRO CARD (1080–1320, large centered presentation)
+// SCENE 4  - LINDA FULL INTRO CARD (1080–1320, large centered presentation)
 // ─────────────────────────────────────────────────────────────────────────────
 const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.LINDA_IN || frame > S.LINDA_OUT) return null;
@@ -593,7 +607,7 @@ const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                     fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.6)",
                     fontFamily: FF,
                   }}>
-                    AWS &amp; Women's User Group Vienna · Förderverein AWS Community DACH
+                    AWS User Group Vienna · Förderverein AWS Community DACH
                   </div>
                   <div style={{
                     fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
@@ -631,7 +645,7 @@ const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 5 — LINDA COMPACT STRIP (bottom-left, 1320–1800)
+// SCENE 5  - LINDA COMPACT STRIP (bottom-right, 1320–1800)
 // ─────────────────────────────────────────────────────────────────────────────
 const LindaCompactStrip: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.COMPACT_IN || frame >= S.COMPACT_OUT) return null;
@@ -643,8 +657,8 @@ const LindaCompactStrip: React.FC<{ frame: number; fps: number }> = ({ frame, fp
   return (
     <div style={{
       position: "absolute",
-      bottom: L.PROGRESS_H + 10, left: L.MARGIN,
-      width: 520,
+      bottom: L.PROGRESS_H + 10, right: L.MARGIN,
+      width: L.SIDEBAR_W,
       opacity: op * sp,
       transform: `translateY(${off}px)`,
       zIndex: 30,
@@ -673,7 +687,7 @@ const LindaCompactStrip: React.FC<{ frame: number; fps: number }> = ({ frame, fp
             Linda Mohamed
           </div>
           <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", fontFamily: FF }}>
-            AWS Community Hero · AWS &amp; Women's UG Vienna
+            AWS Community Hero · AWS UG Vienna
           </div>
         </div>
       </GlassCard>
@@ -712,16 +726,16 @@ const SpeechBubble: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) 
             fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ACCENT,
             letterSpacing: 3, textTransform: "uppercase" as const, fontFamily: FF,
           }}>
-            Linda Mohamed — Stream Host
+            Linda Mohamed  - Stream Host
           </div>
         </div>
         <div style={{
           fontSize: TYPOGRAPHY.body, fontWeight: 500, color: "white",
           fontFamily: FF, lineHeight: 1.65,
         }}>
-          "Today we will have <strong style={{ color: GD_ACCENT }}>53 AWS User Groups</strong> all over Europe competing
+          "Today we will have <strong style={{ color: GD_ACCENT }}>53+ AWS User Groups</strong> all over Europe competing
           against each other across <strong style={{ color: GD_VIOLET }}>20+ countries</strong> and
-          multiple timezones — the first edition of AWS Community GameDay Europe."
+          multiple timezones  - the first edition of AWS Community GameDay Europe."
         </div>
       </GlassCard>
       {/* Tail */}
@@ -736,7 +750,7 @@ const SpeechBubble: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) 
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// INFO CARD (single card, big text, one at a time — 1500–1800)
+// INFO CARD (single card, big text, one at a time  - 1500–1800)
 // ─────────────────────────────────────────────────────────────────────────────
 interface InfoCardDef {
   inFrame: number; outFrame: number;
@@ -750,7 +764,7 @@ const LINDA_INFO: InfoCardDef[] = [
     inFrame: S.CARD_A_IN, outFrame: S.CARD_A_OUT,
     color: GD_ORANGE, label: "AUDIO CHECK",
     icon: <VolumeIcon s={18} c={GD_ORANGE} />,
-    text: "Connect your audio NOW — the GameDay instructions coming up are critical. Don't miss them!",
+    text: "Connect your audio NOW  - the GameDay instructions coming up are critical. Don't miss them!",
     highlight: "Connect your audio NOW",
   },
   {
@@ -815,7 +829,7 @@ const InfoCard: React.FC<{ frame: number; fps: number; def: InfoCardDef }> = ({ 
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 6 — JEROME & ANDA (1800–9300, organizer intro only — no text cards)
+// SCENE 6  - JEROME & ANDA (1800–9300, organizer intro only  - no text cards)
 // ─────────────────────────────────────────────────────────────────────────────
 const JeromeAndaCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
   if (frame < S.ORG_IN || frame > S.ORG_OUT) return null;
@@ -955,7 +969,7 @@ const ScheduleSidebar: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
       width: L.SIDEBAR_W,
       background: `linear-gradient(270deg, ${GD_DARK}f2 0%, ${GD_DARK}cc 80%, transparent 100%)`,
       transform: `translateX(${interpolate(entry, [0, 1], [100, 0])}%)`,
-      padding: `40px 24px ${L.PROGRESS_H + 20}px 28px`,
+      padding: `148px 24px ${L.PROGRESS_H + 20}px 28px`,
       display: "flex", flexDirection: "column",
       zIndex: 22,
     }}>
@@ -1050,59 +1064,45 @@ const SpeakerIndicator: React.FC<{ frame: number; fps: number }> = ({ frame, fps
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCENE 7 — MIHALY SUPPORT VIDEO (10800–12599, full-screen)
+// SCENE 7  - MIHALY SUPPORT VIDEO
 // ─────────────────────────────────────────────────────────────────────────────
-const SupportVideoScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  if (frame < S.VIDEO_IN || frame > S.VIDEO_OUT + 30) return null;
+// IMPORTANT: This component must be rendered inside a <Sequence from={S.VIDEO_IN}>.
+// The Video component calls useCurrentFrame() internally  - without a Sequence
+// wrapper it would read the absolute frame (e.g. 10800) and try to seek the
+// video to second 360, which doesn't exist. Inside the Sequence, useCurrentFrame()
+// resets to 0 when the Sequence starts, so the video plays from the beginning.
+// ─────────────────────────────────────────────────────────────────────────────
+const SupportVideoBody: React.FC = () => {
+  const frame  = useCurrentFrame();   // relative: 0 when absoluteFrame = S.VIDEO_IN
+  const { fps } = useVideoConfig();
+  const DURATION = S.VIDEO_OUT - S.VIDEO_IN; // 1799 frames
 
-  const rel     = frame - S.VIDEO_IN;
-  const relSec  = rel / fps;
-  const fadeIn  = spring({ frame: rel, fps, config: springConfig.entry });
-  const fadeOut = spring({ frame: frame - S.VIDEO_OUT, fps, config: springConfig.exit });
-  const op      = fadeIn * interpolate(fadeOut, [0, 1], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const relSec = frame / fps;
+
+  const fadeIn  = spring({ frame, fps, config: springConfig.entry });
+  const fadeOut = interpolate(frame, [DURATION - 30, DURATION], [1, 0], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+  const op = fadeIn * fadeOut;
 
   const activeSub = SUBTITLES.find((s) => relSec >= s.s && relSec < s.e);
   const subFade   = activeSub
-    ? spring({ frame: rel - Math.round(activeSub.s * fps), fps, config: springConfig.entry })
+    ? spring({ frame: frame - Math.round(activeSub.s * fps), fps, config: springConfig.entry })
     : 0;
+
+  // Lower-third reveal: slides up from bottom of video over first 1s
+  const lowerThirdSp = spring({ frame, fps, config: { damping: 16, mass: 0.8, stiffness: 80 } });
+  const lowerThirdOff = interpolate(lowerThirdSp, [0, 1], [60, 0]);
 
   return (
     <AbsoluteFill style={{ opacity: op, zIndex: 55 }}>
       <div style={{ position: "absolute", inset: 0, background: "rgba(8,4,20,0.90)" }} />
 
-      {/* Top label */}
-      <div style={{
-        position: "absolute", top: 28, left: "50%",
-        transform: "translateX(-50%)", zIndex: 57,
-      }}>
-        <GlassCard style={{
-          padding: "12px 36px",
-          borderTop: `3px solid ${GD_ACCENT}`,
-          display: "flex", alignItems: "center", gap: 16,
-        }}>
-          <Img
-            src={staticFile("AWSCommunityGameDayEurope/faces/mihaly.jpg")}
-            style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", boxShadow: `0 0 12px ${GD_VIOLET}` }}
-          />
-          <div>
-            <div style={{
-              fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ACCENT,
-              letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
-            }}>
-              Support Process
-            </div>
-            <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: FF }}>
-              Mihaly · AWS User Group Budapest
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* Video */}
+      {/* Video  - shifted up to leave room for subtitles below */}
       <div style={{
         position: "absolute",
         top: "50%", left: "50%",
-        transform: "translate(-50%, -50%) translateY(-16px)",
+        transform: "translate(-50%, -50%) translateY(-44px)",
         width: 900, height: 506,
         borderRadius: 20, overflow: "hidden",
         boxShadow: `0 0 80px ${GD_VIOLET}44, 0 30px 80px rgba(0,0,0,0.7)`,
@@ -1111,33 +1111,89 @@ const SupportVideoScene: React.FC<{ frame: number; fps: number }> = ({ frame, fp
       }}>
         <Video
           src={SUPPORT_VID}
-          startFrom={0}
-          endAt={1800}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
+
+        {/* Lower-third bar  - slides up from bottom edge of video, broadcast style */}
+        <div style={{
+          position: "absolute",
+          bottom: 0, left: 0, right: 0,
+          transform: `translateY(${lowerThirdOff}px)`,
+          zIndex: 58,
+          overflow: "hidden",
+        }}>
+          {/* Gradient backdrop */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(0deg, rgba(8,4,20,0.95) 0%, rgba(8,4,20,0.75) 70%, transparent 100%)",
+          }} />
+          {/* Content */}
+          <div style={{
+            position: "relative",
+            padding: "18px 28px 20px 28px",
+            display: "flex", alignItems: "center", gap: 16,
+          }}>
+            {/* Accent bar */}
+            <div style={{
+              width: 4, height: 48, borderRadius: 3,
+              background: `linear-gradient(180deg, ${GD_ACCENT} 0%, ${GD_VIOLET} 100%)`,
+              flexShrink: 0,
+            }} />
+            <Img
+              src={staticFile("AWSCommunityGameDayEurope/faces/mihaly.jpg")}
+              style={{
+                width: 44, height: 44, borderRadius: "50%", objectFit: "cover",
+                boxShadow: `0 0 14px ${GD_VIOLET}aa, 0 0 0 2px ${GD_ACCENT}55`,
+                flexShrink: 0,
+              }}
+            />
+            <div>
+              <div style={{
+                fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_ACCENT,
+                letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+                marginBottom: 3,
+              }}>
+                Support Process
+              </div>
+              <div style={{
+                fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white",
+                fontFamily: FF, lineHeight: 1.1,
+              }}>
+                Mihaly Balassy
+              </div>
+              <div style={{
+                fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)",
+                fontFamily: FF, marginTop: 2,
+              }}>
+                AWS User Group Budapest
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Subtitles */}
+      {/* Subtitles  - plain text below the video, no background box */}
       {activeSub && (
         <div style={{
           position: "absolute",
-          bottom: 100, left: "50%",
+          // video bottom is at: 50% - 44px + 253px = ~569px from top (720px frame)
+          // progress bar is at bottom: 68px → top: 652px
+          // we place text centered between video bottom and progress bar
+          bottom: L.PROGRESS_H + 14,
+          left: "50%",
           transform: "translateX(-50%)",
-          maxWidth: 840,
+          maxWidth: 860,
+          width: 860,
           opacity: subFade,
           zIndex: 57,
+          textAlign: "center",
         }}>
           <div style={{
-            background: "rgba(0,0,0,0.88)", backdropFilter: "blur(8px)",
-            borderRadius: 10, padding: "14px 28px", textAlign: "center",
+            fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "white",
+            fontFamily: FF, lineHeight: 1.4,
+            textShadow: "0 1px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.8)",
           }}>
-            <div style={{
-              fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "white",
-              fontFamily: FF, lineHeight: 1.45,
-              textShadow: "0 1px 8px rgba(0,0,0,0.9)",
-            }}>
-              {activeSub.t}
-            </div>
+            {activeSub.t}
           </div>
         </div>
       )}
@@ -1146,33 +1202,198 @@ const SupportVideoScene: React.FC<{ frame: number; fps: number }> = ({ frame, fp
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PROGRESS BAR (always visible, GameDay logo cursor)
+// SCENE 8  - LINDA TRANSITION BACK (13380–15179)
+// Linda reappears after Mihaly's video and introduces the AWS special guest.
 // ─────────────────────────────────────────────────────────────────────────────
-const ProgressBar: React.FC<{ frame: number; totalFrames: number }> = ({ frame, totalFrames }) => {
-  const { name } = getPhaseInfo(frame, SEGMENTS);
-  const progress = Math.min(1, Math.max(0, frame / totalFrames));
+const LindaGuestIntro: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  if (frame < S.LINDA_BACK_IN || frame > S.LINDA_BACK_OUT) return null;
 
-  const milestones = [
-    { label: "Game Start",  pos: 0.056 },
-    { label: "Gameplay",    pos: 0.50 },
-    { label: "Ceremony",    pos: 0.89 },
-  ];
+  const rel = frame - S.LINDA_BACK_IN;
+  const op  = fadeWindow(frame, S.LINDA_BACK_IN, S.LINDA_BACK_OUT, 25);
+  const sp  = spring({ frame: rel, fps, config: springConfig.entry });
+  const off = interpolate(sp, [0, 1], [28, 0]);
+
+  const cardSp = spring({ frame: Math.max(0, rel - 18), fps, config: springConfig.entry });
+  const badgeSp = spring({ frame: Math.max(0, rel - 36), fps, config: springConfig.entry });
+
+  return (
+    <>
+      {/* Linda compact strip  - bottom right */}
+      <div style={{
+        position: "absolute",
+        bottom: L.PROGRESS_H + 10, right: L.MARGIN,
+        width: L.SIDEBAR_W,
+        opacity: op * sp,
+        transform: `translateY(${off}px)`,
+        zIndex: 30,
+      }}>
+        <GlassCard style={{
+          padding: "14px 20px",
+          borderLeft: `4px solid ${GD_VIOLET}`,
+          display: "flex", alignItems: "center", gap: 14,
+        }}>
+          <Img
+            src={staticFile("AWSCommunityGameDayEurope/faces/linda.jpg")}
+            style={{
+              width: 52, height: 52, borderRadius: "50%", objectFit: "cover",
+              boxShadow: `0 0 14px ${GD_VIOLET}aa`, flexShrink: 0,
+            }}
+          />
+          <div>
+            <div style={{
+              fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_ACCENT,
+              letterSpacing: 3, textTransform: "uppercase" as const, fontFamily: FF,
+              marginBottom: 2, display: "flex", alignItems: "center", gap: 5,
+            }}>
+              <MicIcon s={10} c={GD_ACCENT} /> Stream Host
+            </div>
+            <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white", fontFamily: FF }}>
+              Linda Mohamed
+            </div>
+            <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", fontFamily: FF }}>
+              AWS Community Hero · AWS UG Vienna
+            </div>
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* AWS Special Guest teaser card  - positioned high on screen */}
+      <div style={{
+        position: "absolute",
+        top: "50%", left: "50%",
+        transform: `translateX(-50%) translateY(calc(-50% - ${L.PROGRESS_H / 2}px + ${interpolate(cardSp, [0, 1], [24, 0])}px))`,
+        width: 780,
+        opacity: op * cardSp,
+        zIndex: 32,
+      }}>
+        <GlassCard style={{
+          padding: "36px 52px",
+          borderTop: `4px solid ${GD_ORANGE}`,
+          textAlign: "center",
+        }}>
+          {/* Badge */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 10,
+            background: `${GD_ORANGE}14`,
+            border: `1px solid ${GD_ORANGE}40`,
+            borderRadius: 100, padding: "6px 20px",
+            marginBottom: 24,
+            opacity: badgeSp,
+            transform: `scale(${interpolate(badgeSp, [0, 1], [0.88, 1])})`,
+          }}>
+            <StarIcon s={12} c={GD_ORANGE} />
+            <div style={{
+              fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ORANGE,
+              letterSpacing: 4, textTransform: "uppercase" as const, fontFamily: FF,
+            }}>
+              AWS Special Guest · Joining Live
+            </div>
+          </div>
+
+          {/* Title */}
+          <div style={{
+            fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white",
+            fontFamily: FF, lineHeight: 1.1, marginBottom: 10,
+          }}>
+            Special Guest
+          </div>
+
+          <div style={{
+            fontSize: TYPOGRAPHY.h6, fontWeight: 600,
+            background: `linear-gradient(90deg, ${GD_ORANGE}, ${GD_GOLD})`,
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            fontFamily: FF, marginBottom: 20,
+          }}>
+            from Amazon Web Services
+          </div>
+
+          <div style={{
+            width: 48, height: 2, margin: "0 auto 20px",
+            background: `linear-gradient(90deg, transparent, ${GD_ORANGE}, transparent)`,
+          }} />
+
+          {/* Description */}
+          <div style={{
+            fontSize: TYPOGRAPHY.body, fontWeight: 400,
+            color: "rgba(255,255,255,0.72)", fontFamily: FF, lineHeight: 1.65,
+            marginBottom: 18,
+          }}>
+            A familiar face to many of you - someone who has traveled to community events,
+            meetups and community days across Europe, year after year.
+          </div>
+
+          <div style={{
+            fontSize: TYPOGRAPHY.caption, fontWeight: 500,
+            color: "rgba(255,255,255,0.35)", fontFamily: FF,
+          }}>
+            AWS provides the infrastructure and environments that make GameDay possible
+            for 80+ user groups across Europe.
+          </div>
+        </GlassCard>
+      </div>
+    </>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROGRESS BAR
+// Layout: [Current Phase] [━━━━ track ━━━━] [Game Start countdown]
+// Track has two phases:
+//   0 → GAME_START_FRAME : 🔊 Audio ON  (violet→pink fill)
+//   GAME_START_FRAME → end: 🔇 Muted   (gray, game live)
+// Milestones: Stream Start (pos 0) · Game Start (pos ~0.833)
+// ─────────────────────────────────────────────────────────────────────────────
+// Event timeline constants (minutes from 17:30)
+const EV_TOTAL   = 210; // 17:30 - 21:00
+const EV_PRESHOW =  30; // 17:30 - 18:00
+const EV_STREAM  =  60; // 18:00 - 18:30
+const EV_GAMEDAY = 180; // 18:30 - 20:30
+const EV_MYSTERY = 120; // 19:30 - mystery moment mid-GameDay
+
+const POS_PRESHOW_END = EV_PRESHOW / EV_TOTAL; // 0.143
+const POS_STREAM_END  = EV_STREAM  / EV_TOTAL; // 0.286
+const POS_GAMEDAY_END = EV_GAMEDAY / EV_TOTAL; // 0.857
+const POS_MYSTERY     = EV_MYSTERY / EV_TOTAL; // 0.571
+
+const EVENT_BLOCKS = [
+  { label: "Pre-Show",    start: 0,               end: POS_PRESHOW_END, audio: false },
+  { label: "Live Stream", start: POS_PRESHOW_END, end: POS_STREAM_END,  audio: true  },
+  { label: "GameDay",     start: POS_STREAM_END,  end: POS_GAMEDAY_END, audio: false },
+  { label: "Ceremony",    start: POS_GAMEDAY_END, end: 1,               audio: true  },
+] as const;
+
+const ProgressBar: React.FC<{
+  frame: number;
+  totalFrames: number;
+  gameCountdownSeconds: number;
+}> = ({ frame, totalFrames, gameCountdownSeconds }) => {
+  const { name: phaseName } = getPhaseInfo(frame, SEGMENTS);
+
+  // cursor = real position within the 4-block timeline
+  const elapsedMin = EV_STREAM - gameCountdownSeconds / 60; // 30→60 across this composition
+  const cursorPos  = Math.min(POS_STREAM_END, Math.max(POS_PRESHOW_END, elapsedMin / EV_TOTAL));
+
+  // index of the block the cursor is currently in
+  const currentBlockIdx = EVENT_BLOCKS.findIndex((b, i) =>
+    cursorPos >= b.start && (cursorPos < b.end || i === EVENT_BLOCKS.length - 1)
+  );
 
   return (
     <div style={{
       position: "absolute", bottom: 0, left: 0, right: 0,
-      height: L.PROGRESS_H, zIndex: 50,
+      height: L.PROGRESS_H, zIndex: 50, overflow: "visible",
     }}>
       <GlassCard style={{
-        position: "absolute", inset: 0,
-        borderRadius: 0,
-        display: "flex", alignItems: "center", padding: "0 36px",
+        position: "absolute", inset: 0, borderRadius: 0,
+        display: "flex", alignItems: "center", padding: "0 24px", gap: 18,
+        overflow: "visible",
       }}>
-        {/* Phase label */}
-        <div style={{ width: 240, flexShrink: 0 }}>
+
+        {/* ── Left: current phase ── */}
+        <div style={{ width: 148, flexShrink: 0 }}>
           <div style={{
             fontSize: TYPOGRAPHY.overline, fontWeight: 700, color: GD_ACCENT,
-            letterSpacing: 2, textTransform: "uppercase" as const, fontFamily: FF, marginBottom: 3,
+            letterSpacing: 2, textTransform: "uppercase" as const, fontFamily: FF, marginBottom: 2,
           }}>
             Current Phase
           </div>
@@ -1180,60 +1401,145 @@ const ProgressBar: React.FC<{ frame: number; totalFrames: number }> = ({ frame, 
             fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white",
             fontFamily: FF, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}>
-            {name}
+            {phaseName}
           </div>
         </div>
 
-        {/* Track */}
-        <div style={{ flex: 1, position: "relative", height: 44, display: "flex", alignItems: "center" }}>
+        {/* ── Centre: 4-block timeline ── */}
+        {/* overflow:visible lets the logo cursor float above the bar */}
+        <div style={{ flex: 1, position: "relative", height: 56, overflow: "visible" }}>
+
+          {/* Background rail */}
           <div style={{
-            position: "absolute", left: 0, right: 0, top: "50%",
-            transform: "translateY(-50%)", height: 6,
-            background: "rgba(255,255,255,0.08)", borderRadius: 3,
+            position: "absolute", left: 0, right: 0, top: 28,
+            height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2,
           }} />
-          <div style={{
-            position: "absolute", left: 0, top: "50%",
-            transform: "translateY(-50%)",
-            width: `${progress * 100}%`, height: 6,
-            background: `linear-gradient(90deg, ${GD_VIOLET}, ${GD_PINK})`, borderRadius: 3,
-          }} />
-          {milestones.map((m) => (
-            <div key={m.label} style={{
-              position: "absolute", left: `${m.pos * 100}%`, top: "50%",
-              transform: "translate(-50%, -50%)",
-              display: "flex", flexDirection: "column", alignItems: "center",
-            }}>
-              <div style={{
-                width: 10, height: 10, borderRadius: "50%",
-                background: progress >= m.pos ? GD_ACCENT : "rgba(255,255,255,0.2)",
-                border: `2px solid ${progress >= m.pos ? GD_VIOLET : "rgba(255,255,255,0.1)"}`,
+
+          {/* Block fills */}
+          {EVENT_BLOCKS.map((blk, i) => {
+            const isPast    = i < currentBlockIdx;
+            const isCurrent = i === currentBlockIdx;
+            const left  = blk.start * 100;
+            const width = (blk.end - blk.start) * 100;
+            return (
+              <div key={blk.label} style={{
+                position: "absolute",
+                left: `${left}%`, width: `${width}%`,
+                top: 28, height: 4, borderRadius: 2,
+                background: isCurrent
+                  ? `linear-gradient(90deg, ${GD_VIOLET}, ${GD_PINK})`
+                  : isPast
+                    ? "rgba(255,255,255,0.28)"
+                    : blk.audio ? `${GD_VIOLET}28` : "rgba(255,255,255,0.04)",
               }} />
-              <div style={{
-                position: "absolute", top: -20,
-                fontSize: TYPOGRAPHY.overline, fontWeight: 600, color: "rgba(255,255,255,0.4)",
-                fontFamily: FF, whiteSpace: "nowrap",
-              }}>
-                {m.label}
-              </div>
-            </div>
-          ))}
-          {/* GameDay logo cursor */}
+            );
+          })}
+
+          {/* Block dividers + labels + audio indicators */}
+          {EVENT_BLOCKS.map((blk, i) => {
+            const isPast    = i < currentBlockIdx;
+            const isCurrent = i === currentBlockIdx;
+            const isFirst   = i === 0;
+            const xPct      = blk.start * 100;
+            const midPct    = (blk.start + (blk.end - blk.start) / 2) * 100;
+
+            return (
+              <React.Fragment key={blk.label}>
+                {/* Divider tick */}
+                {!isFirst && (
+                  <div style={{
+                    position: "absolute", left: `${xPct}%`, top: 22,
+                    transform: "translateX(-50%)",
+                    width: 1, height: 12,
+                    background: "rgba(255,255,255,0.18)",
+                  }} />
+                )}
+
+                {/* Block name above rail — hidden for current block (unicorn marks it) */}
+                {!isCurrent && (
+                  <div style={{
+                    position: "absolute",
+                    left: `${midPct}%`, top: 6,
+                    transform: "translateX(-50%)",
+                    fontSize: 9, fontWeight: 700, letterSpacing: 1,
+                    textTransform: "uppercase" as const, fontFamily: FF,
+                    whiteSpace: "nowrap",
+                    color: isPast ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.38)",
+                  }}>
+                    {blk.label}
+                  </div>
+                )}
+
+                {/* Audio icon + label below rail */}
+                <div style={{
+                  position: "absolute",
+                  left: `${midPct}%`, top: 40,
+                  transform: "translateX(-50%)",
+                  display: "flex", alignItems: "center", gap: 3,
+                  whiteSpace: "nowrap",
+                }}>
+                  {blk.audio
+                    ? <VolumeIcon  s={8} c={isCurrent ? GD_ORANGE : `${GD_ORANGE}44`} />
+                    : <VolumeOffIcon s={8} />
+                  }
+                  <span style={{
+                    fontSize: 8, fontWeight: 600, letterSpacing: 1,
+                    textTransform: "uppercase" as const, fontFamily: FF,
+                    color: isCurrent
+                      ? (blk.audio ? `${GD_ORANGE}cc` : "rgba(255,255,255,0.40)")
+                      : "rgba(255,255,255,0.18)",
+                  }}>
+                    {blk.audio ? "Audio" : "Muted"}
+                  </span>
+                  {/* Countdown inline on the current Live Stream block */}
+                  {isCurrent && (
+                    <span style={{
+                      fontSize: 8, fontWeight: 700,
+                      color: GD_ORANGE, fontFamily: FF, marginLeft: 3,
+                    }}>
+                      · {formatTime(gameCountdownSeconds)} left
+                    </span>
+                  )}
+                </div>
+              </React.Fragment>
+            );
+          })}
+
+          {/* Mystery ZapIcon — centered on rail */}
           <div style={{
             position: "absolute",
-            left: `${progress * 100}%`,
-            top: "50%",
-            transform: "translate(-50%, -130%)",
-            width: 30, height: 30,
+            left: `${POS_MYSTERY * 100}%`, top: 30,
+            transform: "translate(-50%, -50%)",
+          }}>
+            <ZapIcon s={16} c={GD_GOLD} />
+          </div>
+
+          {/* Cursor stem (purple line from unicorn bottom to rail) */}
+          <div style={{
+            position: "absolute",
+            left: `${cursorPos * 100}%`, top: 26,
+            transform: "translateX(-50%)",
+            width: 1, height: 4,
+            background: "rgba(139,92,246,0.6)",
+          }} />
+
+          {/* GameDay logo cursor — large, overflows above the bar */}
+          <div style={{
+            position: "absolute",
+            left: `${cursorPos * 100}%`, top: -36,
+            transform: "translateX(-50%)",
+            width: 62, height: 62,
+            filter: "drop-shadow(0 0 12px rgba(139,92,246,1)) drop-shadow(0 0 24px rgba(139,92,246,0.6))",
+            zIndex: 60,
           }}>
             <Img
               src={GAMEDAY_LOGO}
-              style={{
-                width: "100%", height: "100%", objectFit: "contain",
-                filter: "drop-shadow(0 0 6px rgba(139,92,246,0.9))",
-              }}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
           </div>
+
         </div>
+
       </GlassCard>
     </div>
   );
@@ -1248,7 +1554,8 @@ export const GameDayMainEventV3: React.FC = () => {
 
   const gameCountdown  = calculateCountdown(frame, STREAM_START, GAME_START, fps);
   const isDistribute   = frame >= 45000;
-  const isVideoScene   = frame >= S.VIDEO_IN && frame <= S.VIDEO_OUT + 30;
+  // Suppress old scenes during video and during Linda's transition back
+  const isVideoScene   = frame >= S.VIDEO_IN && frame <= S.LINDA_BACK_OUT;
 
   const STATS: StatDef[] = [
     {
@@ -1257,7 +1564,7 @@ export const GameDayMainEventV3: React.FC = () => {
       inFrame: S.STAT1_IN, outFrame: S.STAT1_OUT,
     },
     {
-      value: "20+", label: "Countries", sub: "From Iceland to Turkey",
+      value: "20+", label: "Countries", sub: "Competing across Europe",
       color: GD_VIOLET, icon: <GlobeIcon s={32} c={GD_VIOLET} />,
       inFrame: S.STAT2_IN, outFrame: S.STAT2_OUT,
     },
@@ -1306,7 +1613,7 @@ export const GameDayMainEventV3: React.FC = () => {
       {/* ── Scene 5a: Speech bubble (1320–1500) ── */}
       {!isVideoScene && <SpeechBubble frame={frame} fps={fps} />}
 
-      {/* ── Scene 5b–5d: Info cards — one at a time (1500–1800) ── */}
+      {/* ── Scene 5b–5d: Info cards  - one at a time (1500–1800) ── */}
       {!isVideoScene && LINDA_INFO.map((def) => (
         <InfoCard key={def.label} frame={frame} fps={fps} def={def} />
       ))}
@@ -1323,11 +1630,17 @@ export const GameDayMainEventV3: React.FC = () => {
       {/* ── Audio badge ── */}
       <AudioBadge muted={false} />
 
-      {/* ── Scene 7: Mihaly support video (10800–12599) ── */}
-      <SupportVideoScene frame={frame} fps={fps} />
+      {/* ── Scene 7: Mihaly support video (10800–13379, full 86s) ── */}
+      {/* Sequence resets useCurrentFrame() to 0 so Video seeks correctly */}
+      <Sequence from={S.VIDEO_IN} durationInFrames={S.VIDEO_OUT - S.VIDEO_IN + 1} layout="none">
+        <SupportVideoBody />
+      </Sequence>
+
+      {/* ── Scene 8: Linda transition back → AWS special guest intro (13380–15179) ── */}
+      <LindaGuestIntro frame={frame} fps={fps} />
 
       {/* ── Progress bar (always) ── */}
-      <ProgressBar frame={frame} totalFrames={54000} />
+      <ProgressBar frame={frame} totalFrames={54000} gameCountdownSeconds={gameCountdown} />
 
       {/* ── Remotion Studio chapter markers ── */}
       {CHAPTERS.map((seg) => (

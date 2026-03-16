@@ -35,6 +35,12 @@ Compositions use absolute positioning with z-index layering:
 - Property tests verify these functions against frame ranges
 - Test files: `__tests__/*.property.test.ts`
 
+## Icons
+
+- NEVER use emojis in compositions. Always use inline SVG icons colored with the design system palette (e.g., `GD_ORANGE`, `GD_VIOLET`).
+- Define small React.FC icon components (e.g., `ServerIcon`, `HeartIcon`, `UsersIcon`, `StarIcon`) that accept `size` and `color` props and render an SVG `<svg>` element.
+- Match icon color to the scene context (orange for AWS-related, violet for community, gold for results, etc.).
+
 ## Naming
 
 - Compositions: `GameDay{Part}` (e.g., GameDayMainEvent)

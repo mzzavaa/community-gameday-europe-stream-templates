@@ -27,6 +27,51 @@ import {
 import { USER_GROUPS, LOGO_MAP } from "../archive/CommunityGamedayEuropeV4";
 import { ORGANIZERS, AWS_SUPPORTERS } from "../shared/organizers";
 
+// ── SVG Icons ──
+const ServerIcon: React.FC<{ size?: number; color?: string }> = ({ size = 22, color = GD_ORANGE }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
+    <line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>
+  </svg>
+);
+const UsersIcon: React.FC<{ size?: number; color?: string }> = ({ size = 22, color = GD_ORANGE }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+const StarIcon: React.FC<{ size?: number; color?: string }> = ({ size = 22, color = GD_ORANGE }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+);
+const HeartIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color = GD_ORANGE }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+
+// ── LogoCover: cover for landscape, contain+centered for square ──
+const LogoCover: React.FC<{ logoUrl: string }> = ({ logoUrl }) => {
+  const [isSquare, setIsSquare] = React.useState(false);
+  return (
+    <div style={{ width: "100%", flex: 1, borderRadius: "16px 16px 0 0", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
+      <Img
+        src={logoUrl}
+        onLoad={(e) => {
+          const img = e.currentTarget as HTMLImageElement;
+          const ratio = img.naturalWidth / img.naturalHeight;
+          if (ratio > 0.85 && ratio < 1.15) setIsSquare(true);
+        }}
+        style={isSquare
+          ? { maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }
+          : { width: "100%", height: "100%", objectFit: "cover" }
+        }
+      />
+    </div>
+  );
+};
+
 // ── Part A Constants ──
 const FPS = 30;
 const PART_A_TOTAL_FRAMES = 4200; // ~2min20s
@@ -36,8 +81,8 @@ const HERO_INTRO_END = 1599;
 const FAST_SCROLL_START = 1600;
 const FAST_SCROLL_END = 1899;
 const SHUFFLE_START = 1900;
-const SHUFFLE_END = 3699;
-const FINALE_START = 3700;
+const SHUFFLE_END = 3449;
+const FINALE_START = 3270;
 
 // ── Shuffle Constants ──
 const SHUFFLE_BAR_WIDTH = 160;
@@ -153,9 +198,11 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
       {/* ── SCENE 1: "WHAT. A. DAY." ── */}
       {frame < 180 && (
         <AbsoluteFill style={{ opacity: s1Opacity }}>
-          {/* GameDay logo top */}
-          <div style={{ position: "absolute", top: 30, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: logoFade }}>
-            <Img src={staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ height: 60 }} />
+          {/* Community Europe logo | divider | GameDay logo */}
+          <div style={{ position: "absolute", top: 20, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center", gap: 24, opacity: logoFade }}>
+            <Img src={staticFile("AWSCommunityGameDayEurope/AWSCommunityEurope_last_nobackground.png")} style={{ height: 80 }} />
+            <div style={{ width: 1, height: 60, background: "rgba(255,255,255,0.3)" }} />
+            <Img src={staticFile("AWSCommunityGameDayEurope/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ height: 80 }} />
           </div>
           {/* Big dramatic words */}
           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -55%)", display: "flex", gap: 20, alignItems: "baseline" }}>
@@ -274,12 +321,12 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
             position: "absolute", top: 40, left: 0, right: 0, textAlign: "center",
             opacity: orgTitleSpring, transform: `translateY(${interpolate(orgTitleSpring, [0, 1], [20, 0])}px)`,
           }}>
-            <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif", letterSpacing: 5 }}>
+            <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif", letterSpacing: 5 }}>
               COMMUNITY GAMEDAY EUROPE ORGANIZERS
             </div>
             <div style={{
-              fontSize: TYPOGRAPHY.h3, fontWeight: 900, fontFamily: "'Inter', sans-serif", marginTop: 8,
-              color: GD_GOLD, letterSpacing: 1,
+              fontSize: TYPOGRAPHY.h4, fontWeight: 900, fontFamily: "'Inter', sans-serif", marginTop: 8,
+              color: GD_VIOLET, letterSpacing: 1,
             }}>From the Community, for the Community</div>
           </div>
           {/* Organizer cards */}
@@ -288,11 +335,12 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "36px 80px", maxWidth: 1250,
           }}>
             {ORGANIZERS.map((org, i) => {
-              const cardSpring = spring({ frame: Math.max(0, frame - 565 - i * 12), fps, config: { damping: 12, stiffness: 100 } });
+              const cardSpring = spring({ frame: Math.max(0, frame - 565 - i * 18), fps, config: { damping: 18, stiffness: 80, mass: 1 } });
+              const cardScale = interpolate(cardSpring, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
               return (
                 <div key={org.name} style={{
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-                  opacity: cardSpring, transform: `translateY(${interpolate(cardSpring, [0, 1], [30, 0])}px)`,
+                  opacity: cardSpring, transform: `scale(${cardScale}) translateY(${interpolate(cardSpring, [0, 1], [20, 0])}px)`,
                 }}>
                   <div style={{
                     width: 130, height: 130, borderRadius: "50%", overflow: "hidden",
@@ -301,14 +349,15 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                     <Img src={staticFile(org.face)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: TYPOGRAPHY.h5, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
-                      {org.flag} {org.name}
+                    <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
+                      {org.name}
                     </div>
-                    <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, whiteSpace: "nowrap" }}>
                       {org.role}
                     </div>
-                    <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif", marginTop: 1 }}>
-                      {org.country}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 2 }}>
+                      <span style={{ fontSize: 16 }}>{org.flag}</span>
+                      <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif" }}>{org.country}</span>
                     </div>
                   </div>
                 </div>
@@ -325,52 +374,49 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
             position: "absolute", top: 40, left: 0, right: 0, textAlign: "center",
             opacity: awsTitleSpring, transform: `translateY(${interpolate(awsTitleSpring, [0, 1], [20, 0])}px)`,
           }}>
-            <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif", letterSpacing: 5 }}>
-              POWERED BY
-            </div>
             <div style={{
-              fontSize: TYPOGRAPHY.h4, fontWeight: 900, fontFamily: "'Inter', sans-serif", marginTop: 8,
+              fontSize: TYPOGRAPHY.h3, fontWeight: 900, fontFamily: "'Inter', sans-serif", marginTop: 8,
               color: GD_ORANGE, letterSpacing: 1,
             }}>Thank You, AWS</div>
           </div>
           {/* Subtitle */}
           <div style={{
-            position: "absolute", top: 130, left: 0, right: 0, textAlign: "center",
+            position: "absolute", top: 100, left: 0, right: 0, textAlign: "center",
             opacity: interpolate(frame, [1060, 1090], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontSize: TYPOGRAPHY.captionSmall, color: "rgba(255,255,255,0.45)", fontFamily: "'Inter', sans-serif", letterSpacing: 1 }}>
-              For the GameDay environment, outstanding support during organization, and so much more
+            <span style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.45)", fontFamily: "'Inter', sans-serif", letterSpacing: 1 }}>
+              Orga Support & Gamemasters making this event possible
             </span>
           </div>
-          {/* AWS supporter cards — centered row */}
+          {/* AWS supporter cards — grid layout */}
           <div style={{
-            position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)",
-            display: "flex", gap: 60, justifyContent: "center", alignItems: "flex-start",
+            position: "absolute", top: "28%", left: "50%", transform: "translateX(-50%)",
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px 50px", maxWidth: 1100,
           }}>
             {AWS_SUPPORTERS.map((person, i) => {
-              const cardSpring = spring({ frame: Math.max(0, frame - 1070 - i * 15), fps, config: { damping: 12, stiffness: 100, mass: 0.8 } });
+              const cardSpring = spring({ frame: Math.max(0, frame - 1070 - i * 18), fps, config: { damping: 18, stiffness: 80, mass: 1 } });
               const cardScale = interpolate(cardSpring, [0, 1], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
               return (
                 <div key={person.name} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
                   opacity: cardSpring, transform: `scale(${cardScale}) translateY(${interpolate(cardSpring, [0, 1], [20, 0])}px)`,
                 }}>
                   <div style={{
-                    width: 140, height: 140, borderRadius: "50%", overflow: "hidden",
-                    boxShadow: `0 0 30px ${GD_ORANGE}50, 0 0 60px ${GD_ORANGE}30, 0 4px 16px rgba(0,0,0,0.4)`,
+                    width: 120, height: 120, borderRadius: "50%", overflow: "hidden",
+                    boxShadow: `0 0 30px ${GD_ORANGE}70, 0 0 60px ${GD_ORANGE}40, 0 4px 16px rgba(0,0,0,0.4)`,
                     border: `2px solid ${GD_ORANGE}40`,
                   }}>
                     <Img src={staticFile(person.face)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
-                  <div style={{ textAlign: "center", maxWidth: 200 }}>
+                  <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
                       {person.name}
                     </div>
-                    <div style={{ fontSize: TYPOGRAPHY.captionSmall, color: GD_ORANGE, fontFamily: "'Inter', sans-serif", marginTop: 4, fontWeight: 600 }}>
-                      {person.country}
-                    </div>
-                    <div style={{ fontSize: TYPOGRAPHY.label, color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif", marginTop: 3, lineHeight: 1.3 }}>
+                    <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, whiteSpace: "nowrap" }}>
                       {person.role}
+                    </div>
+                    <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif", marginTop: 2 }}>
+                      {person.country}
                     </div>
                   </div>
                 </div>
@@ -378,21 +424,25 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
             })}
           </div>
 
-          {/* "And many more" indicator */}
+          {/* Thank-you sentences */}
           <div style={{
-            position: "absolute", bottom: 80, left: 0, right: 0, textAlign: "center",
+            position: "absolute", bottom: 100, left: 60, right: 60, display: "flex", flexDirection: "column", gap: 12, alignItems: "center",
             opacity: interpolate(frame, [1120, 1150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 12,
-              background: "rgba(255,255,255,0.05)", backdropFilter: "blur(8px)",
-              borderRadius: 12, padding: "10px 24px", border: "1px solid rgba(255,255,255,0.08)",
-            }}>
-              <span style={{ fontSize: TYPOGRAPHY.body }}>🙏</span>
-              <span style={{ fontSize: TYPOGRAPHY.captionSmall, fontWeight: 600, color: "rgba(255,255,255,0.6)", fontFamily: "'Inter', sans-serif", letterSpacing: 1 }}>
-                And many more AWS colleagues who made this possible
-              </span>
-            </div>
+            {[
+              { icon: <ServerIcon size={28} color={GD_ORANGE} />, text: "The GameDay environment & infrastructure" },
+              { icon: <UsersIcon size={28} color={GD_ORANGE} />, text: "Local and remote supporters across Europe" },
+              { icon: <StarIcon size={28} color={GD_ORANGE} />, text: "Outstanding support during organization & preparation" },
+              { icon: <HeartIcon size={28} color={GD_ORANGE} />, text: "And many more AWS colleagues who made this possible" },
+            ].map((item, i) => {
+              const itemSpring = spring({ frame: Math.max(0, frame - 1130 - i * 12), fps, config: { damping: 18, stiffness: 80 } });
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, opacity: itemSpring, transform: `translateY(${interpolate(itemSpring, [0, 1], [10, 0])}px)` }}>
+                  {item.icon}
+                  <span style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 600, color: "rgba(255,255,255,0.6)", fontFamily: "'Inter', sans-serif", letterSpacing: 0.5 }}>{item.text}</span>
+                </div>
+              );
+            })}
           </div>
         </AbsoluteFill>
       )}
@@ -462,7 +512,8 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
   const scrollFrame = frame - FAST_SCROLL_START;
   const scrollDuration = FAST_SCROLL_END - FAST_SCROLL_START;
 
-  const entryOpacity = interpolate(scrollFrame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const entryOpacity = interpolate(frame, [1580, 1620], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const exitOpacity = interpolate(frame, [1860, 1899], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const scrollProgress = interpolate(scrollFrame, [15, scrollDuration], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const eased = scrollProgress < 0.5 ? 2 * scrollProgress * scrollProgress : 1 - Math.pow(-2 * scrollProgress + 2, 2) / 2;
 
@@ -475,7 +526,7 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
   const lastVisibleRow = Math.min(TOTAL_ROWS - 1, Math.ceil((scrollY + VIEWPORT_HEIGHT_PX + SCROLL_ROW_HEIGHT) / SCROLL_ROW_HEIGHT));
 
   return (
-    <AbsoluteFill style={{ opacity: entryOpacity }}>
+    <AbsoluteFill style={{ opacity: entryOpacity * exitOpacity }}>
       <div style={{
         position: "absolute", top: `${glowY}%`, left: `${glowX}%`, width: 800, height: 800,
         transform: "translate(-50%, -50%)", background: `radial-gradient(circle, ${GD_PURPLE}30 0%, transparent 70%)`,
@@ -510,20 +561,18 @@ const FastScroll: React.FC<{ frame: number }> = ({ frame }) => {
                 boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
               }}>
                 {logoUrl ? (
-                  <div style={{ width: "100%", flex: 1, borderRadius: "16px 16px 0 0", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
-                    <Img src={logoUrl} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
-                  </div>
+                  <LogoCover logoUrl={logoUrl} />
                 ) : (
                   <div style={{ width: "100%", flex: 1, borderRadius: "16px 16px 0 0", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: `linear-gradient(135deg, ${accentColor}40, ${GD_DARK})` }}>
                     <div style={{ fontSize: TYPOGRAPHY.h2, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>{group.flag}</div>
                   </div>
                 )}
-                <div style={{ padding: "6px 12px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
+                <div style={{ padding: "8px 12px 10px", display: "flex", flexDirection: "column", gap: 3 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ fontSize: TYPOGRAPHY.captionSmall, lineHeight: 1 }}>{group.flag}</div>
-                    <div style={{ fontSize: TYPOGRAPHY.label, fontWeight: 700, color: "#ffffff", fontFamily: "'Inter', sans-serif", lineHeight: 1.2 }}>{group.name}</div>
+                    <div style={{ fontSize: TYPOGRAPHY.caption, lineHeight: 1 }}>{group.flag}</div>
+                    <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "#ffffff", fontFamily: "'Inter', sans-serif", lineHeight: 1.2 }}>{group.name}</div>
                   </div>
-                  <div style={{ fontSize: TYPOGRAPHY.overline, color: "#94a3b8", fontFamily: "'Inter', sans-serif", display: "flex", alignItems: "center", gap: 4, marginLeft: 22 }}>📍 {group.city}</div>
+                  <div style={{ fontSize: TYPOGRAPHY.captionSmall, color: "#94a3b8", fontFamily: "'Inter', sans-serif", display: "flex", alignItems: "center", gap: 4, marginLeft: 24 }}>📍 {group.city}</div>
                 </div>
                 <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${accentColor}60, transparent)` }} />
               </div>
@@ -540,14 +589,16 @@ const WinnersTeaser: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
   const localFrame = frame - FINALE_START;
 
-  const entryOpacity = interpolate(localFrame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const exitOpacity = interpolate(localFrame, [250, 299], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Fade in over 120 frames for a slow, smooth crossfade with ShufflePhase
+  const entryOpacity = interpolate(frame, [FINALE_START, FINALE_START + 120], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Fade out in last 30 frames before composition ends
+  const exitOpacity = interpolate(frame, [PART_A_TOTAL_FRAMES - 30, PART_A_TOTAL_FRAMES], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   const titleSpring = spring({ frame: Math.max(0, localFrame - 10), fps, config: { damping: 12, stiffness: 100 } });
   const countdownSpring = spring({ frame: Math.max(0, localFrame - 40), fps, config: { damping: 10, stiffness: 120 } });
   const pulse = localFrame >= 60 ? Math.sin((localFrame - 60) * 0.06) * 0.06 + 1 : 1;
 
-  // Countdown from 10 to 0
+  // Countdown from 30 to 0
   const secondsLeft = Math.max(0, Math.ceil((PART_A_TOTAL_FRAMES - frame) / FPS));
 
   return (
@@ -613,23 +664,35 @@ const WinnersTeaser: React.FC<{ frame: number }> = ({ frame }) => {
 // ── ShufflePhase: Bell Curve Horizontal Scroll ──
 // All 53 groups scroll right-to-left as vertical bars. Bars in the center of the screen
 // are tallest (bell curve peak), bars at edges are shorter.
+const SHUFFLE_VISUAL_START = 1860; // bars start appearing here (40-frame overlap with FastScroll)
+
 const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const frameInPhase = frame - SHUFFLE_START;
-  const phaseDuration = SHUFFLE_END - SHUFFLE_START;
+  const frameInPhase = frame - SHUFFLE_VISUAL_START;
+  const phaseDuration = SHUFFLE_END - SHUFFLE_VISUAL_START;
 
-  const entrySpring = spring({ frame: frameInPhase, fps, config: { damping: 16, stiffness: 100 } });
+  // Crossfade entry: fades in over 40 frames
+  const entryOpacity = interpolate(frame, [SHUFFLE_VISUAL_START, SHUFFLE_VISUAL_START + 40], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Crossfade exit: fades out as WinnersTeaser takes over
+  const exitOpacity = interpolate(frame, [FINALE_START, SHUFFLE_END], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const scrollProgress = interpolate(frameInPhase, [15, phaseDuration - 30], [0, 1], {
+  // Scroll starts immediately — bars enter from right edge
+  const scrollProgress = interpolate(frameInPhase, [0, phaseDuration - 30], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  const easedScroll = scrollProgress < 0.5
-    ? 2 * scrollProgress * scrollProgress
-    : 1 - Math.pow(-2 * scrollProgress + 2, 2) / 2;
+  // Custom ease: fast initial ramp (bars slide in during crossfade), then smooth ease-in-out for the rest
+  // First 5% is linear-ish for quick entry, then standard ease-in-out
+  const t = scrollProgress;
+  const easedScroll = t < 0.05
+    ? t * 6 // ~6x speed for first 5% so bars enter quickly
+    : 0.3 + 0.7 * ((t - 0.05) / 0.95 < 0.5
+        ? 2 * Math.pow((t - 0.05) / 0.95, 2)
+        : 1 - Math.pow(-2 * (t - 0.05) / 0.95 + 2, 2) / 2);
 
   const totalWidth = USER_GROUPS.length * (SHUFFLE_BAR_WIDTH + SHUFFLE_BAR_GAP);
   const totalScrollDist = totalWidth + 1280;
-  const scrollX = easedScroll * totalScrollDist - 1280 * 0.1;
+  // Bars start off-screen right (paddingLeft=1280) and scroll left into view
+  const scrollX = easedScroll * totalScrollDist;
 
   // Assign deterministic shuffled scores
   const groupsWithScores = USER_GROUPS.map((group, i) => {
@@ -648,16 +711,16 @@ const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
   const screenCenter = 1280 / 2;
 
   return (
-    <AbsoluteFill style={{ opacity: entrySpring }}>
+    <AbsoluteFill style={{ opacity: entryOpacity * exitOpacity }}>
       <div style={{
         position: "absolute", top: 20, left: 0, right: 0, textAlign: "center", zIndex: 10,
-        opacity: interpolate(frameInPhase, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        opacity: interpolate(frameInPhase, [40, 70], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
         <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: GD_ACCENT, fontFamily: "'Inter', sans-serif", letterSpacing: 2, textTransform: "uppercase" }}>
           Calculating Winners...
         </div>
       </div>
-      <div style={{ position: "absolute", top: 60, left: 0, right: 0, bottom: 40, overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 60, left: 0, right: 0, bottom: 0, overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 120, background: `linear-gradient(90deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 10, pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 120, background: `linear-gradient(270deg, ${GD_DARK} 0%, transparent 100%)`, zIndex: 10, pointerEvents: "none" }} />
         <div style={{
@@ -714,8 +777,30 @@ const ShufflePhase: React.FC<{ frame: number }> = ({ frame }) => {
 
 // ── ShowcasePhase (Hero Intro + Fast Scroll + Shuffle + Winners Teaser) ──
 const ShowcasePhase: React.FC<{ frame: number }> = ({ frame }) => {
-  if (frame >= FINALE_START) return <WinnersTeaser frame={frame} />;
-  if (frame >= SHUFFLE_START) return <ShufflePhase frame={frame} />;
+  // After shuffle fully done, only WinnersTeaser
+  if (frame >= SHUFFLE_END + 1) return <WinnersTeaser frame={frame} />;
+  // Crossfade overlap: ShufflePhase fading out + WinnersTeaser fading in
+  if (frame >= FINALE_START) return (
+    <>
+      <ShufflePhase frame={frame} />
+      <WinnersTeaser frame={frame} />
+    </>
+  );
+  // After FastScroll fully gone, only shuffle
+  if (frame >= FAST_SCROLL_END + 1) return <ShufflePhase frame={frame} />;
+  // Crossfade overlap: both visible during 1860-1899
+  if (frame >= SHUFFLE_VISUAL_START) return (
+    <>
+      <FastScroll frame={frame} />
+      <ShufflePhase frame={frame} />
+    </>
+  );
+  if (frame >= 1580) return (
+    <>
+      <HeroIntro frame={frame} />
+      <FastScroll frame={frame} />
+    </>
+  );
   if (frame > HERO_INTRO_END) return <FastScroll frame={frame} />;
   return <HeroIntro frame={frame} />;
 };
@@ -746,12 +831,42 @@ export const GameDayClosingCountdown: React.FC = () => {
       <HexGridOverlay />
       <SegmentTransitionFlash />
 
-      <Sequence name="Showcase (Hero + Scroll)" from={0} durationInFrames={PART_A_TOTAL_FRAMES} layout="none">
-        <AbsoluteFill style={{ zIndex: 10 }}>
-          <ShowcasePhase frame={frame} />
-          <ResultsCountdown frame={frame} />
-        </AbsoluteFill>
-      </Sequence>
+      <AbsoluteFill style={{ zIndex: 10 }}>
+        {/* Hero Intro scenes */}
+        <Sequence name="Scene 1: WHAT. A. DAY." from={0} durationInFrames={180} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Scene 2: Stats Cascade" from={160} durationInFrames={220} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Scene 3: Flag Parade" from={360} durationInFrames={190} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Scene 4: Organizers" from={520} durationInFrames={490} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Scene 4b: AWS Supporters" from={1010} durationInFrames={390} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Scene 5: AND NOW... THE RESULTS" from={1400} durationInFrames={200} layout="none">
+          <></>
+        </Sequence>
+
+        {/* Main phases */}
+        <Sequence name="Fast Scroll (UG Logos)" from={FAST_SCROLL_START} durationInFrames={260} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Shuffle Phase (Bar Chart)" from={1860} durationInFrames={SHUFFLE_END - 1860 + 1} layout="none">
+          <></>
+        </Sequence>
+        <Sequence name="Finale (30s Countdown)" from={FINALE_START} durationInFrames={PART_A_TOTAL_FRAMES - FINALE_START} layout="none">
+          <></>
+        </Sequence>
+
+        {/* Actual rendering */}
+        <ShowcasePhase frame={frame} />
+        <ResultsCountdown frame={frame} />
+      </AbsoluteFill>
 
       <AudioBadge muted={false} />
     </AbsoluteFill>
