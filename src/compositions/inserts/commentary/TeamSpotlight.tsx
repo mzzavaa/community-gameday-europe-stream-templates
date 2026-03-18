@@ -14,13 +14,21 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_VIOLET } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const TEAM_NAME = "Team Name";
-const USER_GROUP = "AWS User Group City";
-const COUNTRY = "Country";
-const COUNTRY_FLAG = "🇦🇹"; // country flag emoji - the one place flags are allowed
-const FACT = "Competing together for the first time!"; // short human-interest line
-// ----------------------------------
+export interface TeamSpotlightProps {
+  teamName?: string;
+  userGroup?: string;
+  country?: string;
+  countryFlag?: string;
+  fact?: string;
+}
+
+const DEFAULT_PROPS: TeamSpotlightProps = {
+  teamName: "Team Name",
+  userGroup: "AWS User Group City",
+  country: "Country",
+  countryFlag: "🇦🇹",
+  fact: "Competing together for the first time!",
+};
 
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
@@ -36,7 +44,13 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const TeamSpotlight: React.FC = () => {
+export const TeamSpotlight: React.FC<TeamSpotlightProps> = ({
+  teamName = DEFAULT_PROPS.teamName,
+  userGroup = DEFAULT_PROPS.userGroup,
+  country = DEFAULT_PROPS.country,
+  countryFlag = DEFAULT_PROPS.countryFlag,
+  fact = DEFAULT_PROPS.fact,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -107,7 +121,7 @@ export const TeamSpotlight: React.FC = () => {
               fontSize: TYPOGRAPHY.h2, fontWeight: 800,
               color: ACCENT_COLOR, marginBottom: 12, lineHeight: 1.1,
             }}>
-              {TEAM_NAME}
+              {teamName}
             </div>
 
             {/* Location line */}
@@ -115,11 +129,11 @@ export const TeamSpotlight: React.FC = () => {
               display: "flex", alignItems: "center", justifyContent: "center",
               gap: 10, marginBottom: 28,
             }}>
-              <span style={{ fontSize: 24 }}>{COUNTRY_FLAG}</span>
+              <span style={{ fontSize: 24 }}>{countryFlag}</span>
               <span style={{
                 fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.55)", fontWeight: 500,
               }}>
-                {USER_GROUP} - {COUNTRY}
+                {userGroup} - {country}
               </span>
             </div>
 
@@ -132,7 +146,7 @@ export const TeamSpotlight: React.FC = () => {
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.85)",
               lineHeight: 1.6, margin: 0, fontWeight: 400, fontStyle: "italic",
             }}>
-              "{FACT}"
+              "{fact}"
             </p>
           </GlassCard>
         </div>

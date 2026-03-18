@@ -1,5 +1,6 @@
 import React from "react";
 import { Composition } from "remotion";
+import { z } from "zod";
 
 // ── Pre-Event ───────────────────────────────────────────────────────────────
 import { Countdown } from "./compositions/00-preshow/Countdown";
@@ -112,8 +113,20 @@ export const RemotionRoot: React.FC = () => {
        */}
       <Composition id="Insert-QuestsLive"        component={QuestsLive}        durationInFrames={900} fps={30} width={1280} height={720} />
       <Composition id="Insert-HalfTime"          component={HalfTime}          durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-FinalCountdown"    component={FinalCountdown}    durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-GameExtended"      component={GameExtended}      durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-FinalCountdown"
+        component={FinalCountdown}
+        schema={z.object({ minutesRemaining: z.number() })}
+        defaultProps={{ minutesRemaining: 15 }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-GameExtended"
+        component={GameExtended}
+        schema={z.object({ extraMinutes: z.number() })}
+        defaultProps={{ extraMinutes: 15 }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
       <Composition id="Insert-LeaderboardHidden" component={LeaderboardHidden} durationInFrames={900} fps={30} width={1280} height={720} />
       <Composition id="Insert-ScoresCalculating" component={ScoresCalculating} durationInFrames={900} fps={30} width={1280} height={720} />
       <Composition id="Insert-BreakAnnouncement" component={BreakAnnouncement} durationInFrames={900} fps={30} width={1280} height={720} />
@@ -124,23 +137,154 @@ export const RemotionRoot: React.FC = () => {
        * These make the stream feel like live commentary, not a status board.
        * See inserts/commentary/README.md
        */}
-      <Composition id="Insert-FirstCompletion"   component={FirstCompletion}   durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-CloseRace"         component={CloseRace}         durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-ComebackAlert"     component={ComebackAlert}     durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-TopTeams"          component={TopTeams}          durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-CollectiveMilestone" component={CollectiveMilestone} durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-TeamSpotlight"     component={TeamSpotlight}     durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-FirstCompletion"
+        component={FirstCompletion}
+        schema={z.object({
+          questName: z.string(),
+          teamName: z.string(),
+          teamGroup: z.string(),
+        })}
+        defaultProps={{ questName: "Quest Name", teamName: "Team Name", teamGroup: "AWS User Group City" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-CloseRace"
+        component={CloseRace}
+        schema={z.object({
+          teamA: z.string(),
+          teamB: z.string(),
+          pointDiff: z.number(),
+        })}
+        defaultProps={{ teamA: "Team Name Alpha", teamB: "Team Name Beta", pointDiff: 50 }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-ComebackAlert"
+        component={ComebackAlert}
+        schema={z.object({
+          teamName: z.string(),
+          userGroup: z.string(),
+          fromRank: z.number(),
+          toRank: z.number(),
+        })}
+        defaultProps={{ teamName: "Team Name", userGroup: "AWS User Group City", fromRank: 18, toRank: 4 }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-TopTeams"
+        component={TopTeams}
+        schema={z.object({
+          label: z.string(),
+          topTeams: z.array(z.object({
+            rank: z.number(),
+            name: z.string(),
+            group: z.string(),
+            score: z.number(),
+          })),
+        })}
+        defaultProps={{
+          label: "Current Standings",
+          topTeams: [
+            { rank: 1, name: "Team Name Alpha", group: "AWS UG City", score: 4200 },
+            { rank: 2, name: "Team Name Beta",  group: "AWS UG City", score: 3850 },
+            { rank: 3, name: "Team Name Gamma", group: "AWS UG City", score: 3600 },
+          ],
+        }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-CollectiveMilestone"
+        component={CollectiveMilestone}
+        schema={z.object({
+          questName: z.string(),
+          completedCount: z.number(),
+          totalCount: z.number(),
+        })}
+        defaultProps={{ questName: "Quest Name", completedCount: 25, totalCount: 57 }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-TeamSpotlight"
+        component={TeamSpotlight}
+        schema={z.object({
+          teamName: z.string(),
+          userGroup: z.string(),
+          country: z.string(),
+          countryFlag: z.string(),
+          fact: z.string(),
+        })}
+        defaultProps={{
+          teamName: "Team Name",
+          userGroup: "AWS User Group City",
+          country: "Country",
+          countryFlag: "🇦🇹",
+          fact: "Competing together for the first time!",
+        }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
 
       {/* ── Inserts: Quest Operations ─────────────────────────────────────────
        * Quest status changes - fixed, broken, new, hints, bonuses.
        * See inserts/quest/README.md
        */}
-      <Composition id="Insert-QuestFixed"        component={QuestFixed}        durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-QuestBroken"       component={QuestBroken}       durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-QuestUpdate"       component={QuestUpdate}       durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-QuestHint"         component={QuestHint}         durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-NewQuestAvailable" component={NewQuestAvailable} durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-SurveyReminder"    component={SurveyReminder}    durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-QuestFixed"
+        component={QuestFixed}
+        schema={z.object({ questName: z.string() })}
+        defaultProps={{ questName: "Quest Name" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-QuestBroken"
+        component={QuestBroken}
+        schema={z.object({ questName: z.string() })}
+        defaultProps={{ questName: "Quest Name" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-QuestUpdate"
+        component={QuestUpdate}
+        schema={z.object({
+          fixedQuestName: z.string(),
+          newQuestName: z.string(),
+        })}
+        defaultProps={{ fixedQuestName: "EKS Quest Fixed", newQuestName: "New Quest" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-QuestHint"
+        component={QuestHint}
+        schema={z.object({
+          questName: z.string(),
+          hintText: z.string(),
+        })}
+        defaultProps={{
+          questName: "Quest Name",
+          hintText: "Check your IAM permissions carefully. The service role may need additional trust policies.",
+        }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-NewQuestAvailable"
+        component={NewQuestAvailable}
+        schema={z.object({
+          questName: z.string(),
+          description: z.string(),
+        })}
+        defaultProps={{
+          questName: "Quest Name",
+          description: "A new challenge is now available in your quest list. Check the platform for details.",
+        }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-SurveyReminder"
+        component={SurveyReminder}
+        schema={z.object({ questName: z.string() })}
+        defaultProps={{ questName: "Community Survey" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
 
       {/* ── Inserts: Operational ──────────────────────────────────────────────
        * Platform and environment status. Technical issues, score corrections,
@@ -148,19 +292,71 @@ export const RemotionRoot: React.FC = () => {
        * See inserts/ops/README.md
        */}
       <Composition id="Insert-StreamInterruption" component={StreamInterruption} durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-TechnicalIssue"    component={TechnicalIssue}    durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-TechnicalIssue"
+        component={TechnicalIssue}
+        schema={z.object({
+          questName: z.string(),
+          message: z.string(),
+        })}
+        defaultProps={{
+          questName: "Quest Name",
+          message: "We are aware of a technical issue. Our team is investigating. Please continue with other quests - we will update you shortly.",
+        }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
       <Composition id="Insert-Leaderboard"       component={Leaderboard}       durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-ScoreCorrection"   component={ScoreCorrection}   durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-GamemastersUpdate" component={GamemastersUpdate} durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-ScoreCorrection"
+        component={ScoreCorrection}
+        schema={z.object({ reason: z.string() })}
+        defaultProps={{ reason: "A scoring issue has been corrected." }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-GamemastersUpdate"
+        component={GamemastersUpdate}
+        schema={z.object({ message: z.string() })}
+        defaultProps={{ message: "have an important announcement" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
 
       {/* ── Inserts: People & Community ───────────────────────────────────────
        * Person-focused and location moments - stream host, city shoutouts,
        * and catch-all important reminders.
        * See inserts/people/README.md
        */}
-      <Composition id="Insert-StreamHostUpdate"  component={StreamHostUpdate}  durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-LocationShoutout"  component={LocationShoutout}  durationInFrames={900} fps={30} width={1280} height={720} />
-      <Composition id="Insert-ImportantReminder" component={ImportantReminder} durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition
+        id="Insert-StreamHostUpdate"
+        component={StreamHostUpdate}
+        schema={z.object({
+          streamHostName: z.string(),
+          message: z.string(),
+        })}
+        defaultProps={{ streamHostName: "Linda", message: "has an update for you" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-LocationShoutout"
+        component={LocationShoutout}
+        schema={z.object({
+          city: z.string(),
+          country: z.string(),
+          flag: z.string(),
+        })}
+        defaultProps={{ city: "Vienna", country: "Austria", flag: "AT" }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
+      <Composition
+        id="Insert-ImportantReminder"
+        component={ImportantReminder}
+        schema={z.object({
+          title: z.string(),
+          message: z.string(),
+        })}
+        defaultProps={{ title: "Important Reminder", message: "Your message here." }}
+        durationInFrames={900} fps={30} width={1280} height={720}
+      />
 
     </>
   );

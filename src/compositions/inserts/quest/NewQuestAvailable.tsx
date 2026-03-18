@@ -13,10 +13,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ORANGE } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-const DESCRIPTION = "A new challenge is now available in your quest list. Check the platform for details.";
-// ----------------------------------
+export interface NewQuestAvailableProps {
+  questName?: string;
+  description?: string;
+}
+
+const DEFAULT_PROPS: NewQuestAvailableProps = {
+  questName: "Quest Name",
+  description: "A new challenge is now available in your quest list. Check the platform for details.",
+};
 
 const TITLE = "NEW QUEST AVAILABLE";
 const ACCENT_COLOR = GD_ORANGE;
@@ -34,7 +39,10 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const NewQuestAvailable: React.FC = () => {
+export const NewQuestAvailable: React.FC<NewQuestAvailableProps> = ({
+  questName = DEFAULT_PROPS.questName,
+  description = DEFAULT_PROPS.description,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -99,7 +107,7 @@ export const NewQuestAvailable: React.FC = () => {
             <div style={{
               fontSize: TYPOGRAPHY.h3, fontWeight: 800, color: ACCENT_COLOR, marginBottom: 24,
             }}>
-              {QUEST_NAME}
+              {questName}
             </div>
             <div style={{
               width: 48, height: 1, background: `${ACCENT_COLOR}40`, margin: "0 auto 24px",
@@ -107,7 +115,7 @@ export const NewQuestAvailable: React.FC = () => {
             <p style={{
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.85)",
               lineHeight: 1.6, margin: 0, fontWeight: 400,
-            }}>{DESCRIPTION}</p>
+            }}>{description}</p>
           </GlassCard>
         </div>
 

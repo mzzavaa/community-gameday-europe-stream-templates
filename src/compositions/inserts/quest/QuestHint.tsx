@@ -13,10 +13,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ORANGE } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-const HINT_TEXT = "Check your IAM permissions carefully. The service role may need additional trust policies.";
-// ----------------------------------
+export interface QuestHintProps {
+  questName?: string;
+  hintText?: string;
+}
+
+const DEFAULT_PROPS: QuestHintProps = {
+  questName: "Quest Name",
+  hintText: "Check your IAM permissions carefully. The service role may need additional trust policies.",
+};
 
 const TITLE = "QUEST HINT";
 const ACCENT_COLOR = GD_ORANGE;
@@ -34,7 +39,10 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const QuestHint: React.FC = () => {
+export const QuestHint: React.FC<QuestHintProps> = ({
+  questName = DEFAULT_PROPS.questName,
+  hintText = DEFAULT_PROPS.hintText,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -100,14 +108,14 @@ export const QuestHint: React.FC = () => {
               color: "rgba(255,255,255,0.45)", letterSpacing: 2,
               textTransform: "uppercase", marginBottom: 20,
             }}>
-              {QUEST_NAME}
+              {questName}
             </div>
             <p style={{
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.9)",
               lineHeight: 1.7, margin: 0, fontWeight: 400,
               fontStyle: "italic",
             }}>
-              "{HINT_TEXT}"
+              "{hintText}"
             </p>
           </GlassCard>
         </div>

@@ -4,14 +4,19 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const CITY = "Vienna";
-const COUNTRY = "Austria";
-const FLAG = "AT";
-// ---------------------------
+export interface LocationShoutoutProps {
+  city?: string;
+  country?: string;
+  flag?: string;
+}
+
+const DEFAULT_PROPS: LocationShoutoutProps = {
+  city: "Vienna",
+  country: "Austria",
+  flag: "AT",
+};
 
 const TITLE = "HELLO FROM...";
-const MESSAGE = `A warm hello to all participants at ${CITY}, ${COUNTRY}! You are part of something special today.`;
 const ACCENT_COLOR = GD_ACCENT;
 
 const TOTAL_FRAMES = 900;
@@ -33,9 +38,15 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const LocationShoutout: React.FC = () => {
+export const LocationShoutout: React.FC<LocationShoutoutProps> = ({
+  city = DEFAULT_PROPS.city,
+  country = DEFAULT_PROPS.country,
+  flag = DEFAULT_PROPS.flag,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `A warm hello to all participants at ${city}, ${country}! You are part of something special today.`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });
@@ -97,7 +108,7 @@ export const LocationShoutout: React.FC = () => {
               fontSize: TYPOGRAPHY.h4, fontWeight: 800, color: ACCENT_COLOR,
               marginBottom: 16, letterSpacing: 1,
             }}>
-              {CITY}, {COUNTRY} [{FLAG}]
+              {city}, {country} [{flag}]
             </div>
             <p style={{
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.9)",

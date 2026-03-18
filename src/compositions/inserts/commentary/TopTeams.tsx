@@ -12,14 +12,26 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_VIOLET, GD_GOLD, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const LABEL = "Current Standings"; // or "Top Teams" / "Leaderboard Update"
-const TOP_TEAMS: Array<{ rank: number; name: string; group: string; score: number }> = [
-  { rank: 1, name: "Team Name Alpha",  group: "AWS UG City",  score: 4200 },
-  { rank: 2, name: "Team Name Beta",   group: "AWS UG City",  score: 3850 },
-  { rank: 3, name: "Team Name Gamma",  group: "AWS UG City",  score: 3600 },
-];
-// ----------------------------------
+export interface TopTeamEntry {
+  rank: number;
+  name: string;
+  group: string;
+  score: number;
+}
+
+export interface TopTeamsProps {
+  label?: string;
+  topTeams?: TopTeamEntry[];
+}
+
+const DEFAULT_PROPS: TopTeamsProps = {
+  label: "Current Standings",
+  topTeams: [
+    { rank: 1, name: "Team Name Alpha", group: "AWS UG City", score: 4200 },
+    { rank: 2, name: "Team Name Beta",  group: "AWS UG City", score: 3850 },
+    { rank: 3, name: "Team Name Gamma", group: "AWS UG City", score: 3600 },
+  ],
+};
 
 const RANK_COLORS = [GD_GOLD, "rgba(255,255,255,0.6)", GD_ACCENT];
 
@@ -27,9 +39,18 @@ const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
 const ACCENT_COLOR = GD_VIOLET;
 
-export const TopTeams: React.FC = () => {
+export const TopTeams: React.FC<TopTeamsProps> = ({
+  label = DEFAULT_PROPS.label,
+  topTeams = DEFAULT_PROPS.topTeams,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const resolvedTopTeams: TopTeamEntry[] = topTeams ?? [
+    { rank: 1, name: "Team Name Alpha", group: "AWS UG City", score: 4200 },
+    { rank: 2, name: "Team Name Beta",  group: "AWS UG City", score: 3850 },
+    { rank: 3, name: "Team Name Gamma", group: "AWS UG City", score: 3600 },
+  ];
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const pulse = interpolate(frame % 60, [0, 30, 60], [0.8, 1, 0.8], { extrapolateRight: "clamp" });
@@ -74,7 +95,7 @@ export const TopTeams: React.FC = () => {
             fontSize: TYPOGRAPHY.h3, fontWeight: 700, color: ACCENT_COLOR,
             letterSpacing: 3, textTransform: "uppercase",
           }}>
-            {LABEL}
+            {label}
           </span>
           <div style={{
             width: 16, height: 16, borderRadius: "50%", background: ACCENT_COLOR,
@@ -88,7 +109,7 @@ export const TopTeams: React.FC = () => {
           border: `2px solid ${ACCENT_COLOR}40`,
           minWidth: 680, maxWidth: 820,
         }}>
-          {TOP_TEAMS.map((team, i) => {
+          {resolvedTopTeams.map((team, i) => {
             const rowSpring = spring({
               frame: Math.max(0, frame - (i * 12)),
               fps,
@@ -102,8 +123,8 @@ export const TopTeams: React.FC = () => {
                 alignItems: "center",
                 gap: 20,
                 paddingTop: i === 0 ? 0 : 20,
-                paddingBottom: i === TOP_TEAMS.length - 1 ? 0 : 20,
-                borderBottom: i < TOP_TEAMS.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
+                paddingBottom: i === resolvedTopTeams.length - 1 ? 0 : 20,
+                borderBottom: i < resolvedTopTeams.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
                 opacity: rowSpring,
                 transform: `translateX(${interpolate(rowSpring, [0, 1], [-24, 0])}px)`,
               }}>

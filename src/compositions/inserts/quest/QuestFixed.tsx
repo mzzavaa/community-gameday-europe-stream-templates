@@ -4,12 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_GREEN } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-// ---------------------------
+export interface QuestFixedProps {
+  questName?: string;
+}
+
+const DEFAULT_PROPS: QuestFixedProps = {
+  questName: "Quest Name",
+};
 
 const TITLE = "QUEST FIXED";
-const MESSAGE = `${QUEST_NAME} is now working. You can complete this quest!`;
 const ACCENT_COLOR = GD_GREEN;
 
 const TOTAL_FRAMES = 900;
@@ -31,9 +34,13 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const QuestFixed: React.FC = () => {
+export const QuestFixed: React.FC<QuestFixedProps> = ({
+  questName = DEFAULT_PROPS.questName,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `${questName} is now working. You can complete this quest!`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

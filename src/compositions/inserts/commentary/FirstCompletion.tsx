@@ -12,11 +12,17 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-const TEAM_NAME = "Team Name";
-const TEAM_GROUP = "AWS User Group City";
-// ----------------------------------
+export interface FirstCompletionProps {
+  questName?: string;
+  teamName?: string;
+  teamGroup?: string;
+}
+
+const DEFAULT_PROPS: FirstCompletionProps = {
+  questName: "Quest Name",
+  teamName: "Team Name",
+  teamGroup: "AWS User Group City",
+};
 
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
@@ -32,7 +38,11 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const FirstCompletion: React.FC = () => {
+export const FirstCompletion: React.FC<FirstCompletionProps> = ({
+  questName = DEFAULT_PROPS.questName,
+  teamName = DEFAULT_PROPS.teamName,
+  teamGroup = DEFAULT_PROPS.teamGroup,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -103,7 +113,7 @@ export const FirstCompletion: React.FC = () => {
               color: "rgba(255,255,255,0.45)", letterSpacing: 2,
               textTransform: "uppercase", marginBottom: 10,
             }}>
-              {QUEST_NAME}
+              {questName}
             </div>
 
             <div style={{
@@ -115,12 +125,12 @@ export const FirstCompletion: React.FC = () => {
             <div style={{
               fontSize: TYPOGRAPHY.h2, fontWeight: 800, color: ACCENT_COLOR, marginBottom: 8,
             }}>
-              {TEAM_NAME}
+              {teamName}
             </div>
             <div style={{
               fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.55)", marginBottom: 24,
             }}>
-              {TEAM_GROUP}
+              {teamGroup}
             </div>
 
             <div style={{

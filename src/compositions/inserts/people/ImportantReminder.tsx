@@ -4,10 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_GOLD } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const TITLE = "Important Reminder";
-const MESSAGE = "Your message here.";
-// ---------------------------
+export interface ImportantReminderProps {
+  title?: string;
+  message?: string;
+}
+
+const DEFAULT_PROPS: ImportantReminderProps = {
+  title: "Important Reminder",
+  message: "Your message here.",
+};
 
 const ACCENT_COLOR = GD_GOLD;
 
@@ -30,7 +35,10 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const ImportantReminder: React.FC = () => {
+export const ImportantReminder: React.FC<ImportantReminderProps> = ({
+  title = DEFAULT_PROPS.title,
+  message = DEFAULT_PROPS.message,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -74,7 +82,7 @@ export const ImportantReminder: React.FC = () => {
           <span style={{
             fontSize: TYPOGRAPHY.h3, fontWeight: 700, color: ACCENT_COLOR,
             letterSpacing: 3, textTransform: "uppercase",
-          }}>{TITLE}</span>
+          }}>{title}</span>
           <div style={{
             width: 16, height: 16, borderRadius: "50%", background: ACCENT_COLOR,
             boxShadow: `0 0 ${20 * pulse}px ${ACCENT_COLOR}`, transform: `scale(${pulse})`,
@@ -93,7 +101,7 @@ export const ImportantReminder: React.FC = () => {
             <p style={{
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.9)",
               lineHeight: 1.6, margin: 0, fontWeight: 500,
-            }}>{MESSAGE}</p>
+            }}>{message}</p>
           </GlassCard>
         </div>
 

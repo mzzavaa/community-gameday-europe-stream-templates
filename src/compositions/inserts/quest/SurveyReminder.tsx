@@ -4,20 +4,27 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_GOLD } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const QUEST_NAME = "Community Survey";
-// ---------------------------
+export interface SurveyReminderProps {
+  questName?: string;
+}
+
+const DEFAULT_PROPS: SurveyReminderProps = {
+  questName: "Community Survey",
+};
 
 const TITLE = "NEW QUEST AVAILABLE";
-const MESSAGE = `The ${QUEST_NAME} quest is now visible in your quest list. Complete it to earn bonus points for your team.`;
 const ACCENT_COLOR = GD_GOLD;
 
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
 
-export const SurveyReminder: React.FC = () => {
+export const SurveyReminder: React.FC<SurveyReminderProps> = ({
+  questName = DEFAULT_PROPS.questName,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `The ${questName} quest is now visible in your quest list. Complete it to earn bonus points for your team.`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

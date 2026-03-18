@@ -4,12 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_VIOLET } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const REASON = "A scoring issue has been corrected.";
-// ---------------------------
+export interface ScoreCorrectionProps {
+  reason?: string;
+}
+
+const DEFAULT_PROPS: ScoreCorrectionProps = {
+  reason: "A scoring issue has been corrected.",
+};
 
 const TITLE = "SCORE CORRECTION";
-const MESSAGE = `${REASON} Updated scores are now visible on the leaderboard.`;
 const ACCENT_COLOR = GD_VIOLET;
 
 const TOTAL_FRAMES = 900;
@@ -31,9 +34,13 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const ScoreCorrection: React.FC = () => {
+export const ScoreCorrection: React.FC<ScoreCorrectionProps> = ({
+  reason = DEFAULT_PROPS.reason,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `${reason} Updated scores are now visible on the leaderboard.`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

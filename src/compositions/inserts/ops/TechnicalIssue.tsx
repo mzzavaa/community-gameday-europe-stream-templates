@@ -4,10 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_RED } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE FOR THE SPECIFIC ISSUE --
-const QUEST_NAME = "Quest Name";
-const MESSAGE = "We are aware of a technical issue. Our team is investigating. Please continue with other quests - we will update you shortly.";
-// ------------------------------------------
+export interface TechnicalIssueProps {
+  questName?: string;
+  message?: string;
+}
+
+const DEFAULT_PROPS: TechnicalIssueProps = {
+  questName: "Quest Name",
+  message: "We are aware of a technical issue. Our team is investigating. Please continue with other quests - we will update you shortly.",
+};
 
 const TITLE = "KNOWN ISSUE";
 const ACCENT_COLOR = GD_RED;
@@ -31,7 +36,10 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const TechnicalIssue: React.FC = () => {
+export const TechnicalIssue: React.FC<TechnicalIssueProps> = ({
+  questName = DEFAULT_PROPS.questName,
+  message = DEFAULT_PROPS.message,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -94,11 +102,11 @@ export const TechnicalIssue: React.FC = () => {
             <div style={{
               fontSize: TYPOGRAPHY.caption, fontWeight: 700, letterSpacing: 1,
               color: "rgba(255,255,255,0.6)", marginBottom: 16,
-            }}>{QUEST_NAME}</div>
+            }}>{questName}</div>
             <p style={{
               fontSize: TYPOGRAPHY.h5, color: "rgba(255,255,255,0.9)",
               lineHeight: 1.6, margin: 0, fontWeight: 500,
-            }}>{MESSAGE}</p>
+            }}>{message}</p>
           </GlassCard>
         </div>
 

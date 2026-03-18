@@ -26,9 +26,13 @@ import { GD_DARK, GD_ORANGE } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 import { AWS_SUPPORTERS } from "../../../../config/participants";
 
-// -- UPDATE THIS MESSAGE FOR THE SPECIFIC ANNOUNCEMENT --
-const MESSAGE = "have an important announcement";
-// --------------------------------------------------------
+export interface GamemastersUpdateProps {
+  message?: string;
+}
+
+const DEFAULT_PROPS: GamemastersUpdateProps = {
+  message: "have an important announcement",
+};
 
 const GAMEMASTERS = AWS_SUPPORTERS.filter((p) => p.country === "Gamemaster");
 
@@ -36,7 +40,9 @@ const TOTAL_FRAMES = 900;
 const FADE_OUT = 60;
 const ACCENT_COLOR = GD_ORANGE;
 
-export const GamemastersUpdate: React.FC = () => {
+export const GamemastersUpdate: React.FC<GamemastersUpdateProps> = ({
+  message = DEFAULT_PROPS.message,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -183,7 +189,7 @@ export const GamemastersUpdate: React.FC = () => {
               color: "rgba(255,255,255,0.8)",
               lineHeight: 1.5,
             }}>
-              {MESSAGE}
+              {message}
             </div>
           </GlassCard>
         </div>

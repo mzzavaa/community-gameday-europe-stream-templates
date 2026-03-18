@@ -4,20 +4,27 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ORANGE } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE REMAINING TIME BEFORE SHOWING --
-const MINUTES_REMAINING = 15;
-// ------------------------------------------
+export interface FinalCountdownProps {
+  minutesRemaining?: number;
+}
+
+const DEFAULT_PROPS: FinalCountdownProps = {
+  minutesRemaining: 15,
+};
 
 const TITLE = "FINAL COUNTDOWN";
-const MESSAGE = `${MINUTES_REMAINING} minutes remaining. Finalize your quests and maximize your score!`;
 const ACCENT_COLOR = GD_ORANGE;
 
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
 
-export const FinalCountdown: React.FC = () => {
+export const FinalCountdown: React.FC<FinalCountdownProps> = ({
+  minutesRemaining = DEFAULT_PROPS.minutesRemaining,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `${minutesRemaining} minutes remaining. Finalize your quests and maximize your score!`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

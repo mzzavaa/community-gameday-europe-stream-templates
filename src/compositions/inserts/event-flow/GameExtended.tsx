@@ -4,12 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_GOLD } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const EXTRA_MINUTES = 15;
-// ---------------------------
+export interface GameExtendedProps {
+  extraMinutes?: number;
+}
+
+const DEFAULT_PROPS: GameExtendedProps = {
+  extraMinutes: 15,
+};
 
 const TITLE = "GAME EXTENDED";
-const MESSAGE = `Good news! An extra ${EXTRA_MINUTES} minutes have been added. Keep going - every point counts!`;
 const ACCENT_COLOR = GD_GOLD;
 
 const TOTAL_FRAMES = 900;
@@ -31,9 +34,13 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const GameExtended: React.FC = () => {
+export const GameExtended: React.FC<GameExtendedProps> = ({
+  extraMinutes = DEFAULT_PROPS.extraMinutes,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `Good news! An extra ${extraMinutes} minutes have been added. Keep going - every point counts!`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

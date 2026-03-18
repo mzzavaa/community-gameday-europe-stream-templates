@@ -4,12 +4,15 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_RED } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-// ---------------------------
+export interface QuestBrokenProps {
+  questName?: string;
+}
+
+const DEFAULT_PROPS: QuestBrokenProps = {
+  questName: "Quest Name",
+};
 
 const TITLE = "QUEST UNAVAILABLE";
-const MESSAGE = `${QUEST_NAME} is currently unavailable. Skip it for now - our team is investigating.`;
 const ACCENT_COLOR = GD_RED;
 
 const TOTAL_FRAMES = 900;
@@ -31,9 +34,13 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const QuestBroken: React.FC = () => {
+export const QuestBroken: React.FC<QuestBrokenProps> = ({
+  questName = DEFAULT_PROPS.questName,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const MESSAGE = `${questName} is currently unavailable. Skip it for now - our team is investigating.`;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });

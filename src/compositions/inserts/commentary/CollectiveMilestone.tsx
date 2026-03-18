@@ -14,11 +14,17 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const QUEST_NAME = "Quest Name";
-const COMPLETED_COUNT = 25;
-const TOTAL_COUNT = 57;
-// ----------------------------------
+export interface CollectiveMilestoneProps {
+  questName?: string;
+  completedCount?: number;
+  totalCount?: number;
+}
+
+const DEFAULT_PROPS: CollectiveMilestoneProps = {
+  questName: "Quest Name",
+  completedCount: 25,
+  totalCount: 57,
+};
 
 const TITLE = "QUEST MILESTONE";
 const ACCENT_COLOR = GD_ACCENT;
@@ -26,9 +32,16 @@ const ACCENT_COLOR = GD_ACCENT;
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
 
-export const CollectiveMilestone: React.FC = () => {
+export const CollectiveMilestone: React.FC<CollectiveMilestoneProps> = ({
+  questName = DEFAULT_PROPS.questName,
+  completedCount = DEFAULT_PROPS.completedCount,
+  totalCount = DEFAULT_PROPS.totalCount,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const resolvedCompletedCount: number = completedCount ?? 25;
+  const resolvedTotalCount: number = totalCount ?? 57;
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });
@@ -41,11 +54,11 @@ export const CollectiveMilestone: React.FC = () => {
   const barFill = interpolate(
     spring({ frame: Math.max(0, frame - 20), fps, config: { damping: 18, stiffness: 60 } }),
     [0, 1],
-    [0, COMPLETED_COUNT / TOTAL_COUNT],
+    [0, resolvedCompletedCount / resolvedTotalCount],
     { extrapolateRight: "clamp" }
   );
 
-  const percentage = Math.round((COMPLETED_COUNT / TOTAL_COUNT) * 100);
+  const percentage = Math.round((resolvedCompletedCount / resolvedTotalCount) * 100);
 
   return (
     <AbsoluteFill style={{ fontFamily: "'Inter', sans-serif", background: GD_DARK }}>
@@ -104,7 +117,7 @@ export const CollectiveMilestone: React.FC = () => {
               color: "rgba(255,255,255,0.4)", letterSpacing: 2,
               textTransform: "uppercase", marginBottom: 20,
             }}>
-              {QUEST_NAME}
+              {questName}
             </div>
 
             {/* Big number */}
@@ -116,12 +129,12 @@ export const CollectiveMilestone: React.FC = () => {
                 fontSize: 80, fontWeight: 900, color: ACCENT_COLOR,
                 lineHeight: 1, letterSpacing: -2,
               }}>
-                {COMPLETED_COUNT}
+                {resolvedCompletedCount}
               </span>
               <span style={{
                 fontSize: TYPOGRAPHY.h4, color: "rgba(255,255,255,0.35)", fontWeight: 600,
               }}>
-                / {TOTAL_COUNT}
+                / {resolvedTotalCount}
               </span>
             </div>
 

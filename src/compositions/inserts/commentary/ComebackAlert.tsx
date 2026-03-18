@@ -14,12 +14,19 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const TEAM_NAME = "Team Name";
-const USER_GROUP = "AWS User Group City";
-const FROM_RANK = 18;
-const TO_RANK = 4;
-// ----------------------------------
+export interface ComebackAlertProps {
+  teamName?: string;
+  userGroup?: string;
+  fromRank?: number;
+  toRank?: number;
+}
+
+const DEFAULT_PROPS: ComebackAlertProps = {
+  teamName: "Team Name",
+  userGroup: "AWS User Group City",
+  fromRank: 18,
+  toRank: 4,
+};
 
 const TITLE = "COMEBACK ALERT";
 const ACCENT_COLOR = GD_ACCENT;
@@ -37,7 +44,12 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const ComebackAlert: React.FC = () => {
+export const ComebackAlert: React.FC<ComebackAlertProps> = ({
+  teamName = DEFAULT_PROPS.teamName,
+  userGroup = DEFAULT_PROPS.userGroup,
+  fromRank = DEFAULT_PROPS.fromRank,
+  toRank = DEFAULT_PROPS.toRank,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -104,12 +116,12 @@ export const ComebackAlert: React.FC = () => {
               fontSize: TYPOGRAPHY.h2, fontWeight: 800, color: ACCENT_COLOR,
               marginBottom: 8, lineHeight: 1.1,
             }}>
-              {TEAM_NAME}
+              {teamName}
             </div>
             <div style={{
               fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.45)", marginBottom: 32,
             }}>
-              {USER_GROUP}
+              {userGroup}
             </div>
 
             {/* Rank jump graphic */}
@@ -129,7 +141,7 @@ export const ComebackAlert: React.FC = () => {
                   color: "rgba(255,255,255,0.25)",
                   lineHeight: 1,
                 }}>
-                  #{FROM_RANK}
+                  #{fromRank}
                 </div>
               </div>
 
@@ -152,7 +164,7 @@ export const ComebackAlert: React.FC = () => {
                   lineHeight: 1,
                   textShadow: `0 0 30px ${ACCENT_COLOR}80`,
                 }}>
-                  #{TO_RANK}
+                  #{toRank}
                 </div>
               </div>
             </div>

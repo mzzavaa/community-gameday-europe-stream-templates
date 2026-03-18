@@ -27,6 +27,16 @@ import {
 } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
+export interface QuestUpdateProps {
+  fixedQuestName?: string;
+  newQuestName?: string;
+}
+
+const DEFAULT_PROPS: QuestUpdateProps = {
+  fixedQuestName: "EKS Quest Fixed",
+  newQuestName: "New Quest",
+};
+
 // -- Timing --
 const TOTAL_FRAMES = 900;
 const FADE_OUT = 60;
@@ -47,7 +57,10 @@ const StatusBadge: React.FC<{ label: string; color: string }> = ({ label, color 
   }}>{label}</div>
 );
 
-export const QuestUpdate: React.FC = () => {
+export const QuestUpdate: React.FC<QuestUpdateProps> = ({
+  fixedQuestName = DEFAULT_PROPS.fixedQuestName,
+  newQuestName = DEFAULT_PROPS.newQuestName,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -120,7 +133,7 @@ export const QuestUpdate: React.FC = () => {
           maxWidth: 1100,
           alignItems: "stretch",
         }}>
-          {/* Card 1: EKS Quest Fixed */}
+          {/* Card 1: Fixed Quest */}
           <div style={{
             opacity: card1Spring,
             transform: `translateY(${interpolate(card1Spring, [0, 1], [40, 0])}px) scale(${interpolate(card1Spring, [0, 1], [0.9, 1])})`,
@@ -145,7 +158,7 @@ export const QuestUpdate: React.FC = () => {
                 marginBottom: 12,
                 display: "block",
               }}>
-                EKS Quest Fixed
+                {fixedQuestName}
               </span>
               <p style={{
                 fontSize: TYPOGRAPHY.body,
@@ -191,7 +204,7 @@ export const QuestUpdate: React.FC = () => {
                 marginBottom: 12,
                 display: "block",
               }}>
-                New Quest
+                {newQuestName}
               </span>
               <p style={{
                 fontSize: TYPOGRAPHY.body,

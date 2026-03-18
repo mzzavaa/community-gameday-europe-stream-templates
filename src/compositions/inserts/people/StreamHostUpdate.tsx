@@ -1,7 +1,7 @@
 /**
  * StreamHostUpdate - Announcement from the stream host
  *
- * Set STREAM_HOST_NAME to match an entry in the ORGANIZERS config.
+ * Set streamHostName to match an entry in the ORGANIZERS config.
  * The face photo, role, and user group are pulled automatically.
  * Duration: ~30 seconds (900 frames at 30fps)
  */
@@ -26,20 +26,28 @@ import { GD_DARK, GD_VIOLET } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 import { ORGANIZERS } from "../../../../config/participants";
 
-// -- UPDATE THESE FOR YOUR EVENT --
-const STREAM_HOST_NAME = "Linda"; // must match name in ORGANIZERS config
-const MESSAGE = "has an update for you";
-// ---------------------------------
+export interface StreamHostUpdateProps {
+  streamHostName?: string;
+  message?: string;
+}
 
-const HOST = ORGANIZERS.find((o) => o.name === STREAM_HOST_NAME);
+const DEFAULT_PROPS: StreamHostUpdateProps = {
+  streamHostName: "Linda",
+  message: "has an update for you",
+};
 
 const TOTAL_FRAMES = 900;
 const FADE_OUT = 60;
 const ACCENT_COLOR = GD_VIOLET;
 
-export const StreamHostUpdate: React.FC = () => {
+export const StreamHostUpdate: React.FC<StreamHostUpdateProps> = ({
+  streamHostName = DEFAULT_PROPS.streamHostName,
+  message = DEFAULT_PROPS.message,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const HOST = ORGANIZERS.find((o) => o.name === streamHostName);
 
   const entrySpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
   const cardSpring = spring({ frame: Math.max(0, frame - 15), fps, config: { damping: 12, stiffness: 80 } });
@@ -155,7 +163,7 @@ export const StreamHostUpdate: React.FC = () => {
               color: "rgba(255,255,255,0.85)",
               lineHeight: 1.5,
             }}>
-              {MESSAGE}
+              {message}
             </div>
           </GlassCard>
         </div>

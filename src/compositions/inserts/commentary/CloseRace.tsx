@@ -13,11 +13,17 @@ import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../..
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
 
-// -- UPDATE THESE BEFORE SHOWING --
-const TEAM_A = "Team Name Alpha";
-const TEAM_B = "Team Name Beta";
-const POINT_DIFF = 50; // difference in points between the two teams
-// ----------------------------------
+export interface CloseRaceProps {
+  teamA?: string;
+  teamB?: string;
+  pointDiff?: number;
+}
+
+const DEFAULT_PROPS: CloseRaceProps = {
+  teamA: "Team Name Alpha",
+  teamB: "Team Name Beta",
+  pointDiff: 50,
+};
 
 const TITLE = "IT'S A CLOSE RACE";
 const ACCENT_COLOR = GD_ACCENT;
@@ -25,7 +31,11 @@ const ACCENT_COLOR = GD_ACCENT;
 const TOTAL_FRAMES = 900;
 const FADE_OUT_START = 840;
 
-export const CloseRace: React.FC = () => {
+export const CloseRace: React.FC<CloseRaceProps> = ({
+  teamA = DEFAULT_PROPS.teamA,
+  teamB = DEFAULT_PROPS.teamB,
+  pointDiff = DEFAULT_PROPS.pointDiff,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -102,7 +112,7 @@ export const CloseRace: React.FC = () => {
                 fontSize: TYPOGRAPHY.h4, fontWeight: 800,
                 color: ACCENT_COLOR, lineHeight: 1.2,
               }}>
-                {TEAM_A}
+                {teamA}
               </div>
             </GlassCard>
           </div>
@@ -123,7 +133,7 @@ export const CloseRace: React.FC = () => {
               letterSpacing: 1, textAlign: "center",
               lineHeight: 1.4,
             }}>
-              {POINT_DIFF} pts{"\n"}apart
+              {pointDiff} pts{"\n"}apart
             </div>
           </div>
 
@@ -150,7 +160,7 @@ export const CloseRace: React.FC = () => {
                 fontSize: TYPOGRAPHY.h4, fontWeight: 800,
                 color: "rgba(255,255,255,0.85)", lineHeight: 1.2,
               }}>
-                {TEAM_B}
+                {teamB}
               </div>
             </GlassCard>
           </div>
