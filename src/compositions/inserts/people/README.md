@@ -16,4 +16,13 @@ Person-focused moments and location highlights. These keep the stream personal a
 
 ---
 
+## Previews
+
+| | | |
+|--|--|--|
+| ![StreamHostUpdate](../../../../../screenshots/readme-insert-stream-host-update.png) | ![LocationShoutout](../../../../../screenshots/readme-insert-location-shoutout.png) | ![ImportantReminder](../../../../../screenshots/readme-insert-important-reminder.png) |
+| `Insert-StreamHostUpdate` | `Insert-LocationShoutout` | `Insert-ImportantReminder` |
+
+---
+
 All inserts are 900 frames (30 seconds) at 30fps. See `src/compositions/inserts/README.md` for the full reference and design rules.

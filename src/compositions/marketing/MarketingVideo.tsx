@@ -67,8 +67,8 @@ const IntroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =>
     <AbsoluteFill style={{ opacity: exitOpacity }}>
       <AbsoluteFill style={{ background: `radial-gradient(ellipse at center, ${GD_PURPLE}40 0%, ${GD_VIOLET}20 40%, transparent 70%)` }} />
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
-        <Img src={staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ width: 320, objectFit: "contain", opacity: logoSpring, transform: `scale(${logoScale})` }} />
-        <Img src={staticFile("assets/AWSCommunityEurope_last_nobackground.png")} style={{ width: 220, objectFit: "contain", opacity: logo2Spring, transform: `scale(${logo2Scale})` }} />
+        <Img src={staticFile("assets/logos/gameday-logo-white.png")} style={{ width: 320, objectFit: "contain", opacity: logoSpring, transform: `scale(${logoScale})` }} />
+        <Img src={staticFile("assets/aws-community-logo.png")} style={{ width: 220, objectFit: "contain", opacity: logo2Spring, transform: `scale(${logo2Scale})` }} />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -192,8 +192,8 @@ const OutroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =>
       <AbsoluteFill style={{ background: `radial-gradient(ellipse at center, ${GD_PURPLE}60 0%, ${GD_VIOLET}30 40%, transparent 70%)` }} />
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, opacity: logoSpring, transform: `scale(${logoScale})` }}>
-          <Img src={staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ width: 280, objectFit: "contain" }} />
-          <Img src={staticFile("assets/AWSCommunityEurope_last_nobackground.png")} style={{ width: 180, objectFit: "contain" }} />
+          <Img src={staticFile("assets/logos/gameday-logo-white.png")} style={{ width: 280, objectFit: "contain" }} />
+          <Img src={staticFile("assets/aws-community-logo.png")} style={{ width: 180, objectFit: "contain" }} />
         </div>
         <div style={{ opacity: taglineOpacity, fontSize: TYPOGRAPHY.h6, fontWeight: 600, color: "white", letterSpacing: 1, textAlign: "center", marginTop: 12 }}>
           AWS Community GameDay Europe · 17 March 2026

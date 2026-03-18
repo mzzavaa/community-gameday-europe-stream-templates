@@ -55,10 +55,10 @@ import { LOGO_MAP } from "../../../config/logos";
 
 // ─── Asset paths ──────────────────────────────────────────────────────────────
 const COMMUNITY_LOGO = staticFile(
-  "assets/AWSCommunityEurope_last_nobackground.png"
+  "assets/aws-community-logo.png"
 );
 const GAMEDAY_LOGO = staticFile(
-  "assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png"
+  "assets/logos/gameday-logo-geometric.png"
 );
 const EUROPE_MAP = staticFile("assets/europe-map.png");
 
@@ -695,7 +695,7 @@ const SlideUGLeader: React.FC = () => {
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 12, marginTop: -8 }}>
         <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
-          <Img src={staticFile("assets/Usergroups-badges_leader-dark.png")} style={{ width: 112, height: "auto", objectFit: "contain" }} />
+          <Img src={staticFile("assets/programs/aws-usergroups-badge.png")} style={{ width: 112, height: "auto", objectFit: "contain" }} />
         </div>
         <div style={{ fontSize: TYPOGRAPHY.body, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase" as const, letterSpacing: 3, display: "flex", alignItems: "center", gap: 10 }}>
           <UsersIcon size={20} color={GD_ACCENT} />What is an AWS User Group Leader?
@@ -721,7 +721,7 @@ const SlideCommunityBuilder: React.FC = () => {
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 8, marginTop: -8 }}>
         <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
-          <Img src={staticFile("assets/aws-community-builder-logo.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
+          <Img src={staticFile("assets/programs/aws-builders-logo.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
         </div>
         <SectionLabel icon={<RocketIcon size={20} color={GD_ACCENT} />} text="What is an AWS Community Builder?" />
       </div>
@@ -758,7 +758,7 @@ const SlideCommunityHero: React.FC = () => {
         {/* Hero program logo - middle aligned with content */}
         <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ opacity: heroE, transform: `scale(${interpolate(heroE, [0, 1], [0.85, 1])})` }}>
-            <Img src={staticFile("assets/awsheroes.png")} style={{ width: 200, height: "auto", objectFit: "contain" }} />
+            <Img src={staticFile("assets/programs/aws-heroes-logo.png")} style={{ width: 200, height: "auto", objectFit: "contain" }} />
           </div>
         </div>
 
@@ -803,17 +803,17 @@ const SlideCloudClubs: React.FC = () => {
   const overviewE = useStagger(5, 8);
   
   const programs = [
-    { logo: staticFile("assets/Usergroups-badges_leader-dark.png"), label: "User Groups", sub: "For professionals" },
-    { logo: staticFile("assets/cloudclubs.png"), label: "Cloud Clubs", sub: "For students" },
-    { logo: staticFile("assets/aws-community-builder-logo.png"), label: "Builders", sub: "For content creators" },
-    { logo: staticFile("assets/awsheroes.png"), label: "Heroes", sub: "For top contributors" },
+    { logo: staticFile("assets/programs/aws-usergroups-badge.png"), label: "User Groups", sub: "For professionals" },
+    { logo: staticFile("assets/programs/aws-cloud-clubs-logo.png"), label: "Cloud Clubs", sub: "For students" },
+    { logo: staticFile("assets/programs/aws-builders-logo.png"), label: "Builders", sub: "For content creators" },
+    { logo: staticFile("assets/programs/aws-heroes-logo.png"), label: "Heroes", sub: "For top contributors" },
   ];
   
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -30 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 8, marginTop: -8 }}>
         <div style={{ opacity: badgeE, transform: `scale(${interpolate(badgeE, [0, 1], [0.85, 1])})` }}>
-          <Img src={staticFile("assets/cloudclubs.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
+          <Img src={staticFile("assets/programs/aws-cloud-clubs-logo.png")} style={{ width: 140, height: "auto", objectFit: "contain" }} />
         </div>
         <SectionLabel icon={<GraduationIcon size={20} color={GD_ACCENT} />} text="What are AWS Cloud Clubs?" />
       </div>

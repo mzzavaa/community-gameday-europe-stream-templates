@@ -2,7 +2,7 @@ import { Img, staticFile } from "remotion";
 import React from "react";
 import { GD_DARK } from "../design/colors";
 
-const BG_IMAGE = staticFile("assets/background_landscape_colour.png");
+const BG_IMAGE = staticFile("assets/background-landscape.png");
 
 export const BackgroundLayer: React.FC<{ darken?: number }> = ({
   darken = 0.65,

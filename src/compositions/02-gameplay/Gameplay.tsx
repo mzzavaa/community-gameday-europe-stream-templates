@@ -18,8 +18,8 @@ import {
 } from "../../../config/event";
 
 const F = "'Amazon Ember', 'Inter', sans-serif";
-const GAMEDAY_LOGO = staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White Geometric with text.png");
-const COMMUNITY_LOGO = staticFile("assets/AWSCommunityEurope_last_nobackground.png");
+const GAMEDAY_LOGO = staticFile("assets/logos/gameday-logo-geometric.png");
+const COMMUNITY_LOGO = staticFile("assets/aws-community-logo.png");
 const EUROPE_MAP = staticFile("assets/europe-map.png");
 
 // ── 30-min phases ──

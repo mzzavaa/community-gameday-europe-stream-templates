@@ -16,4 +16,15 @@ Platform and environment status, score management, and Gamemaster announcements.
 
 ---
 
+## Previews
+
+| | | |
+|--|--|--|
+| ![StreamInterruption](../../../../../screenshots/readme-insert-stream-interruption.png) | ![TechnicalIssue](../../../../../screenshots/readme-insert-technical-issue.png) | ![Leaderboard](../../../../../screenshots/readme-insert-leaderboard.png) |
+| `Insert-StreamInterruption` | `Insert-TechnicalIssue` | `Insert-Leaderboard` |
+| ![ScoreCorrection](../../../../../screenshots/readme-insert-score-correction.png) | ![GamemastersUpdate](../../../../../screenshots/readme-insert-gamemasters-update.png) | |
+| `Insert-ScoreCorrection` | `Insert-GamemastersUpdate` | |
+
+---
+
 All inserts are 900 frames (30 seconds) at 30fps. See `src/compositions/inserts/README.md` for the full reference and design rules.

@@ -19,7 +19,7 @@ export const EVENT_DATE = "2026-03-17";
  * All times in config/schedule.ts are expressed relative to event start
  * in this timezone. For this edition, Linda hosts from Vienna (CET = UTC+1).
  */
-export const HOST_TIMEZONE = "CET"; // host timezone (CET for this edition)
+export const HOST_TIMEZONE = "CET"; // stream host timezone (CET for this edition)
 export const HOST_LOCATION = "Vienna, Austria"; // Linda's location
 
 // ── Stream Configuration ──

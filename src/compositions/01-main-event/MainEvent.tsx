@@ -189,7 +189,7 @@ const CrownIcon     = ({ s = 14, c = GD_ORANGE }) => <svg width={s} height={s} v
 // STATIC ASSETS
 // ─────────────────────────────────────────────────────────────────────────────
 const GD_MAP       = staticFile("assets/europe-map.png");
-const GAMEDAY_LOGO = staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png");
+const GAMEDAY_LOGO = staticFile("assets/logos/gameday-logo-white.png");
 const SUPPORT_VID  = staticFile("assets/support-process-h264.mp4");
 const UG_VIE_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3A7f5dcfa0-c808-411f-85e7-b8b2283e2c5a%3AAWS_Vienna_-_Vienna_Austria.jpg?table=block&id=3090df17-987f-80a9-a26b-de59a394b30a&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
 const UG_BEL_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3Aa2bebf97-0c45-43d1-bc06-f05186e7711b%3AAWS_User_Group_Belgium_-_Brussels_Belgium.jpg?table=block&id=3090df17-987f-8051-8049-de5a1b58677b&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
@@ -1462,7 +1462,7 @@ const CodeDistributionScene: React.FC<{
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <Img
-          src={staticFile("assets/unicorn_logo.png")}
+          src={staticFile("assets/gameday-unicorn.png")}
           style={{ width: 28, height: 28, objectFit: "contain", opacity: 0.4 }}
         />
         <div style={{
@@ -1473,7 +1473,7 @@ const CodeDistributionScene: React.FC<{
           AWS Community GameDay Europe 2026
         </div>
         <Img
-          src={staticFile("assets/unicorn_logo.png")}
+          src={staticFile("assets/gameday-unicorn.png")}
           style={{ width: 28, height: 28, objectFit: "contain", opacity: 0.4 }}
         />
       </div>
@@ -2183,7 +2183,7 @@ const CollabIntroScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps
 
             {/* Program logos */}
             <div style={{ display: "flex", gap: 20, marginBottom: 18, alignItems: "center", justifyContent: "center" }}>
-              {(["awsheroes.png", "Usergroups-badges_leader-dark.png", "aws-community-builder-logo.png"] as const).map((src, i) => {
+              {(["programs/aws-heroes-logo.png", "programs/aws-usergroups-badge.png", "programs/aws-builders-logo.png"] as const).map((src, i) => {
                 const lSp = spring({ frame: Math.max(0, rel - COLLAB_PA - 8 - i * 8), fps, config: springConfig.entry });
                 return (
                   <div key={src} style={{ opacity: lSp, transform: `scale(${interpolate(lSp, [0, 1], [0.5, 1])})` }}>

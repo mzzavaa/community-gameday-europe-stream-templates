@@ -1,19 +1,30 @@
 # Inserts: Quest Operations
 
-Quest status changes. Use these whenever the state of a quest changes - broken, fixed, new, or needing a hint.
+Quest status changes. Use these whenever the state of a quest changes — broken, fixed, new, or needing a hint.
 
 | Insert ID | When to use | Update |
 |-----------|-------------|--------|
 | `Insert-QuestFixed` | A specific broken quest has been repaired | `QUEST_NAME` |
-| `Insert-QuestBroken` | A quest is unavailable, teams should skip it | `QUEST_NAME` |
+| `Insert-QuestBroken` | A quest is unavailable — teams should skip it | `QUEST_NAME` |
 | `Insert-QuestUpdate` | Quest fixed AND new quest available simultaneously | Edit both cards directly |
 | `Insert-QuestHint` | Gamemasters want to nudge stuck teams without giving away the answer | `QUEST_NAME`, `HINT_TEXT` |
-| `Insert-NewQuestAvailable` | A new quest just unlocked (not a repair - a fresh challenge) | `QUEST_NAME`, `DESCRIPTION` |
+| `Insert-NewQuestAvailable` | A new quest just unlocked (not a repair — a fresh challenge) | `QUEST_NAME`, `DESCRIPTION` |
 | `Insert-SurveyReminder` | A bonus survey quest is available | `QUEST_NAME` |
 
-**Color:** Green (`GD_GREEN`) for fixed/resolved. Red (`GD_RED`) for broken. Orange (`GD_ORANGE`) for new and hints - AWS platform activity.
+**Color:** Green (`GD_GREEN`) for fixed/resolved. Red (`GD_RED`) for broken. Orange (`GD_ORANGE`) for new and hints — AWS platform activity.
 
 **Important:** `QuestFixed` and `QuestBroken` are for single-quest updates. Use `QuestUpdate` only when you need to communicate both a fix AND a new quest in one insert.
+
+---
+
+## Previews
+
+| | | |
+|--|--|--|
+| ![QuestFixed](../../../../../screenshots/readme-insert-quest-fixed.png) | ![QuestBroken](../../../../../screenshots/readme-insert-quest-broken.png) | ![QuestUpdate](../../../../../screenshots/readme-insert-quest-update.png) |
+| `Insert-QuestFixed` | `Insert-QuestBroken` | `Insert-QuestUpdate` |
+| ![QuestHint](../../../../../screenshots/readme-insert-quest-hint.png) | ![NewQuestAvailable](../../../../../screenshots/readme-insert-new-quest.png) | ![SurveyReminder](../../../../../screenshots/readme-insert-survey-reminder.png) |
+| `Insert-QuestHint` | `Insert-NewQuestAvailable` | `Insert-SurveyReminder` |
 
 ---
 

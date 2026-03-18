@@ -220,9 +220,9 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
         <AbsoluteFill style={{ opacity: s1Opacity }}>
           {/* Community Europe logo | divider | GameDay logo */}
           <div style={{ position: "absolute", top: 20, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center", gap: 24, opacity: logoFade }}>
-            <Img src={staticFile("assets/AWSCommunityEurope_last_nobackground.png")} style={{ height: 80 }} />
+            <Img src={staticFile("assets/aws-community-logo.png")} style={{ height: 80 }} />
             <div style={{ width: 1, height: 60, background: "rgba(255,255,255,0.3)" }} />
-            <Img src={staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ height: 80 }} />
+            <Img src={staticFile("assets/logos/gameday-logo-white.png")} style={{ height: 80 }} />
           </div>
           {/* Big dramatic words */}
           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -55%)", display: "flex", gap: 20, alignItems: "baseline" }}>
@@ -507,7 +507,7 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
               fontSize: TYPOGRAPHY.captionSmall, fontWeight: 700, color: "#ffffff", fontFamily: "'Inter', sans-serif", letterSpacing: 1,
               display: "flex", alignItems: "center",
             }}>
-              <Img src={staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ height: 24, marginRight: 8 }} />
+              <Img src={staticFile("assets/logos/gameday-logo-white.png")} style={{ height: 24, marginRight: 8 }} />
               But first  -  meet the participating communities
             </div>
           </div>
@@ -865,7 +865,7 @@ const WinnersTeaser: React.FC<{ frame: number }> = ({ frame }) => {
             fontSize: TYPOGRAPHY.captionSmall, fontWeight: 700, color: "#ffffff", fontFamily: "'Inter', sans-serif", letterSpacing: 1,
             display: "flex", alignItems: "center",
           }}>
-            <Img src={staticFile("assets/GameDay_Solid_Logo_for_swag/GameDay Logo Solid White.png")} style={{ height: 24, marginRight: 8 }} />
+            <Img src={staticFile("assets/logos/gameday-logo-white.png")} style={{ height: 24, marginRight: 8 }} />
             The moment you've been waiting for
           </div>
         </div>
