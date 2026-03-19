@@ -72,6 +72,8 @@ import {
   GAME_START_OFFSET_MINUTES as GAME_START,
   EVENT_DATE,
   SUPPORT_VIDEO_AVAILABLE,
+  STREAM_HOST_NAME,
+  SUPPORT_VIDEO_PRESENTER_NAME,
 } from "../../../config/event";
 import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS } from "../../../config/participants";
 
@@ -79,6 +81,9 @@ import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS } from "../../../
 // Gamemasters = AWS supporters whose country field is "Gamemaster"
 const GAMEMASTERS = CONFIG_AWS.filter((p) => p.country === "Gamemaster");
 const GM_LABEL    = GAMEMASTERS.map((p) => p.name).join(" & ");
+
+const HOST      = ORGANIZERS.find((p) => p.name === STREAM_HOST_NAME)!;
+const PRESENTER = ORGANIZERS.find((p) => p.name === SUPPORT_VIDEO_PRESENTER_NAME)!;
 
 // Format EVENT_DATE ("2026-03-17") → "March 17, 2026"
 const [_ey, _em, _ed] = EVENT_DATE.split("-").map(Number);
@@ -210,10 +215,10 @@ const SUPPORT_VID  = staticFile("assets/support-process-h264.mp4");
 function ugLogo(name: string): string | undefined {
   return USER_GROUPS.find((g) => g.name === name)?.logo;
 }
-const UG_VIE_LOGO = ugLogo("AWS User Group Vienna");
+const UG_VIE_LOGO = ugLogo(HOST.role);
 const UG_BEL_LOGO = ugLogo("AWS User Group Belgium");
 const UG_GEN_LOGO = ugLogo("AWS Swiss UG  -  Geneva");
-const UG_BUD_LOGO = ugLogo("AWS User Group Budapest");
+const UG_BUD_LOGO = ugLogo(PRESENTER.role);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHEDULE DATA
@@ -228,13 +233,13 @@ const SEGMENTS: ScheduleSegment[] = [
 ];
 
 const CHAPTERS: ScheduleSegment[] = [
-  { label: "Linda  - Welcome",           startFrame: 0,     endFrame: 1799,  speakers: "Linda Mohamed" },
-  { label: "Jerome & Anda",             startFrame: 1800,  endFrame: 9299,  speakers: "Jerome & Anda" },
-  { label: "Linda  - Transition",        startFrame: 9300,  endFrame: 10799, speakers: "Linda Mohamed" },
-  { label: "Mihaly  - Support Process",  startFrame: 10800, endFrame: 13379, speakers: "Mihaly Balassy" },
-  { label: "Linda  - Intro Guest",       startFrame: 13380, endFrame: 15179, speakers: "Linda Mohamed" },
-  { label: "Special Guest",             startFrame: 15180, endFrame: 23399 },
-  { label: "Linda  - Intro Gamemasters", startFrame: 23400, endFrame: 25199, speakers: "Linda Mohamed" },
+  { label: `${HOST.name}  - Welcome`,           startFrame: 0,     endFrame: 1799,  speakers: HOST.fullName },
+  { label: "Jerome & Anda",                    startFrame: 1800,  endFrame: 9299,  speakers: "Jerome & Anda" },
+  { label: `${HOST.name}  - Transition`,        startFrame: 9300,  endFrame: 10799, speakers: HOST.fullName },
+  { label: `${PRESENTER.name}  - Support Process`, startFrame: 10800, endFrame: 13379, speakers: PRESENTER.fullName },
+  { label: `${HOST.name}  - Intro Guest`,       startFrame: 13380, endFrame: 15179, speakers: HOST.fullName },
+  { label: "Special Guest",                    startFrame: 15180, endFrame: 23399 },
+  { label: `${HOST.name}  - Intro Gamemasters`, startFrame: 23400, endFrame: 25199, speakers: HOST.fullName },
   { label: "GameDay Rules & Scoring",   startFrame: 25200, endFrame: 32399, speakers: GM_LABEL },
   { label: "Challenge Walkthrough",     startFrame: 32400, endFrame: 39599, speakers: GM_LABEL },
   { label: "Tips & Final Prep",         startFrame: 39600, endFrame: 44999, speakers: GM_LABEL },
@@ -656,7 +661,7 @@ const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                   padding: "6px 8px 8px", textAlign: "center",
                   fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT,
                   letterSpacing: 2, textTransform: "uppercase" as const, fontFamily: FF,
-                }}>AWS UG Vienna</div>
+                }}>{HOST.role}</div>
               </div>
             </div>
 
@@ -678,23 +683,23 @@ const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                   fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white", fontFamily: FF,
                   lineHeight: 1.1, marginBottom: 12,
                 }}>
-                  Linda Mohamed
+                  {HOST.fullName}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
-                  <div style={{
+                  {HOST.title && <div style={{
                     fontSize: TYPOGRAPHY.h6, fontWeight: 700,
                     background: `linear-gradient(90deg, ${GD_VIOLET}, ${GD_PINK})`,
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                     fontFamily: FF,
                   }}>
-                    AWS Community Hero
-                  </div>
-                  <div style={{
+                    {HOST.title}
+                  </div>}
+                  {HOST.subtitle && <div style={{
                     fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.6)",
                     fontFamily: FF,
                   }}>
-                    AWS User Group Vienna · Förderverein AWS Community DACH
-                  </div>
+                    {HOST.subtitle}
+                  </div>}
                   <div style={{
                     fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
                     fontFamily: FF, display: "flex", alignItems: "center", gap: 5,
@@ -802,10 +807,10 @@ const LindaHostCard: React.FC<{ frame: number }> = ({ frame }) => {
             <MicIcon s={10} c={GD_ACCENT} /> Stream Host
           </div>
           <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white", fontFamily: FF }}>
-            Linda Mohamed
+            {HOST.fullName}
           </div>
           <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", fontFamily: FF }}>
-            AWS UG Vienna
+            {HOST.role}
           </div>
         </div>
       </GlassCard>
@@ -844,7 +849,7 @@ const SpeechBubble: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) 
             fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ACCENT,
             letterSpacing: 3, textTransform: "uppercase" as const, fontFamily: FF,
           }}>
-            Linda Mohamed  - Stream Host
+            {HOST.fullName}  - Stream Host
           </div>
         </div>
         <div style={{
@@ -1558,7 +1563,7 @@ const SpeakerIndicator: React.FC<{ frame: number; fps: number }> = ({ frame, fps
   const speaker = chapter?.speakers;
   if (!speaker) return null;
   // LindaHostCard already handles Linda with face + pulsing rings  -  skip duplicate
-  if (speaker === "Linda Mohamed") return null;
+  if (speaker === HOST.fullName) return null;
 
   const entry = spring({ frame: frame - S.SPEAKER_IN, fps, config: springConfig.entry });
   const pulse = interpolate(frame % 50, [0, 12, 25, 37, 50], [0.4, 1, 0.4, 0.9, 0.4], { extrapolateRight: "clamp" });
@@ -1691,7 +1696,7 @@ const MihalyIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
                   fontSize: TYPOGRAPHY.h5, fontWeight: 900, color: "white",
                   fontFamily: FF, lineHeight: 1.1, marginBottom: 8,
                 }}>
-                  Mihaly Balassy
+                  {PRESENTER.fullName}
                 </div>
                 <div style={{
                   fontSize: TYPOGRAPHY.h6, fontWeight: 600,
@@ -1699,13 +1704,13 @@ const MihalyIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                   fontFamily: FF, marginBottom: 6,
                 }}>
-                  AWS User Group Budapest
+                  {PRESENTER.role}
                 </div>
                 <div style={{
                   fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
                   fontFamily: FF, display: "flex", alignItems: "center", gap: 5,
                 }}>
-                  <PinIcon s={11} c={GD_ACCENT} /> Budapest, Hungary
+                  <PinIcon s={11} c={GD_ACCENT} /> {PRESENTER.city ?? PRESENTER.country}
                 </div>
               </div>
 
@@ -1823,7 +1828,7 @@ const MihalyMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }) => {
         lineHeight: 1.1,
         whiteSpace: "nowrap",
       }}>
-        Mihaly Balassy
+        {PRESENTER.fullName}
       </div>
 
       {/* ── Flying UG name ── */}
@@ -1837,7 +1842,7 @@ const MihalyMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }) => {
         fontFamily: FF,
         whiteSpace: "nowrap",
       }}>
-        AWS User Group Budapest
+        {PRESENTER.role}
       </div>
 
     </div>
@@ -1949,13 +1954,13 @@ const SupportVideoBody: React.FC = () => {
                 fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white",
                 fontFamily: FF, lineHeight: 1.1,
               }}>
-                Mihaly Balassy
+                {PRESENTER.fullName}
               </div>
               <div style={{
                 fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)",
                 fontFamily: FF, marginTop: 2,
               }}>
-                AWS User Group Budapest
+                {PRESENTER.role}
               </div>
             </div>
           </div>

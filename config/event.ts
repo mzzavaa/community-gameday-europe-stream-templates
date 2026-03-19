@@ -11,6 +11,10 @@
  */
 
 export const EVENT_NAME = "AWS Community GameDay Europe";
+
+// Stream host and support video presenter — must match the `name` field in ORGANIZERS
+export const STREAM_HOST_NAME = "Linda";
+export const SUPPORT_VIDEO_PRESENTER_NAME = "Mihaly";
 export const EVENT_EDITION = "2026"; // First edition
 export const EVENT_DATE = "2026-03-17";
 
