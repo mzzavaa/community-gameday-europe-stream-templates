@@ -44,6 +44,7 @@ export interface UserGroup {
   flag: string;
   name: string;
   city: string;
+  logo?: string; // Logo URL — add directly here, no need for a separate logos.ts
 }
 
 // ── All 57 Participating User Groups ──

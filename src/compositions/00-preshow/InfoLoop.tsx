@@ -80,29 +80,20 @@ const SHUFFLED = [...USER_GROUPS].sort((a, b) => {
 
 // ─── Logo lookup (handles UG / User Group name variations) ────────────────────
 function findLogo(name: string): string | null {
+  // First: check logo field directly on USER_GROUPS entry (exact match)
+  const ug = USER_GROUPS.find((g) => g.name === name);
+  if (ug?.logo) return ug.logo;
+
+  // Fallback: LOGO_MAP override (for name mismatches or edge cases)
   if (LOGO_MAP[name]) return LOGO_MAP[name];
-  
-  // Special case mappings for known mismatches
-  const specialMappings: Record<string, string> = {
-    "AWS User Group Geneva": "AWS Swiss User Group-Geneva",
-    "AWS User Group Frankfurt": "Frankfurt AWS User Group",
-  };
-  if (specialMappings[name] && LOGO_MAP[specialMappings[name]]) {
-    return LOGO_MAP[specialMappings[name]];
-  }
-  
   for (const key of Object.keys(LOGO_MAP)) {
-    // Normalize: expand "UG" to "User Group" in both directions
-    const normName = name
-      .replace("AWS Women's UG ", "AWS Women's User Group ")
-      .replace("AWS UG ", "AWS User Group ")
-      .replace(/\s* - \s*/g, "  -  ");
-    const normKey = key
-      .replace("AWS Women's User Group ", "AWS Women's UG ")
-      .replace("AWS User Group ", "AWS UG ")
-      .replace(/\s*-\s*/g, "  -  ");
+    const normName = name.replace("AWS UG ", "AWS User Group ").replace(/\s*-\s*/g, "  -  ");
+    const normKey  = key.replace("AWS User Group ", "AWS UG ").replace(/\s*-\s*/g, "  -  ");
     if (key.includes(normName) || normKey.includes(name)) return LOGO_MAP[key];
   }
+  // Last resort: fuzzy match against USER_GROUPS logos
+  const fuzzy = USER_GROUPS.find((g) => g.name.includes(name) || name.includes(g.name));
+  if (fuzzy?.logo) return fuzzy.logo;
   return null;
 }
 

@@ -73,7 +73,7 @@ import {
   EVENT_DATE,
   SUPPORT_VIDEO_AVAILABLE,
 } from "../../../config/event";
-import { AWS_SUPPORTERS as CONFIG_AWS } from "../../../config/participants";
+import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS } from "../../../config/participants";
 
 // ── Derived from config ──────────────────────────────────────────────────────
 // Gamemasters = AWS supporters whose country field is "Gamemaster"
@@ -206,10 +206,14 @@ const CrownIcon     = ({ s = 14, c = GD_ORANGE }) => <svg width={s} height={s} v
 const GD_MAP       = staticFile("assets/europe-map.png");
 const GAMEDAY_LOGO = staticFile("assets/logos/gameday-logo-white.png");
 const SUPPORT_VID  = staticFile("assets/support-process-h264.mp4");
-const UG_VIE_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3A7f5dcfa0-c808-411f-85e7-b8b2283e2c5a%3AAWS_Vienna_-_Vienna_Austria.jpg?table=block&id=3090df17-987f-80a9-a26b-de59a394b30a&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
-const UG_BEL_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3Aa2bebf97-0c45-43d1-bc06-f05186e7711b%3AAWS_User_Group_Belgium_-_Brussels_Belgium.jpg?table=block&id=3090df17-987f-8051-8049-de5a1b58677b&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
-const UG_GEN_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3Ab00df73a-3fce-4ab6-9160-f26c286ddc57%3AAWS_Swiss_User_Group_Geneva_-_Geneva_Switzerland.jpg?table=block&id=3090df17-987f-805d-9d4b-d332f0de2d65&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
-const UG_BUD_LOGO  = "https://awscommunitydach.notion.site/image/attachment%3A148c8f1c-2ddc-4255-b9de-344b7550fe79%3AAWS_User_Group_Budapest_-_Budapest_Hungary.jpg?table=block&id=3090df17-987f-8029-95fd-e8c5481a7776&spaceId=a54b381a-7fea-4896-b7cd-6ef5fe2ecb82&width=520&userId=&cache=v2";
+// UG logos derived from USER_GROUPS — add logo URLs to participants.ts, not here
+function ugLogo(name: string): string | undefined {
+  return USER_GROUPS.find((g) => g.name === name)?.logo;
+}
+const UG_VIE_LOGO = ugLogo("AWS User Group Vienna");
+const UG_BEL_LOGO = ugLogo("AWS User Group Belgium");
+const UG_GEN_LOGO = ugLogo("AWS Swiss UG  -  Geneva");
+const UG_BUD_LOGO = ugLogo("AWS User Group Budapest");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHEDULE DATA
@@ -647,7 +651,7 @@ const LindaIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                 background: "rgba(255,255,255,0.04)", borderRadius: 14, overflow: "hidden",
                 width: 180,
               }}>
-                <Img src={UG_VIE_LOGO} style={{ width: "100%", aspectRatio: "600/337", objectFit: "cover", display: "block", borderRadius: "14px 14px 0 0" }} />
+                {UG_VIE_LOGO && <Img src={UG_VIE_LOGO} style={{ width: "100%", aspectRatio: "600/337", objectFit: "cover", display: "block", borderRadius: "14px 14px 0 0" }} />}
                 <div style={{
                   padding: "6px 8px 8px", textAlign: "center",
                   fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT,
@@ -952,26 +956,16 @@ const JeromeAndaCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
   const sp  = spring({ frame: frame - S.ORG_IN, fps, config: springConfig.entry });
   const off = interpolate(sp, [0, 1], [24, 0]);
 
-  const people = [
-    {
-      name: "Jerome",
-      face: "assets/faces/jerome.jpg",
-      title: "AWS User Group Leader",
-      ug: "AWS User Group Belgium",
-      ugLogo: UG_BEL_LOGO,
-      city: "Brussels, Belgium",
-      color: GD_VIOLET,
-    },
-    {
-      name: "Anda",
-      face: "assets/faces/anda.jpg",
-      title: "AWS User Group Leader",
-      ug: "AWS User Group Geneva",
-      ugLogo: UG_GEN_LOGO,
-      city: "Geneva, Switzerland",
-      color: GD_PINK,
-    },
-  ];
+  const CARD_COLORS = [GD_VIOLET, GD_PINK, GD_ACCENT, GD_ORANGE];
+  const people = ORGANIZERS.filter((p) => p.type === "community").slice(0, 2).map((p, i) => ({
+    name: p.name,
+    face: p.face,
+    title: "AWS User Group Leader",
+    ug: p.role,
+    ugLogo: USER_GROUPS.find((g) => g.name === p.role)?.logo,
+    city: p.country,
+    color: CARD_COLORS[i] ?? GD_ACCENT,
+  }));
 
   return (
     <div style={{
@@ -1053,7 +1047,7 @@ const JeromeAndaCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
                     width: 200, height: 112, overflow: "hidden", borderRadius: 12,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <Img src={p.ugLogo} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />
+                    {p.ugLogo && <Img src={p.ugLogo} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />}
                   </div>
                   {/* UG name + city */}
                   <div style={{ textAlign: "center" }}>
@@ -1443,7 +1437,7 @@ const CodeDistributionScene: React.FC<{
         opacity: logosSp,
         transform: `translateY(${interpolate(logosSp, [0, 1], [8, 0])}px)`,
       }}>
-        {[UG_VIE_LOGO, UG_BEL_LOGO, UG_GEN_LOGO, UG_BUD_LOGO].map((logo, i) => (
+        {[UG_VIE_LOGO, UG_BEL_LOGO, UG_GEN_LOGO, UG_BUD_LOGO].filter(Boolean).map((logo, i) => (
           <div key={i} style={{
             width: 56, height: 56, borderRadius: 12,
             background: "rgba(255,255,255,0.05)",
@@ -1451,7 +1445,7 @@ const CodeDistributionScene: React.FC<{
             padding: 6,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <Img src={logo} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+            <Img src={logo as string} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
           </div>
         ))}
         <div style={{
@@ -1721,7 +1715,7 @@ const MihalyIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
                 opacity: logoSp,
                 transform: `translateY(${interpolate(logoSp, [0, 1], [10, 0])}px)`,
               }}>
-                <Img src={UG_BUD_LOGO} style={{ width: 180, borderRadius: 12, objectFit: "contain", display: "block" }} />
+                {UG_BUD_LOGO && <Img src={UG_BUD_LOGO} style={{ width: 180, borderRadius: 12, objectFit: "contain", display: "block" }} />}
               </div>
             </div>
 
@@ -2076,10 +2070,10 @@ const LindaGuestIntro: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
 //   Phase 3 (rel 900+):    Both cards fade, special guest card + sidebar visible
 // No schedule sidebar in phases 1+2 (backdrop covers it - filler content).
 // ─────────────────────────────────────────────────────────────────────────────
-const COMMUNITY_FACES = [
-  "jerome","anda","linda","mihaly",
-  "andreas","lucian","manuel","marcel",
-] as const;
+// Derive face keys from ORGANIZERS face paths ("assets/faces/jerome.jpg" → "jerome")
+const COMMUNITY_FACES = ORGANIZERS.map((p) =>
+  p.face.replace("assets/faces/", "").replace(/\.\w+$/, "")
+);
 
 // AWS supporter data (shown in the AWS GlassCard) — derived from config/participants
 const AWS_SUPPORTERS = CONFIG_AWS.map((p) => ({
