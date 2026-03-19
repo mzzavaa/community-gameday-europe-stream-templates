@@ -68,4 +68,4 @@ A future contribution idea: an API-driven workflow that automatically pulls fina
 
 ## Year convention
 
-This repository tracks editions. **2026 = first edition** of AWS Community GameDay Europe. Future editions would increment the year in `config/event.ts`. Never reference 2025  -  that is a bug.
+This repository tracks editions. **2026 = first edition** of AWS Community GameDay Europe. Future editions would increment the year in `config/event.ts`.

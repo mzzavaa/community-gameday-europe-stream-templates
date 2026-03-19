@@ -107,5 +107,4 @@ Rendering requires internet access (Notion CDN must be reachable).
 
 ## Year / Edition
 
-This repo tracks editions. **2026 = first edition** of AWS Community GameDay Europe.
-If you see "2025" anywhere, it is a bug  -  this event ran on March 17, 2026.
+This repo tracks editions. **2026 = first edition** of AWS Community GameDay Europe (March 17, 2026).
