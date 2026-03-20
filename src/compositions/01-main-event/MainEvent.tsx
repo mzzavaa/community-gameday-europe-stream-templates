@@ -78,7 +78,7 @@ import {
   GAME_START as GAME_START_LABEL,
   EDITION_LABEL,
 } from "../../../config/event";
-import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS, COUNTRIES, DISPLAY_STATS, type UserGroup, getOrganizerRole, getOrganizerUserGroup } from "../../../config/participants";
+import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS, COUNTRIES, DISPLAY_STATS, COMMUNITY_PROGRAM_LABELS, type UserGroup, getOrganizerRole, getOrganizerUserGroup } from "../../../config/participants";
 import { resolveStats } from "../../utils/stats";
 
 // ── Derived from config ──────────────────────────────────────────────────────
@@ -666,9 +666,9 @@ const HostIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
                 {UG_VIE_LOGO && <Img src={UG_VIE_LOGO} style={{ width: "100%", aspectRatio: "600/337", objectFit: "cover", display: "block", borderRadius: "14px 14px 0 0" }} />}
                 <div style={{
                   padding: "6px 8px 8px", textAlign: "center",
-                  fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT,
-                  letterSpacing: 2, textTransform: "uppercase" as const, fontFamily: FF,
-                }}>{getOrganizerRole(HOST)}</div>
+                  fontSize: TYPOGRAPHY.label, fontWeight: 600, color: GD_ACCENT,
+                  letterSpacing: 0.5, fontFamily: FF,
+                }}>{COMMUNITY_PROGRAM_LABELS["ug-leader"]}</div>
               </div>
             </div>
 
