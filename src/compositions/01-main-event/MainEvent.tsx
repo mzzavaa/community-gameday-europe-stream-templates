@@ -74,8 +74,12 @@ import {
   EVENT_NAME,
   EVENT_EDITION,
   SUPPORT_VIDEO_AVAILABLE,
+  CODES_TIME,
+  GAME_START as GAME_START_LABEL,
+  EDITION,
+  EDITION_LABEL,
 } from "../../../config/event";
-import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS, type UserGroup } from "../../../config/participants";
+import { AWS_SUPPORTERS as CONFIG_AWS, ORGANIZERS, USER_GROUPS, type UserGroup, getOrganizerRole, getOrganizerUserGroup } from "../../../config/participants";
 
 // ── Derived from config ──────────────────────────────────────────────────────
 const ALL_PEOPLE    = [...ORGANIZERS, ...CONFIG_AWS];
@@ -219,9 +223,9 @@ function ugLogo(name: string | undefined): string | undefined {
   if (!name) return undefined;
   return (USER_GROUPS.find((g) => g.name === name) as UserGroup | undefined)?.logo;
 }
-const UG_VIE_LOGO     = ugLogo(HOST.userGroup);
-const UG_CO_ORG_LOGOS = CO_ORGANIZERS.map((p) => ugLogo(p.userGroup)).filter(Boolean);
-const UG_BUD_LOGO     = PRESENTER ? ugLogo(PRESENTER.userGroup) : undefined;
+const UG_VIE_LOGO     = ugLogo(getOrganizerUserGroup(HOST));
+const UG_CO_ORG_LOGOS = CO_ORGANIZERS.map((p) => ugLogo(getOrganizerUserGroup(p))).filter(Boolean);
+const UG_BUD_LOGO     = PRESENTER ? ugLogo(getOrganizerUserGroup(PRESENTER)) : undefined;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHEDULE DATA
@@ -344,7 +348,7 @@ const WelcomeHero: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =
             fontSize: TYPOGRAPHY.h6, fontWeight: 500,
             color: "rgba(255,255,255,0.7)", fontFamily: FF, letterSpacing: 2,
           }}>
-            The first edition  - {EVENT_DATE_LONG}
+            The {EDITION_LABEL}  - {EVENT_DATE_LONG}
           </div>
           <div style={{ width: 80, height: 1, background: `linear-gradient(90deg, ${GD_ACCENT}66, transparent)` }} />
         </div>
@@ -554,7 +558,7 @@ const HostLocationScene: React.FC<{ frame: number; fps: number }> = ({ frame, fp
               fontSize: TYPOGRAPHY.h6, fontWeight: 700, color: GD_PINK,
               fontFamily: FF, letterSpacing: 2,
             }}>
-              {HOST.city}
+              {HOST.location}
             </div>
           </div>
 
@@ -564,7 +568,7 @@ const HostLocationScene: React.FC<{ frame: number; fps: number }> = ({ frame, fp
             fontFamily: FF, lineHeight: 1.25, marginBottom: 16,
           }}>
             Hello and welcome<br />
-            from {HOST.city?.split(",")[0]}!
+            from {HOST.location?.split(",")[0]}!
           </div>
 
           {/* Detail */}
@@ -572,7 +576,7 @@ const HostLocationScene: React.FC<{ frame: number; fps: number }> = ({ frame, fp
             fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.72)",
             fontFamily: FF, lineHeight: 1.6,
           }}>
-            {HOST.role} is participating today too - my co-organizers are hosting it in the room right next door!
+            {getOrganizerRole(HOST)} is participating today too - my co-organizers are hosting it in the room right next door!
           </div>
         </GlassCard>
       </div>
@@ -664,7 +668,7 @@ const HostIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
                   padding: "6px 8px 8px", textAlign: "center",
                   fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT,
                   letterSpacing: 2, textTransform: "uppercase" as const, fontFamily: FF,
-                }}>{HOST.role}</div>
+                }}>{getOrganizerRole(HOST)}</div>
               </div>
             </div>
 
@@ -707,7 +711,7 @@ const HostIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
                     fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
                     fontFamily: FF, display: "flex", alignItems: "center", gap: 5,
                   }}>
-                    <PinIcon s={11} c={GD_ACCENT} /> {HOST.city}
+                    <PinIcon s={11} c={GD_ACCENT} /> {HOST.location}
                   </div>
                 </div>
               </div>
@@ -812,7 +816,7 @@ const HostCard: React.FC<{ frame: number }> = ({ frame }) => {
             {HOST.fullName ?? HOST.name}
           </div>
           <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", fontFamily: FF }}>
-            {HOST.role}
+            {getOrganizerRole(HOST)}
           </div>
         </div>
       </GlassCard>
@@ -858,9 +862,9 @@ const SpeechBubble: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) 
           fontSize: TYPOGRAPHY.body, fontWeight: 500, color: "white",
           fontFamily: FF, lineHeight: 1.65,
         }}>
-          "Today we will have <strong style={{ color: GD_ACCENT }}>53 AWS User Groups</strong> all over Europe competing
-          against each other across <strong style={{ color: GD_VIOLET }}>23 countries</strong> and
-          {`4 timezones - the first edition of ${EVENT_NAME}."`}
+          {`"Today we will have `}<strong style={{ color: GD_ACCENT }}>{USER_GROUPS.length} AWS User Groups</strong>{` all over Europe competing
+          against each other across `}<strong style={{ color: GD_VIOLET }}>23 countries</strong>{` and
+          4 timezones - the ${EDITION_LABEL} of ${EVENT_NAME}."`}
         </div>
       </GlassCard>
       {/* Tail */}
@@ -968,9 +972,9 @@ const CoOrganizersCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps
     name: p.name,
     face: p.face,
     title: "AWS User Group Leader",
-    ug: p.role,
-    ugLogo: ugLogo(p.userGroup),
-    city: p.country,
+    ug: getOrganizerRole(p),
+    ugLogo: ugLogo(getOrganizerUserGroup(p)),
+    city: p.location ?? "",
     color: CARD_COLORS[i] ?? GD_ACCENT,
   }));
 
@@ -1107,7 +1111,7 @@ const GamemastersCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
   const people = GAMEMASTERS.map((p) => ({
     name: p.name,
     face: p.face,
-    title: p.role.replace(/, AWS$/, ""),
+    title: getOrganizerRole(p),
     company: "Amazon Web Services",
   }));
 
@@ -1434,7 +1438,7 @@ const CodeDistributionScene: React.FC<{
           fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.28)",
           fontFamily: FF, marginTop: 6,
         }}>
-          All codes distributed by 18:25 CET · Game starts at 18:30 CET sharp
+          {`All codes distributed by ${CODES_TIME} · Game starts at ${GAME_START_LABEL} sharp`}
         </div>
       </div>
 
@@ -1707,13 +1711,13 @@ const SupportPresenterIntroCard: React.FC<{ frame: number; fps: number }> = ({ f
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                   fontFamily: FF, marginBottom: 6,
                 }}>
-                  {PRESENTER.role}
+                  {getOrganizerRole(PRESENTER)}
                 </div>
                 <div style={{
                   fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.45)",
                   fontFamily: FF, display: "flex", alignItems: "center", gap: 5,
                 }}>
-                  <PinIcon s={11} c={GD_ACCENT} /> {PRESENTER.city ?? PRESENTER.country}
+                  <PinIcon s={11} c={GD_ACCENT} /> {PRESENTER.location}
                 </div>
               </div>
 
@@ -1846,7 +1850,7 @@ const SupportPresenterMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }
         fontFamily: FF,
         whiteSpace: "nowrap",
       }}>
-        {PRESENTER.role}
+        {getOrganizerRole(PRESENTER)}
       </div>
 
     </div>
@@ -1965,7 +1969,7 @@ const SupportVideoBody: React.FC = () => {
                 fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)",
                 fontFamily: FF, marginTop: 2,
               }}>
-                {PRESENTER.role}
+                {getOrganizerRole(PRESENTER)}
               </div>
             </div>
           </div>
@@ -2089,8 +2093,8 @@ const COMMUNITY_FACES = ORGANIZERS.map((p) =>
 const AWS_SUPPORTERS = CONFIG_AWS.map((p) => ({
   key: p.face.replace("assets/faces/", "").replace(/\.\w+$/, ""),
   name: p.name,
-  title: p.role.replace(/, AWS$/, ""),
-  sub: p.country,
+  title: getOrganizerRole(p),
+  sub: p.location ?? "",
 }));
 
 // Phase breakpoints (frames relative to COLLAB_IN)  -  each value = end of that phase
@@ -2588,7 +2592,7 @@ export const MainEvent: React.FC = () => {
 
   const STATS: StatDef[] = [
     {
-      value: "53", label: "User Groups", sub: "Playing simultaneously across Europe",
+      value: String(USER_GROUPS.length), label: "User Groups", sub: "Playing simultaneously across Europe",
       color: GD_ACCENT, icon: <UsersIcon s={32} c={GD_ACCENT} />,
       inFrame: S.STAT1_IN, outFrame: S.STAT1_OUT,
     },
@@ -2603,7 +2607,7 @@ export const MainEvent: React.FC = () => {
       inFrame: S.STAT3_IN, outFrame: S.STAT3_OUT,
     },
     {
-      value: "1st", label: "Edition Ever", sub: "History is being made today",
+      value: EDITION, label: "Edition Ever", sub: "History is being made today",
       color: GD_GOLD, icon: <StarIcon s={32} c={GD_GOLD} />,
       inFrame: S.STAT4_IN, outFrame: S.STAT4_OUT,
     },

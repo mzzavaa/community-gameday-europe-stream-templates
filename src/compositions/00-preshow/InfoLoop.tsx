@@ -53,8 +53,16 @@ import {
   EVENT_NAME,
   HOST_TIMEZONE,
   STREAM_START_TIME,
+  STREAM_START as STREAM_START_LABEL,
+  GAME_START as GAME_START_LABEL,
+  GAME_END as GAME_END_LABEL,
+  AUDIO_CHECK,
+  GM_INTRO_TIME,
+  GM_INSTRUCTIONS_TIME,
+  CODES_TIME,
+  EDITION_LABEL,
 } from "../../../config/event";
-import { USER_GROUPS, ORGANIZERS, AWS_SUPPORTERS, type UserGroup } from "../../../config/participants";
+import { USER_GROUPS, ORGANIZERS, AWS_SUPPORTERS, type UserGroup, getOrganizerRole, getOrganizerUserGroup } from "../../../config/participants";
 
 const ALL_PEOPLE    = [...ORGANIZERS, ...AWS_SUPPORTERS];
 const HOST          = ALL_PEOPLE.find((p) => p.streamRole === "host")!;
@@ -395,7 +403,7 @@ const SlideHero: React.FC = () => {
   const statsE = useStagger(12, 8);
 
   const stats = [
-    { v: "53", l: "User Groups", c: GD_GOLD },
+    { v: String(USER_GROUPS.length), l: "User Groups", c: GD_GOLD },
     { v: "23", l: "Countries", c: GD_PINK },
     { v: "4", l: "Timezones", c: GD_VIOLET },
     { v: "1st", l: "Edition", c: GD_ORANGE },
@@ -409,7 +417,7 @@ const SlideHero: React.FC = () => {
         <Img src={GAMEDAY_LOGO} style={{ height: 118 }} />
       </div>
       <div style={{ opacity: titleE, transform: `translateY(${interpolate(titleE, [0, 1], [24, 0])}px)`, textAlign: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: TYPOGRAPHY.captionSmall, fontWeight: 700, color: GD_ACCENT, letterSpacing: 5, textTransform: "uppercase", marginBottom: 8 }}>The First-Ever</div>
+        <div style={{ fontSize: TYPOGRAPHY.captionSmall, fontWeight: 700, color: GD_ACCENT, letterSpacing: 5, textTransform: "uppercase", marginBottom: 8 }}>The {EDITION_LABEL}</div>
         <div style={{ fontSize: TYPOGRAPHY.h2, fontWeight: 900, letterSpacing: -1, lineHeight: 1.05, background: `linear-gradient(135deg, #fff 0%, ${GD_ACCENT} 45%, ${GD_PINK} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{EVENT_NAME}</div>
         <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.45)", marginTop: 8, letterSpacing: 2 }}>{EVENT_HERO_DATE}</div>
       </div>
@@ -447,9 +455,9 @@ const SlideHero: React.FC = () => {
 const SlideWhatsHappening: React.FC = () => {
   const cards = [
     { icon: <BroadcastIcon size={28} color={GD_VIOLET} />, title: "One Stream, 53 Cities", body: "Right now, AWS User Groups all over Europe are watching this exact stream at their local venue. You are part of the first-ever pan-European AWS Community GameDay.", c: GD_VIOLET },
-    { icon: <VolumeMuteIcon size={28} color={GD_PINK} />, title: "Why Is It Muted Right Now?", body: "This is the pre-show loop before the live stream at 18:00 CET. At 17:55 CET the stream host will do a ~30 second audio test - make sure you can hear it!", c: GD_PINK },
-    { icon: <GamepadIcon size={28} color={GD_GOLD} />, title: "The Competition", body: "At 18:30 CET all 53 groups start a 2-hour AWS challenge simultaneously. Your local UG leader gives your team access codes at 18:25 CET.", c: GD_GOLD },
-    { icon: <TrophyIcon size={28} color={GD_ORANGE} />, title: "Stay for the Closing!", body: "At 20:30 CET the stream returns live. Winners are revealed globally, together. Don't leave - celebrate with 53 cities across Europe all at once.", c: GD_ORANGE },
+    { icon: <VolumeMuteIcon size={28} color={GD_PINK} />, title: "Why Is It Muted Right Now?", body: `This is the pre-show loop before the live stream at ${STREAM_START_LABEL}. At ${AUDIO_CHECK} the stream host will do a ~30 second audio test - make sure you can hear it!`, c: GD_PINK },
+    { icon: <GamepadIcon size={28} color={GD_GOLD} />, title: "The Competition", body: `At ${GAME_START_LABEL} all ${USER_GROUPS.length} groups start a 2-hour AWS challenge simultaneously. Your local UG leader gives your team access codes at ${CODES_TIME}.`, c: GD_GOLD },
+    { icon: <TrophyIcon size={28} color={GD_ORANGE} />, title: "Stay for the Closing!", body: `At ${GAME_END_LABEL} the stream returns live. Winners are revealed globally, together. Don't leave - celebrate with ${USER_GROUPS.length} cities across Europe all at once.`, c: GD_ORANGE },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -467,7 +475,8 @@ const SlideWhatsHappening: React.FC = () => {
 // SLIDE 3 - Meet the Stream Host (StreamHostCard-inspired)
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideMeetHost: React.FC = () => {
-  const ugLogo = findLogo(HOST.userGroup ?? HOST.role);
+  const hostUG = getOrganizerUserGroup(HOST);
+  const ugLogo = hostUG ? findLogo(hostUG) : null;
   const cardE = useEntry(0);
   const textE = useStagger(3, 8);
   const noteE = useStagger(10, 8);
@@ -486,11 +495,11 @@ const SlideMeetHost: React.FC = () => {
           {ugLogo && (
             <div style={{ width: 230, borderRadius: 14, overflow: "hidden", background: "rgba(255,255,255,0.04)" }}>
               <Img src={ugLogo} style={{ width: "100%", aspectRatio: "600/337", objectFit: "cover", display: "block", borderRadius: "14px 14px 0 0" }} />
-              <div style={{ padding: "6px 10px 8px", textAlign: "center", fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: GD_ACCENT, letterSpacing: 2, textTransform: "uppercase" as const }}>{HOST.role}</div>
+              <div style={{ padding: "6px 10px 8px", textAlign: "center", fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: GD_ACCENT, letterSpacing: 2, textTransform: "uppercase" as const }}>{getOrganizerRole(HOST)}</div>
             </div>
           )}
           <div style={{ fontSize: 15, color: "rgba(255,255,255,0.45)" }}>
-            {HOST.flag} {HOST.country}
+            {HOST.flag} {HOST.location}
           </div>
         </div>
 
@@ -531,7 +540,7 @@ const SlideMeetCoOrganizers: React.FC = () => {
   const people = CO_ORGANIZERS.map((person, i) => ({
     person,
     c: CO_ORG_COLORS[i % CO_ORG_COLORS.length],
-    logo: findLogo(person.userGroup ?? person.role),
+    logo: (() => { const ug = getOrganizerUserGroup(person); return ug ? findLogo(ug) : null; })(),
     desc: person.bio?.[0] ?? "",
   }));
 
@@ -552,9 +561,9 @@ const SlideMeetCoOrganizers: React.FC = () => {
                 <Img src={staticFile(person.face)} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover", flexShrink: 0, boxShadow: `0 0 20px ${c}44` }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: TYPOGRAPHY.h5, fontWeight: 900, color: "white" }}>{person.flag} {person.name}</div>
-                  <div style={{ fontSize: TYPOGRAPHY.caption, color: c, marginTop: 3, fontWeight: 600 }}>{person.role}</div>
+                  <div style={{ fontSize: TYPOGRAPHY.caption, color: c, marginTop: 3, fontWeight: 600 }}>{getOrganizerRole(person)}</div>
                   <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: "rgba(255,255,255,0.4)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                    <LocationIcon size={11} color={GD_ACCENT} /> {person.country}
+                    <LocationIcon size={11} color={GD_ACCENT} /> {person.location}
                   </div>
                 </div>
                 {logo && (
@@ -600,7 +609,7 @@ const SlideMeetGamemasters: React.FC = () => {
           <GamepadIcon size={14} color={GD_ACCENT} /> GameDay Instructors
         </div>
         <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>Meet {GM_LABEL}</div>
-        <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>AWS Gamemasters - delivering instructions live at ~18:10 CET</div>
+        <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>AWS Gamemasters - delivering instructions live at {GM_INSTRUCTIONS_TIME}</div>
       </div>
 
       <div style={{ display: "flex", gap: 24, width: "100%", maxWidth: 1060, marginBottom: 20 }}>
@@ -611,7 +620,7 @@ const SlideMeetGamemasters: React.FC = () => {
                 <Img src={staticFile(person.face)} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover", flexShrink: 0, boxShadow: `0 0 20px ${c}44` }} />
                 <div>
                   <div style={{ fontSize: TYPOGRAPHY.h5, fontWeight: 900, color: "white" }}>{person.flag} {person.name}</div>
-                  <div style={{ fontSize: TYPOGRAPHY.caption, color: c, marginTop: 3, fontWeight: 600 }}>{person.role}</div>
+                  <div style={{ fontSize: TYPOGRAPHY.caption, color: c, marginTop: 3, fontWeight: 600 }}>{getOrganizerRole(person)}</div>
                   <div style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5, background: `${GD_ORANGE}22`, border: `1px solid ${GD_ORANGE}44`, borderRadius: 6, padding: "3px 10px" }}>
                     <GamepadIcon size={11} color={GD_ORANGE} />
                     <span style={{ fontSize: TYPOGRAPHY.overline, color: GD_ORANGE, fontWeight: 700, letterSpacing: 1 }}>AWS GAMEMASTER</span>
@@ -628,9 +637,9 @@ const SlideMeetGamemasters: React.FC = () => {
         <GlassCard style={{ padding: "14px 24px" }}>
           <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
             {[
-              { time: "~18:08 CET", label: `${HOST.fullName ?? HOST.name} introduces the gamemasters`, icon: <MicIcon size={14} color={GD_ACCENT} /> },
-              { time: "~18:10 CET", label: `${GM_LABEL} deliver GameDay instructions`, icon: <GamepadIcon size={14} color={GD_GOLD} /> },
-              { time: "18:25 CET", label: "Team codes distributed at your venue", icon: <CheckCircleIcon size={14} color="#4ade80" /> },
+              { time: GM_INTRO_TIME, label: `${HOST.fullName ?? HOST.name} introduces the gamemasters`, icon: <MicIcon size={14} color={GD_ACCENT} /> },
+              { time: GM_INSTRUCTIONS_TIME, label: `${GM_LABEL} deliver GameDay instructions`, icon: <GamepadIcon size={14} color={GD_GOLD} /> },
+              { time: CODES_TIME, label: "Team codes distributed at your venue", icon: <CheckCircleIcon size={14} color="#4ade80" /> },
             ].map((item) => (
               <div key={item.time} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.7)" }}>
                 {item.icon}
@@ -652,7 +661,7 @@ const SlideAWSCommunity: React.FC = () => {
   const cards = [
     { icon: <HeartIcon size={32} color={GD_VIOLET} />, title: "Volunteers, not employees", body: "The AWS Community is made up of developers, architects, and cloud enthusiasts who are NOT employed by Amazon. They organize events and share knowledge purely out of passion." },
     { icon: <UsersIcon size={32} color={GD_PINK} />, title: "Local User Groups", body: "AWS User Groups are local communities in cities around the world. They hold regular meetups, workshops, and technical talks - driven entirely by volunteer leaders." },
-    { icon: <GlobeIcon size={32} color={GD_GOLD} />, title: "53 Groups Here Today", body: "Every group competing today is run by a volunteer leader. This event is the first time all these groups have ever competed together in a single event at the same time." },
+    { icon: <GlobeIcon size={32} color={GD_GOLD} />, title: `${USER_GROUPS.length} Groups Here Today`, body: "Every group competing today is run by a volunteer leader. This event is the first time all these groups have ever competed together in a single event at the same time." },
   ];
   const quoteE = useStagger(4, 8);
   return (
@@ -853,10 +862,10 @@ const SlideSchedule: React.FC = () => {
 
   const phases = [
     { time: "17:30", label: "Pre-Show Loop", desc: "This muted loop plays until the live stream begins", c: GD_ACCENT, audio: false, countdown: null },
-    { time: "17:55", label: "Audio Test", desc: "Test your audio setup - 5 minutes before the live stream starts", c: GD_VIOLET, audio: true, countdown: audioTestCountdown > 0 ? audioTestCountdown : null },
-    { time: "18:00", label: "Live Stream Begins", desc: `${HOST.fullName ?? HOST.name} · ${ORGANIZERS[1].name} & ${ORGANIZERS[0].name} · Special guest · ${GM_LABEL} - GameDay instructions`, c: GD_PINK, audio: true, countdown: sc },
-    { time: "18:30", label: "GameDay Starts!", desc: "2 hours of competitive AWS challenges - stream muted", c: GD_GOLD, audio: false, countdown: gc, hl: true },
-    { time: "20:30", label: "Closing Ceremony", desc: "Winners revealed globally - audio returns!", c: GD_ORANGE, audio: true, countdown: null },
+    { time: AUDIO_CHECK.split(" ")[0], label: "Audio Test", desc: "Test your audio setup - 5 minutes before the live stream starts", c: GD_VIOLET, audio: true, countdown: audioTestCountdown > 0 ? audioTestCountdown : null },
+    { time: STREAM_START_LABEL.split(" ")[0], label: "Live Stream Begins", desc: `${HOST.fullName ?? HOST.name} · ${ORGANIZERS[1].name} & ${ORGANIZERS[0].name} · Special guest · ${GM_LABEL} - GameDay instructions`, c: GD_PINK, audio: true, countdown: sc },
+    { time: GAME_START_LABEL.split(" ")[0], label: "GameDay Starts!", desc: "2 hours of competitive AWS challenges - stream muted", c: GD_GOLD, audio: false, countdown: gc, hl: true },
+    { time: GAME_END_LABEL.split(" ")[0], label: "Closing Ceremony", desc: "Winners revealed globally - audio returns!", c: GD_ORANGE, audio: true, countdown: null },
   ];
 
   return (
@@ -888,7 +897,7 @@ const SlideSchedule: React.FC = () => {
           );
         })}
       </div>
-      {(() => { const o = useStagger(6, 7); return <div style={{ opacity: o, marginTop: 12, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>Broadcast simultaneously to all 53 User Groups across Europe</div>; })()}
+      {(() => { const o = useStagger(6, 7); return <div style={{ opacity: o, marginTop: 12, fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>Broadcast simultaneously to all {USER_GROUPS.length} User Groups across Europe</div>; })()}
     </AbsoluteFill>
   );
 };
@@ -899,10 +908,10 @@ const SlideSchedule: React.FC = () => {
 const SlideHowItWorks: React.FC = () => {
   const steps = [
     { n: "1", icon: <UsersIcon size={24} color={GD_VIOLET} />, title: "Form your team", body: "Gather your team at your local venue before the stream. Your organizer will tell you the team size." },
-    { n: "2", icon: <VolumeIcon size={24} color={GD_PINK} />, title: "Watch the instructions", body: `At 18:00 CET the live stream explains all rules. ${GM_LABEL} cover everything at ~18:10 CET.` },
-    { n: "3", icon: <CheckCircleIcon size={24} color={GD_GOLD} />, title: "Get your team code", body: "At 18:25 CET your local UG leader gives your team an AWS access code - 5 minutes before the game starts." },
-    { n: "4", icon: <CodeIcon size={24} color={GD_ORANGE} />, title: "Compete for 2 hours", body: "Complete AWS challenges, earn points, and try to be the best team across all 53 cities." },
-    { n: "5", icon: <TrophyIcon size={24} color={GD_ACCENT} />, title: "Watch the closing", body: "At 20:30 CET the stream returns live. Global winners revealed. Stay and celebrate with everyone!" },
+    { n: "2", icon: <VolumeIcon size={24} color={GD_PINK} />, title: "Watch the instructions", body: `At ${STREAM_START_LABEL} the live stream explains all rules. ${GM_LABEL} cover everything at ${GM_INSTRUCTIONS_TIME}.` },
+    { n: "3", icon: <CheckCircleIcon size={24} color={GD_GOLD} />, title: "Get your team code", body: `At ${CODES_TIME} your local UG leader gives your team an AWS access code - 5 minutes before the game starts.` },
+    { n: "4", icon: <CodeIcon size={24} color={GD_ORANGE} />, title: "Compete for 2 hours", body: `Complete AWS challenges, earn points, and try to be the best team across all ${USER_GROUPS.length} cities.` },
+    { n: "5", icon: <TrophyIcon size={24} color={GD_ACCENT} />, title: "Watch the closing", body: `At ${GAME_END_LABEL} the stream returns live. Global winners revealed. Stay and celebrate with everyone!` },
   ];
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -933,14 +942,15 @@ const SlideAllOrganizers: React.FC = () => (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", maxWidth: 1140, marginBottom: 24 }}>
       {ORGANIZERS.map((p, i) => {
         const o = useStagger(i, 5);
-        const logo = p.userGroup ? findLogo(p.userGroup) : null;
+        const pUG = getOrganizerUserGroup(p);
+        const logo = pUG ? findLogo(pUG) : null;
         return (
           <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [14, 0])}px)`, display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_PURPLE}33`, borderRadius: 14, padding: "14px 18px", width: 350 }}>
             <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white" }}>{p.flag} {p.name}</div>
-              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ACCENT, marginTop: 2 }}>{p.role}</div>
-              <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.country}</div>
+              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ACCENT, marginTop: 2 }}>{getOrganizerRole(p)}</div>
+              <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.location}</div>
             </div>
             {logo && (
               <div style={{ width: 130, height: 75, borderRadius: 10, overflow: "hidden", flexShrink: 0, background: "rgba(255,255,255,0.05)" }}>
@@ -963,8 +973,8 @@ const SlideAllOrganizers: React.FC = () => (
             <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover", flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white" }}>{p.flag} {p.name}</div>
-              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ORANGE, marginTop: 2 }}>{p.role}</div>
-              <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.country}</div>
+              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ORANGE, marginTop: 2 }}>{getOrganizerRole(p)}</div>
+              <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.location}</div>
             </div>
           </div>
         );
@@ -979,11 +989,11 @@ const SlideAllOrganizers: React.FC = () => (
 const SlideGetReady: React.FC = () => {
   const items = [
     { icon: <UsersIcon size={20} color={GD_VIOLET} />, text: "Form your team locally before the stream starts" },
-    { icon: <CalendarIcon size={20} color={GD_PINK} />, text: "Be seated with audio ready 5 minutes before 18:00 CET", subtext: "Audio test at 17:55 CET (~30 sec) - make sure you can hear the stream host" },
+    { icon: <CalendarIcon size={20} color={GD_PINK} />, text: `Be seated with audio ready 5 minutes before ${STREAM_START_LABEL}`, subtext: `Audio test at ${AUDIO_CHECK} (~30 sec) - make sure you can hear the stream host` },
     { icon: <BroadcastIcon size={20} color={GD_ACCENT} />, text: `Watch the live stream carefully - the rules are explained live by ${GM_LABEL}` },
-    { icon: <CheckCircleIcon size={20} color={GD_ORANGE} />, text: "Your UG leader will distribute team codes at 18:25 CET (5 min before game)" },
+    { icon: <CheckCircleIcon size={20} color={GD_ORANGE} />, text: `Your UG leader will distribute team codes at ${CODES_TIME} (5 min before game)` },
     { icon: <GamepadIcon size={20} color={GD_ACCENT} />, text: "Gameplay runs for 2 hours - stream is muted during this time" },
-    { icon: <TrophyIcon size={20} color={GD_GOLD} />, text: "Stay in the stream - audio returns at 20:30 for the global winners reveal" },
+    { icon: <TrophyIcon size={20} color={GD_GOLD} />, text: `Stay in the stream - audio returns at ${GAME_END_LABEL} for the global winners reveal` },
     { icon: <HeartIcon size={20} color={GD_PINK} />, text: "After the ceremony your local UG continues with their own local schedule" },
   ];
   return (
@@ -1037,7 +1047,7 @@ const SlideAudioCheckCountdown: React.FC = () => {
           <VolumeIcon size={80} color={GD_GOLD} />
         </div>
         <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: GD_GOLD, letterSpacing: -1, marginTop: 12, textShadow: `0 0 40px ${GD_ORANGE}66` }}>AUDIO CHECK COMING UP</div>
-        <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.7)", fontWeight: 500, marginTop: 8 }}>{HOST.fullName ?? HOST.name} will speak live at 17:55 CET to test your audio</div>
+        <div style={{ fontSize: TYPOGRAPHY.body, color: "rgba(255,255,255,0.7)", fontWeight: 500, marginTop: 8 }}>{HOST.fullName ?? HOST.name} will speak live at {AUDIO_CHECK} to test your audio</div>
       </div>
 
       {/* Countdown to audio check */}
@@ -1066,7 +1076,7 @@ const SlideAudioCheckCountdown: React.FC = () => {
           { icon: <CheckCircleIcon size={18} color="#4ade80" />, text: "Make sure your venue audio is connected to this stream", c: "#4ade80" },
           { icon: <VolumeIcon size={18} color="#4ade80" />, text: `When the audio check starts, you should hear ${HOST.fullName ?? HOST.name} speaking`, c: "#4ade80" },
           { icon: <BookOpenIcon size={18} color={GD_GOLD} />, text: "If audio fails, use the backup video that the GameDay organizers shared", c: GD_GOLD },
-          { icon: <VolumeMuteIcon size={18} color={GD_ACCENT} />, text: "Stream is muted again during gameplay (18:30 - 20:30 CET)", c: GD_ACCENT },
+          { icon: <VolumeMuteIcon size={18} color={GD_ACCENT} />, text: `Stream is muted again during gameplay (${GAME_START_LABEL} - ${GAME_END_LABEL})`, c: GD_ACCENT },
         ].map((item, i) => {
           const io = useStagger(4 + i, 6);
           return (
@@ -1365,7 +1375,7 @@ const SlideFinalCountdown: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 const SlideStats: React.FC = () => {
   const stats = [
-    { v: "53", l: "User Groups", sub: "Cities across Europe", c: GD_GOLD },
+    { v: String(USER_GROUPS.length), l: "User Groups", sub: "Cities across Europe", c: GD_GOLD },
     { v: "23", l: "Countries", sub: "From Iceland to Turkey", c: GD_PINK },
     { v: "4", l: "Timezones", sub: "UTC+0 through UTC+3", c: GD_VIOLET },
     { v: "1st", l: "Edition", sub: "History being made today", c: GD_ORANGE },

@@ -24,7 +24,7 @@ import {
 } from "../../../components";
 import { GD_DARK, GD_ORANGE } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
-import { AWS_SUPPORTERS, ORGANIZERS } from "../../../../config/participants";
+import { AWS_SUPPORTERS, ORGANIZERS, getOrganizerRole } from "../../../../config/participants";
 
 const ALL_PEOPLE = [...ORGANIZERS, ...AWS_SUPPORTERS];
 import { EVENT_NAME } from "../../../../config/event";
@@ -174,7 +174,7 @@ export const GamemastersUpdate: React.FC<GamemastersUpdateProps> = ({
                       color: "rgba(255,255,255,0.45)",
                       lineHeight: 1.4,
                     }}>
-                      {gm.role}
+                      {getOrganizerRole(gm)}
                     </div>
                   </div>
                 </div>

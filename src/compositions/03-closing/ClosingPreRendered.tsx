@@ -26,7 +26,7 @@ import {
   TYPOGRAPHY,
 } from "../../design";
 import { formatTime } from "../../utils/timing";
-import { USER_GROUPS, ORGANIZERS, AWS_SUPPORTERS, type UserGroup } from "../../../config/participants";
+import { USER_GROUPS, ORGANIZERS, AWS_SUPPORTERS, type UserGroup, getOrganizerRole } from "../../../config/participants";
 import { EVENT_DATE, EVENT_NAME } from "../../../config/event";
 
 // Format EVENT_DATE ("2026-03-17") → "17 MARCH 2026"
@@ -367,11 +367,11 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                       {org.name}
                     </div>
                     <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, whiteSpace: "nowrap" }}>
-                      {org.role}
+                      {getOrganizerRole(org)}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 2 }}>
                       <span style={{ fontSize: 16 }}>{org.flag}</span>
-                      <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif" }}>{org.country}</span>
+                      <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif" }}>{org.location}</span>
                     </div>
                   </div>
                 </div>
@@ -427,10 +427,10 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                       {person.name}
                     </div>
                     <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, whiteSpace: "nowrap" }}>
-                      {person.role}
+                      {getOrganizerRole(person)}
                     </div>
                     <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif", marginTop: 2 }}>
-                      {person.country}
+                      {person.location}
                     </div>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { BackgroundLayer, HexGridOverlay, GlassCard, AudioBadge } from "../../../components";
 import { GD_DARK, GD_ACCENT } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
-import { EVENT_NAME } from "../../../../config/event";
+import { EVENT_NAME, HOST_LOCATION } from "../../../../config/event";
 
 export interface LocationShoutoutProps {
   city?: string;
@@ -11,9 +11,10 @@ export interface LocationShoutoutProps {
   flag?: string;
 }
 
+const [_hostCity, _hostCountry] = HOST_LOCATION.split(", ");
 const DEFAULT_PROPS: LocationShoutoutProps = {
-  city: "Vienna",
-  country: "Austria",
+  city: _hostCity,
+  country: _hostCountry,
   flag: "AT",
 };
 

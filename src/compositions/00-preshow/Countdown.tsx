@@ -31,6 +31,8 @@ import {
 import {
   STREAM_START_OFFSET_MINUTES as STREAM_START,
   GAME_START_OFFSET_MINUTES as GAME_START,
+  EVENT_EDITION,
+  EDITION_LABEL,
 } from "../../../config/event";
 
 // ── Audio Cue Banner Visibility ──
@@ -184,7 +186,7 @@ export const Countdown: React.FC<PreShowProps> = ({
             marginTop: 8,
           }}
         >
-          2026 · First Edition
+          {`${EVENT_EDITION} · ${EDITION_LABEL}`}
         </div>
       </div>
 

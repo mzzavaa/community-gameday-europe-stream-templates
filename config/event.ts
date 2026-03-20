@@ -46,3 +46,25 @@ export const SUPPORT_VIDEO_AVAILABLE = false;
 
 // ── Derived Frame Constants ──
 export const FRAMES_PER_MINUTE = 60 * STREAM_FPS; // 1800 frames per minute
+
+// ── Time Offset Helper (private) ──
+function timeOffset(base: string, minutes: number): string {
+  const [h, m] = base.split(":").map(Number);
+  const total = h * 60 + m + minutes;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
+// Derived time strings — computed from the offsets above so you never need to edit these
+export const STREAM_START    = `${STREAM_START_TIME} ${HOST_TIMEZONE}`;  // "18:00 CET"
+export const GAME_START      = `${timeOffset(EVENT_START_TIME, GAME_START_OFFSET_MINUTES)} ${HOST_TIMEZONE}`;  // "18:30 CET"
+export const GAME_END        = `${timeOffset(EVENT_START_TIME, GAME_END_OFFSET_MINUTES)} ${HOST_TIMEZONE}`;    // "20:30 CET"
+export const AUDIO_CHECK     = `${timeOffset(STREAM_START_TIME, -5)} ${HOST_TIMEZONE}`;   // "17:55 CET"
+export const GM_INTRO_TIME   = `~${timeOffset(STREAM_START_TIME, 8)} ${HOST_TIMEZONE}`;   // "~18:08 CET"
+export const GM_INSTRUCTIONS_TIME = `~${timeOffset(STREAM_START_TIME, 10)} ${HOST_TIMEZONE}`; // "~18:10 CET"
+export const CODES_TIME      = `${timeOffset(STREAM_START_TIME, 25)} ${HOST_TIMEZONE}`;   // "18:25 CET"
+
+// Event stats
+export const EDITION         = "1st";
+export const EDITION_LABEL   = "First Edition";
+export const GAMEPLAY_HOURS  = 2;
+export const TIMEZONE_COUNT  = 4;

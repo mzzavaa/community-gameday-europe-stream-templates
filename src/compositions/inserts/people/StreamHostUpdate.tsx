@@ -24,7 +24,7 @@ import {
 } from "../../../components";
 import { GD_DARK, GD_VIOLET } from "../../../design/colors";
 import { TYPOGRAPHY } from "../../../design/typography";
-import { ORGANIZERS, AWS_SUPPORTERS } from "../../../../config/participants";
+import { ORGANIZERS, AWS_SUPPORTERS, getOrganizerRole } from "../../../../config/participants";
 
 const ALL_PEOPLE = [...ORGANIZERS, ...AWS_SUPPORTERS];
 import { EVENT_NAME } from "../../../../config/event";
@@ -149,7 +149,7 @@ export const StreamHostUpdate: React.FC<StreamHostUpdateProps> = ({
                   letterSpacing: 1,
                   marginBottom: 28,
                 }}>
-                  {HOST.role}
+                  {HOST && getOrganizerRole(HOST)}
                 </div>
                 <div style={{
                   width: 60, height: 1,

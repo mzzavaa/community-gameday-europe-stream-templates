@@ -12,8 +12,8 @@ import {
   TYPOGRAPHY,
   springConfig,
 } from "../../design";
-import { ORGANIZERS, AWS_SUPPORTERS } from "../../../config/participants";
-import { EVENT_NAME } from "../../../config/event";
+import { ORGANIZERS, AWS_SUPPORTERS, getOrganizerRole } from "../../../config/participants";
+import { EVENT_NAME, EVENT_DATE } from "../../../config/event";
 
 // ── SVG Icons ──
 const MapPinIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color = GD_ORANGE }) => (
@@ -98,10 +98,10 @@ const OrganizerScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "#ffffff", fontFamily: F }}>{org.name}</div>
-                <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: F, marginTop: 3, whiteSpace: "nowrap" }}>{org.role}</div>
+                <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: F, marginTop: 3, whiteSpace: "nowrap" }}>{getOrganizerRole(org)}</div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 2 }}>
                   <span style={{ fontSize: 16 }}>{org.flag}</span>
-                  <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: F }}>{org.country}</span>
+                  <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: F }}>{org.location}</span>
                 </div>
               </div>
             </div>
@@ -155,8 +155,8 @@ const AWSScene: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "#ffffff", fontFamily: F }}>{person.name}</div>
-                <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: F, marginTop: 3, whiteSpace: "nowrap" }}>{person.role}</div>
-                <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: F, marginTop: 2 }}>{person.country}</div>
+                <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: F, marginTop: 3, whiteSpace: "nowrap" }}>{getOrganizerRole(person)}</div>
+                <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: F, marginTop: 2 }}>{person.location}</div>
               </div>
             </div>
           );
