@@ -1,14 +1,17 @@
 /**
  * generate-map.ts
  *
- * Generates public/assets/europe-map.png from the UG locations in
- * config/participants.ts using OpenStreetMap/CartoDB tiles + Nominatim geocoding.
- * Each UG city is marked with its country flag emoji (via Twemoji PNGs).
+ * Generates public/assets/europe-map.png from UG locations in participants.ts.
+ * Each city gets a flag emoji marker (Twemoji PNG) composited onto a white circle
+ * so flags are clearly visible on the dark CartoDB map tiles.
+ *
+ * Also writes config/geo-extremes.ts with the westernmost/easternmost/
+ * northernmost/southernmost cities so compositions can use dynamic descriptions.
  *
  * Usage (from stream root):
  *   npx tsx scripts/generate-map.ts
  *
- * Dependencies (in devDependencies): staticmaps, tsx
+ * Dependencies (devDependencies): staticmaps, sharp, tsx
  */
 
 import path from "node:path";
@@ -16,90 +19,140 @@ import fs from "node:fs";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import StaticMaps from "staticmaps";
+import sharp from "sharp";
 import { USER_GROUPS } from "../config/participants.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUT_PATH   = path.join(__dirname, "../public/assets/europe-map.png");
+const __dirname  = path.dirname(fileURLToPath(import.meta.url));
+const OUT_MAP    = path.join(__dirname, "../public/assets/europe-map.png");
+const OUT_GEOEXT = path.join(__dirname, "../config/geo-extremes.ts");
 
-// ── Config ────────────────────────────────────────────────────────────────────
+// ── Map config ────────────────────────────────────────────────────────────────
 const MAP_WIDTH  = 1920;
 const MAP_HEIGHT = 1080;
-const TILE_URL   = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-const FLAG_SIZE  = 28; // rendered px size of each flag marker
+// CartoDB Voyager — cleaner labels, darker land, still styled
+const TILE_URL   = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 
-// ── Flag PNG download via Twemoji ─────────────────────────────────────────────
-// Converts a flag emoji (e.g. 🇧🇪) to its Twemoji CDN filename (e.g. 1f1e7-1f1ea.png)
-function flagToTwemojiName(flag: string): string {
-  return [...flag]
-    .map((ch) => ch.codePointAt(0)!.toString(16).toLowerCase())
-    .join("-") + ".png";
-}
+// Marker: flag PNG composited onto a white circle
+const MARKER_SIZE   = 36; // outer circle diameter (px on the 1920×1080 map)
+const FLAG_SIZE     = 26; // flag PNG inside the circle
 
+// ── Twemoji flag download ──────────────────────────────────────────────────────
 const FLAG_CACHE_DIR = path.join(os.tmpdir(), "gd-flag-cache");
 fs.mkdirSync(FLAG_CACHE_DIR, { recursive: true });
 
-async function getFlagPng(flag: string): Promise<string | null> {
-  const name      = flagToTwemojiName(flag);
-  const cachePath = path.join(FLAG_CACHE_DIR, name);
-  if (fs.existsSync(cachePath)) return cachePath;
+function flagToTwemojiName(flag: string): string {
+  return [...flag].map((ch) => ch.codePointAt(0)!.toString(16)).join("-") + ".png";
+}
 
+async function downloadFlag(flag: string): Promise<Buffer | null> {
+  const name  = flagToTwemojiName(flag);
+  const cache = path.join(FLAG_CACHE_DIR, name);
+  if (fs.existsSync(cache)) return fs.readFileSync(cache);
   const url = `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${name}`;
   try {
     const res = await fetch(url, { headers: { "User-Agent": "community-gameday-stream-map/1.0" } });
-    if (!res.ok) { console.warn(`  ⚠ flag PNG not found for ${flag} (${name})`); return null; }
-    fs.writeFileSync(cachePath, Buffer.from(await res.arrayBuffer()));
-    return cachePath;
-  } catch {
-    return null;
-  }
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    fs.writeFileSync(cache, buf);
+    return buf;
+  } catch { return null; }
 }
 
-// ── Nominatim geocoding ───────────────────────────────────────────────────────
-async function geocode(location: string): Promise<[number, number] | null> {
+/** Composite flag onto a white circle to make it pop on dark map tiles. */
+async function buildMarker(flag: string): Promise<string | null> {
+  const flagBuf = await downloadFlag(flag);
+  if (!flagBuf) return null;
+
+  const markerPath = path.join(FLAG_CACHE_DIR, `marker-${flagToTwemojiName(flag)}`);
+  if (fs.existsSync(markerPath)) return markerPath;
+
+  // Resize flag
+  const resizedFlag = await sharp(flagBuf).resize(FLAG_SIZE, FLAG_SIZE).toBuffer();
+
+  // White circle background (SVG rendered by sharp)
+  const circleSvg = Buffer.from(
+    `<svg width="${MARKER_SIZE}" height="${MARKER_SIZE}" xmlns="http://www.w3.org/2000/svg">` +
+    `<circle cx="${MARKER_SIZE / 2}" cy="${MARKER_SIZE / 2}" r="${MARKER_SIZE / 2 - 1}" ` +
+    `fill="white" stroke="#999" stroke-width="0.5"/>` +
+    `</svg>`,
+  );
+
+  const offset = Math.round((MARKER_SIZE - FLAG_SIZE) / 2);
+  await sharp(circleSvg)
+    .composite([{ input: resizedFlag, left: offset, top: offset }])
+    .png()
+    .toFile(markerPath);
+
+  return markerPath;
+}
+
+// ── Nominatim geocoding ────────────────────────────────────────────────────────
+async function geocode(location: string): Promise<{ lon: number; lat: number } | null> {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`;
   try {
     const res  = await fetch(url, { headers: { "User-Agent": "community-gameday-stream-map/1.0" } });
     const data = (await res.json()) as { lat: string; lon: string }[];
     if (!data.length) return null;
-    return [parseFloat(data[0].lon), parseFloat(data[0].lat)];
-  } catch {
-    return null;
-  }
+    return { lon: parseFloat(data[0].lon), lat: parseFloat(data[0].lat) };
+  } catch { return null; }
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  // Build list: unique location+flag pairs (one entry per UG)
-  const entries = USER_GROUPS.map((g) => ({ location: g.location, flag: g.flag }));
-  console.log(`Geocoding ${entries.length} UG locations...`);
+  type Entry = { location: string; flag: string; lon: number; lat: number };
+  const entries: Entry[] = [];
 
-  type MarkerEntry = { coord: [number, number]; flag: string };
-  const markers: MarkerEntry[] = [];
-
-  for (const { location, flag } of entries) {
-    await new Promise((r) => setTimeout(r, 1100)); // Nominatim: 1 req/s
-    const coord = await geocode(location);
+  console.log(`Geocoding ${USER_GROUPS.length} UG locations...`);
+  for (const g of USER_GROUPS) {
+    await new Promise((r) => setTimeout(r, 1100));
+    const coord = await geocode(g.location);
     if (coord) {
-      markers.push({ coord, flag });
-      console.log(`  ✓ ${flag}  ${location}`);
+      entries.push({ location: g.location, flag: g.flag, ...coord });
+      console.log(`  ✓ ${g.flag}  ${g.location}`);
     } else {
-      console.warn(`  ✗ ${location} — geocode failed`);
+      console.warn(`  ✗ ${g.location} — geocode failed`);
     }
   }
+  if (!entries.length) { console.error("No entries — aborting."); process.exit(1); }
 
-  if (!markers.length) { console.error("No markers — aborting."); process.exit(1); }
+  // ── Compute geographic extremes ──────────────────────────────────────────
+  const west  = entries.reduce((a, b) => b.lon < a.lon ? b : a);
+  const east  = entries.reduce((a, b) => b.lon > a.lon ? b : a);
+  const north = entries.reduce((a, b) => b.lat > a.lat ? b : a);
+  const south = entries.reduce((a, b) => b.lat < a.lat ? b : a);
 
-  // Download flag PNGs (cached)
-  console.log("\nFetching flag PNGs...");
-  const flagPaths: Map<string, string | null> = new Map();
-  const uniqueFlags = Array.from(new Set(markers.map((m) => m.flag)));
-  for (const flag of uniqueFlags) {
-    if (!flagPaths.has(flag)) {
-      flagPaths.set(flag, await getFlagPng(flag));
-    }
+  // Extract just the country name (second part after ", ")
+  const country = (loc: string) => loc.split(", ").slice(1).join(", ") || loc.split(", ")[0];
+
+  console.log(`\nGeographic extremes:`);
+  console.log(`  West:  ${west.location}  (lon ${west.lon.toFixed(2)})`);
+  console.log(`  East:  ${east.location}  (lon ${east.lon.toFixed(2)})`);
+  console.log(`  North: ${north.location} (lat ${north.lat.toFixed(2)})`);
+  console.log(`  South: ${south.location} (lat ${south.lat.toFixed(2)})`);
+
+  // Write geo-extremes.ts for use by stats.ts in Remotion compositions
+  const geoContent =
+    `// AUTO-GENERATED by scripts/generate-map.ts — do not edit manually\n` +
+    `export const GEO_EXTREMES = {\n` +
+    `  west:  "${west.location}",\n` +
+    `  east:  "${east.location}",\n` +
+    `  north: "${north.location}",\n` +
+    `  south: "${south.location}",\n` +
+    `  westCountry:  "${country(west.location)}",\n` +
+    `  eastCountry:  "${country(east.location)}",\n` +
+    `  northCountry: "${country(north.location)}",\n` +
+    `  southCountry: "${country(south.location)}",\n` +
+    `} as const;\n`;
+  fs.writeFileSync(OUT_GEOEXT, geoContent);
+  console.log(`\n✅ Wrote ${OUT_GEOEXT}`);
+
+  // ── Build map ────────────────────────────────────────────────────────────
+  console.log("\nBuilding markers...");
+  const markerCache = new Map<string, string | null>();
+  for (const flag of new Set(entries.map((e) => e.flag))) {
+    markerCache.set(flag, await buildMarker(flag));
   }
 
-  // Build map
   const map = new StaticMaps({
     width: MAP_WIDTH, height: MAP_HEIGHT,
     tileUrl: TILE_URL,
@@ -107,22 +160,22 @@ async function main() {
     tileSize: 256,
   });
 
-  for (const { coord, flag } of markers) {
-    const imgPath = flagPaths.get(flag);
-    if (!imgPath) continue;
+  for (const e of entries) {
+    const img = markerCache.get(e.flag);
+    if (!img) continue;
     map.addMarker({
-      coord,
-      img:     imgPath,
-      width:   FLAG_SIZE,
-      height:  FLAG_SIZE,
-      offsetX: Math.round(FLAG_SIZE / 2),
-      offsetY: Math.round(FLAG_SIZE / 2),
+      coord:   [e.lon, e.lat],
+      img,
+      width:   MARKER_SIZE,
+      height:  MARKER_SIZE,
+      offsetX: Math.round(MARKER_SIZE / 2),
+      offsetY: Math.round(MARKER_SIZE / 2),
     });
   }
 
   await map.render();
-  await map.image.save(OUT_PATH);
-  console.log(`\n✅ Map saved → ${OUT_PATH}  (${markers.length} flags)`);
+  await map.image.save(OUT_MAP);
+  console.log(`✅ Map saved → ${OUT_MAP}  (${entries.length} markers)`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -229,7 +229,10 @@ export type StatType =
   | "edition"
   | "gameplay-hours";
 
-export const DISPLAY_STATS: StatType[] = [
+/** Each entry is either a plain type or a type + sub-label override. */
+export type StatConfig = StatType | { type: StatType; sub: string };
+
+export const DISPLAY_STATS: StatConfig[] = [
   "user-groups",
   "countries",
   "timezones",

@@ -2605,7 +2605,9 @@ export const MainEvent: React.FC = () => {
     "gameplay-hours": { icon: <ClockIcon s={32} c={GD_ORANGE}  />, color: GD_ORANGE  },
   };
   const STATS: StatDef[] = resolveStats(DISPLAY_STATS).slice(0, 4).map((s, i) => {
-    const iconMeta = STAT_ICON_MAP[DISPLAY_STATS[i]] ?? { icon: <StarIcon s={32} c={GD_GOLD} />, color: GD_GOLD };
+    const cfg      = DISPLAY_STATS[i];
+    const statType = typeof cfg === "string" ? cfg : cfg.type;
+    const iconMeta = STAT_ICON_MAP[statType] ?? { icon: <StarIcon s={32} c={GD_GOLD} />, color: GD_GOLD };
     return {
       value: s.v, label: s.l, sub: s.sub,
       color: iconMeta.color, icon: iconMeta.icon,
