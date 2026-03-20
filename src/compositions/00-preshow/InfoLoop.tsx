@@ -502,7 +502,7 @@ const SlideMeetHost: React.FC = () => {
         <div style={{ flex: 1 }}>
           <SectionLabel icon={<MicIcon size={20} color={GD_ACCENT} />} text="Your Stream Host" />
           <div style={{ opacity: textE, transform: `translateX(${interpolate(textE, [0, 1], [22, 0])}px)`, marginBottom: 14 }}>
-            <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white", lineHeight: 1 }}>{HOST.fullName}</div>
+            <div style={{ fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white", lineHeight: 1 }}>{HOST.name}</div>
             <div style={{ fontSize: TYPOGRAPHY.h6, color: GD_ACCENT, marginTop: 8, fontWeight: 600 }}>Stream Host{HOST.title ? ` · ${HOST.title}` : ""}</div>
           </div>
           <GlassCard style={{ padding: "14px 22px", borderLeft: `4px solid ${GD_VIOLET}` }}>
@@ -1145,7 +1145,7 @@ const SlideLiveAudioCheck: React.FC = () => {
           <div style={{ fontSize: TYPOGRAPHY.label, color: GD_ORANGE, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase" as const, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
             <BroadcastIcon size={14} color={GD_ORANGE} /> Live Audio
           </div>
-          <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>{HOST.fullName}</div>
+          <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>{HOST.name}</div>
           <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: GD_ACCENT, marginTop: 2 }}>Stream Host</div>
         </div>
       </div>
@@ -1455,7 +1455,7 @@ type Section = { key: string; name: string; dur: number; el: React.ReactNode };
 const CONTENT_SLIDES: { key: string; name: string; el: React.ReactNode }[] = [
   { key: "hero", name: "Hero + Countdown", el: <SlideHero /> },
   { key: "whats-happening", name: "What's Happening?", el: <SlideWhatsHappening /> },
-  { key: "meet-linda", name: `Meet ${HOST.fullName}`, el: <SlideMeetHost /> },
+  { key: "meet-linda", name: `Meet ${HOST.name}`, el: <SlideMeetHost /> },
   { key: "meet-anda-jerome", name: `Meet ${ORGANIZERS[1].name} & ${ORGANIZERS[0].name}`, el: <SlideMeetCoOrganizers /> },
   { key: "meet-gamemasters", name: `Meet ${GM_LABEL}`, el: <SlideMeetGamemasters /> },
   { key: "aws-community", name: "What is the AWS Community?", el: <SlideAWSCommunity /> },

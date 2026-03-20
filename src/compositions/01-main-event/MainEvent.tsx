@@ -235,13 +235,13 @@ const SEGMENTS: ScheduleSegment[] = [
 ];
 
 const CHAPTERS: ScheduleSegment[] = [
-  { label: `${HOST.name}  - Welcome`,           startFrame: 0,     endFrame: 1799,  speakers: HOST.fullName },
+  { label: `${HOST.name}  - Welcome`,           startFrame: 0,     endFrame: 1799,  speakers: HOST.name },
   { label: "Jerome & Anda",                    startFrame: 1800,  endFrame: 9299,  speakers: "Jerome & Anda" },
-  { label: `${HOST.name}  - Transition`,        startFrame: 9300,  endFrame: 10799, speakers: HOST.fullName },
-  { label: `${PRESENTER.name}  - Support Process`, startFrame: 10800, endFrame: 13379, speakers: PRESENTER.fullName },
-  { label: `${HOST.name}  - Intro Guest`,       startFrame: 13380, endFrame: 15179, speakers: HOST.fullName },
+  { label: `${HOST.name}  - Transition`,        startFrame: 9300,  endFrame: 10799, speakers: HOST.name },
+  { label: `${PRESENTER.name}  - Support Process`, startFrame: 10800, endFrame: 13379, speakers: PRESENTER.name },
+  { label: `${HOST.name}  - Intro Guest`,       startFrame: 13380, endFrame: 15179, speakers: HOST.name },
   { label: "Special Guest",                    startFrame: 15180, endFrame: 23399 },
-  { label: `${HOST.name}  - Intro Gamemasters`, startFrame: 23400, endFrame: 25199, speakers: HOST.fullName },
+  { label: `${HOST.name}  - Intro Gamemasters`, startFrame: 23400, endFrame: 25199, speakers: HOST.name },
   { label: "GameDay Rules & Scoring",   startFrame: 25200, endFrame: 32399, speakers: GM_LABEL },
   { label: "Challenge Walkthrough",     startFrame: 32400, endFrame: 39599, speakers: GM_LABEL },
   { label: "Tips & Final Prep",         startFrame: 39600, endFrame: 44999, speakers: GM_LABEL },
@@ -685,7 +685,7 @@ const HostIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps })
                   fontSize: TYPOGRAPHY.h3, fontWeight: 900, color: "white", fontFamily: FF,
                   lineHeight: 1.1, marginBottom: 12,
                 }}>
-                  {HOST.fullName}
+                  {HOST.name}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 24 }}>
                   {HOST.title && <div style={{
@@ -808,7 +808,7 @@ const HostCard: React.FC<{ frame: number }> = ({ frame }) => {
             <MicIcon s={10} c={GD_ACCENT} /> Stream Host
           </div>
           <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white", fontFamily: FF }}>
-            {HOST.fullName}
+            {HOST.name}
           </div>
           <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", fontFamily: FF }}>
             {HOST.role}
@@ -850,7 +850,7 @@ const SpeechBubble: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) 
             fontSize: TYPOGRAPHY.caption, fontWeight: 700, color: GD_ACCENT,
             letterSpacing: 3, textTransform: "uppercase" as const, fontFamily: FF,
           }}>
-            {HOST.fullName}  - Stream Host
+            {HOST.name}  - Stream Host
           </div>
         </div>
         <div style={{
@@ -1564,7 +1564,7 @@ const SpeakerIndicator: React.FC<{ frame: number; fps: number }> = ({ frame, fps
   const speaker = chapter?.speakers;
   if (!speaker) return null;
   // HostCard already handles Linda with face + pulsing rings  -  skip duplicate
-  if (speaker === HOST.fullName) return null;
+  if (speaker === HOST.name) return null;
 
   const entry = spring({ frame: frame - S.SPEAKER_IN, fps, config: springConfig.entry });
   const pulse = interpolate(frame % 50, [0, 12, 25, 37, 50], [0.4, 1, 0.4, 0.9, 0.4], { extrapolateRight: "clamp" });
@@ -1697,7 +1697,7 @@ const SupportPresenterIntroCard: React.FC<{ frame: number; fps: number }> = ({ f
                   fontSize: TYPOGRAPHY.h5, fontWeight: 900, color: "white",
                   fontFamily: FF, lineHeight: 1.1, marginBottom: 8,
                 }}>
-                  {PRESENTER.fullName}
+                  {PRESENTER.name}
                 </div>
                 <div style={{
                   fontSize: TYPOGRAPHY.h6, fontWeight: 600,
@@ -1829,7 +1829,7 @@ const SupportPresenterMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }
         lineHeight: 1.1,
         whiteSpace: "nowrap",
       }}>
-        {PRESENTER.fullName}
+        {PRESENTER.name}
       </div>
 
       {/* ── Flying UG name ── */}
@@ -1955,7 +1955,7 @@ const SupportVideoBody: React.FC = () => {
                 fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "white",
                 fontFamily: FF, lineHeight: 1.1,
               }}>
-                {PRESENTER.fullName}
+                {PRESENTER.name}
               </div>
               <div style={{
                 fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)",
