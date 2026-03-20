@@ -29,12 +29,12 @@ const OUT_GEOEXT = path.join(__dirname, "../config/geo-extremes.ts");
 // ── Map config ────────────────────────────────────────────────────────────────
 const MAP_WIDTH  = 1920;
 const MAP_HEIGHT = 1080;
-// CartoDB Voyager — cleaner labels, darker land, still styled
+// CartoDB Voyager — light tiles matching the original Leaflet map look
 const TILE_URL   = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 
-// Marker: flag PNG composited onto a white circle
-const MARKER_SIZE   = 36; // outer circle diameter (px on the 1920×1080 map)
-const FLAG_SIZE     = 26; // flag PNG inside the circle
+// Marker: flag PNG composited onto an orange circle (matching original style)
+const MARKER_SIZE   = 42; // outer circle diameter (px on the 1920×1080 map)
+const FLAG_SIZE     = 28; // flag PNG inside the circle
 
 // ── Twemoji flag download ──────────────────────────────────────────────────────
 const FLAG_CACHE_DIR = path.join(os.tmpdir(), "gd-flag-cache");
@@ -58,7 +58,7 @@ async function downloadFlag(flag: string): Promise<Buffer | null> {
   } catch { return null; }
 }
 
-/** Composite flag onto a white circle to make it pop on dark map tiles. */
+/** Flag composited onto an orange circle with a thick white border. */
 async function buildMarker(flag: string): Promise<string | null> {
   const flagBuf = await downloadFlag(flag);
   if (!flagBuf) return null;
@@ -66,14 +66,14 @@ async function buildMarker(flag: string): Promise<string | null> {
   const markerPath = path.join(FLAG_CACHE_DIR, `marker-${flagToTwemojiName(flag)}`);
   if (fs.existsSync(markerPath)) return markerPath;
 
-  // Resize flag
+  // Resize flag to fit inside the circle
   const resizedFlag = await sharp(flagBuf).resize(FLAG_SIZE, FLAG_SIZE).toBuffer();
 
-  // White circle background (SVG rendered by sharp)
+  // Orange circle with thick white border
   const circleSvg = Buffer.from(
     `<svg width="${MARKER_SIZE}" height="${MARKER_SIZE}" xmlns="http://www.w3.org/2000/svg">` +
     `<circle cx="${MARKER_SIZE / 2}" cy="${MARKER_SIZE / 2}" r="${MARKER_SIZE / 2 - 1}" ` +
-    `fill="white" stroke="#999" stroke-width="0.5"/>` +
+    `fill="#F5A623" stroke="white" stroke-width="4"/>` +
     `</svg>`,
   );
 
