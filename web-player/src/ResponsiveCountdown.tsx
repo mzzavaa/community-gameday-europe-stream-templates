@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GD_DARK, GD_PURPLE, GD_VIOLET, GD_ACCENT, GD_ORANGE, GD_GOLD } from "@compositions/src/design/colors";
+import { USER_GROUPS, COUNTRIES } from "@compositions/config/participants";
 import {
   AudioIcon, MutedIcon, GamepadIcon, CalendarIcon,
   CheckCircleIcon, MonitorIcon, ClockIcon, UsersIcon,
@@ -119,7 +120,7 @@ const MobileCountdown: React.FC<Props> = ({ eventDate, milestones }) => {
               <div style={{ fontSize: 13, color: GD_ACCENT, marginTop: 12, opacity: 0.85 }}>2 hours of competitive cloud gaming</div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 4 }}>
                 <GlobeIcon size={12} color={DC} />
-                <span style={{ fontSize: 12, color: DC }}>53+ User Groups · 20+ Countries · 4+ Timezones</span>
+                <span style={{ fontSize: 12, color: DC }}>{USER_GROUPS.length}+ User Groups · {COUNTRIES.length}+ Countries · 4+ Timezones</span>
               </div>
             </>
           )}
@@ -263,7 +264,7 @@ const DesktopCountdown: React.FC<Props> = ({ eventDate, milestones }) => {
               <div style={{ fontSize: 17, color: GD_ACCENT, marginTop: 18, opacity: 0.85 }}>2 hours of competitive cloud gaming</div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 6 }}>
                 <GlobeIcon size={16} color={DC} />
-                <span style={{ fontSize: 15, color: DC }}>53+ User Groups across 20+ Countries in 4+ Timezones</span>
+                <span style={{ fontSize: 15, color: DC }}>{USER_GROUPS.length}+ User Groups across {COUNTRIES.length}+ Countries in 4+ Timezones</span>
               </div>
             </>
           )}

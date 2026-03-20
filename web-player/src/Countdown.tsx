@@ -4,6 +4,7 @@ import { GD_DARK, GD_PURPLE, GD_VIOLET, GD_ACCENT, GD_ORANGE, GD_GOLD } from "@c
 import { FONT_FAMILY } from "@compositions/src/design/typography";
 import { BackgroundLayer, HexGridOverlay } from "@compositions/src/components";
 import { AudioIcon, MutedIcon, GamepadIcon, CalendarIcon, CheckCircleIcon, MonitorIcon, ClockIcon, UsersIcon, GlobeIcon, ChairIcon, CodeIcon } from "./icons";
+import { USER_GROUPS, COUNTRIES } from "@compositions/config/participants";
 
 const FONT = FONT_FAMILY;
 const LOGO = staticFile("assets/logos/gameday-logo-white.png");
@@ -74,7 +75,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <GlobeIcon size={16} color={DESC_COLOR} />
-                <span style={{ fontSize: 15, color: DESC_COLOR }}>53+ User Groups · 20+ Countries · 4+ Timezones</span>
+                <span style={{ fontSize: 15, color: DESC_COLOR }}>{USER_GROUPS.length}+ User Groups · {COUNTRIES.length}+ Countries · 4+ Timezones</span>
               </div>
             </>
           ) : (
@@ -97,7 +98,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
               <div style={{ fontSize: 17, color: GD_ACCENT, marginTop: 18, opacity: 0.85 }}>2 hours of competitive cloud gaming</div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 6 }}>
                 <GlobeIcon size={16} color={DESC_COLOR} />
-                <span style={{ fontSize: 15, color: DESC_COLOR }}>53+ User Groups across 20+ Countries in 4+ Timezones</span>
+                <span style={{ fontSize: 15, color: DESC_COLOR }}>{USER_GROUPS.length}+ User Groups across {COUNTRIES.length}+ Countries in 4+ Timezones</span>
               </div>
             </>
           )}

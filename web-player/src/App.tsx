@@ -11,6 +11,8 @@ import {
   TIMEZONE,
   COMPOSITIONS,
 } from "./schedule";
+import { USER_GROUPS, COUNTRIES } from "@compositions/config/participants";
+import { EVENT_NAME } from "@compositions/config/event";
 
 type SegmentId = "preshow" | "mainevent" | "gameplay" | "closing" | "end" | "waiting";
 
@@ -202,13 +204,13 @@ export const App: React.FC = () => {
       <div style={screenStyle}>
         <img src={`${import.meta.env.BASE_URL}assets/aws-community-logo.png`} style={{ height: 80, marginBottom: 32, opacity: 0.9 }} />
         <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: "#8b5cf6", marginBottom: 16 }}>
-          AWS Community GameDay Europe · March 17, 2026
+          {EVENT_NAME} · {EVENT_DATE}
         </div>
         <div style={{ fontSize: 48, fontWeight: 800, color: "#fbbf24", marginBottom: 12, textAlign: "center", lineHeight: 1.1 }}>
           That's a wrap.
         </div>
         <div style={{ fontSize: 18, color: "rgba(255,255,255,0.65)", maxWidth: 480, textAlign: "center", lineHeight: 1.6 }}>
-          Thank you to 53+ user groups across 20+ countries for competing. See you at the next edition.
+          Thank you to {USER_GROUPS.length}+ user groups across {COUNTRIES.length}+ countries for competing. See you at the next edition.
         </div>
         {showControls && <Controls active={active} override={override} onOverride={handleOverride} onAuto={handleAutoMode} />}
       </div>
