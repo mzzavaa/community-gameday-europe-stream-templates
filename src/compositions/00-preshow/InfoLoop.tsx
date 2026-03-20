@@ -56,9 +56,12 @@ import {
 } from "../../../config/event";
 import { USER_GROUPS, ORGANIZERS, AWS_SUPPORTERS } from "../../../config/participants";
 
-const ALL_PEOPLE = [...ORGANIZERS, ...AWS_SUPPORTERS];
-const HOST       = ALL_PEOPLE.find((p) => p.streamRole === "host")!;
-const GM_LABEL   = ALL_PEOPLE.filter((p) => p.streamRole === "gamemaster").map((p) => p.name).join(" & ");
+const ALL_PEOPLE    = [...ORGANIZERS, ...AWS_SUPPORTERS];
+const HOST          = ALL_PEOPLE.find((p) => p.streamRole === "host")!;
+const CO_ORGANIZERS = ALL_PEOPLE.filter((p) => p.streamRole === "co-organizer");
+const CO_ORG_LABEL  = CO_ORGANIZERS.map((p) => p.name).join(" & ");
+const GAMEMASTERS   = ALL_PEOPLE.filter((p) => p.streamRole === "gamemaster");
+const GM_LABEL      = GAMEMASTERS.map((p) => p.name).join(" & ");
 
 // ─── Derived event display strings ────────────────────────────────────────────
 const [_ey, _em, _ed] = EVENT_DATE.split("-").map(Number);
@@ -524,17 +527,19 @@ const SlideMeetHost: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SLIDE 4 - Meet Anda & Jerome (OrganizerSection-inspired)
 // ═══════════════════════════════════════════════════════════════════════════════
+const CO_ORG_COLORS = [GD_PINK, GD_VIOLET, GD_ORANGE, GD_GOLD];
+
 const SlideMeetCoOrganizers: React.FC = () => {
-  const jerome = ORGANIZERS.find((p) => p.name === "Jerome")!;
-  const anda = ORGANIZERS.find((p) => p.name === "Anda")!;
   const headingE = useEntry(0);
   const cardE = useStagger(2, 8);
   const noteE = useStagger(8, 8);
 
-  const people = [
-    { person: anda, c: GD_PINK, logo: findLogo("AWS User Group Geneva") ?? findLogo("AWS Swiss User Group-Geneva"), desc: "AWS User Group Leader and initiator of this GameDay. Anda had the original vision for a pan-European AWS community event and brought together volunteer organizers from 53 User Groups across the continent." },
-    { person: jerome, c: GD_VIOLET, logo: findLogo("AWS User Group Belgium"), desc: "AWS User Group Leader and co-founder of this initiative. Jerome co-architected the event structure, competition framework, and built the network of 53 User Groups across 23 countries." },
-  ];
+  const people = CO_ORGANIZERS.map((person, i) => ({
+    person,
+    c: CO_ORG_COLORS[i % CO_ORG_COLORS.length],
+    logo: findLogo(person.role),
+    desc: person.bio?.[0] ?? "",
+  }));
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -542,7 +547,7 @@ const SlideMeetCoOrganizers: React.FC = () => {
         <div style={{ fontSize: TYPOGRAPHY.label, fontWeight: 700, color: GD_ACCENT, textTransform: "uppercase", letterSpacing: 4, marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <UsersIcon size={14} color={GD_ACCENT} /> The People Behind This Event
         </div>
-        <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>Meet {anda.name} &amp; {jerome.name}</div>
+        <div style={{ fontSize: TYPOGRAPHY.h4, fontWeight: 900, color: "white" }}>Meet {CO_ORG_LABEL}</div>
       </div>
 
       <div style={{ display: "flex", gap: 24, width: "100%", maxWidth: 1060, marginBottom: 16 }}>
@@ -572,7 +577,7 @@ const SlideMeetCoOrganizers: React.FC = () => {
 
       <div style={{ opacity: noteE, transform: `translateY(${interpolate(noteE, [0, 1], [12, 0])}px)`, width: "100%", maxWidth: 1060, background: `${GD_PURPLE}22`, border: `1px solid ${GD_PURPLE}44`, borderRadius: 14, padding: "12px 24px", fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.5)", textAlign: "center", lineHeight: 1.6 }}>
         <HeartIcon size={14} color={GD_ACCENT} style={{ display: "inline", marginRight: 6 }} />
-        <strong style={{ color: GD_ACCENT }}>None of this is their job.</strong> Anda and Jerome are AWS User Group Leaders who organize events and build things for the AWS community in their free time, just like so many others. They will share the story behind this GameDay live on stream.
+        <strong style={{ color: GD_ACCENT }}>None of this is their job.</strong> {CO_ORG_LABEL} are AWS User Group Leaders who organize events and build things for the AWS community in their free time, just like so many others. They will share the story behind this GameDay live on stream.
       </div>
     </AbsoluteFill>
   );
@@ -581,17 +586,18 @@ const SlideMeetCoOrganizers: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SLIDE 5 - Meet the GameDay Instructors (Arnaud & Loïc)
 // ═══════════════════════════════════════════════════════════════════════════════
+const GM_COLORS = [GD_ORANGE, GD_GOLD, GD_VIOLET, GD_PINK];
+
 const SlideMeetGamemasters: React.FC = () => {
-  const arnaud = AWS_SUPPORTERS.find((p) => p.name === "Arnaud")!;
-  const loic = AWS_SUPPORTERS.find((p) => p.name === "Loïc")!;
   const headingE = useEntry(0);
   const cardE = useStagger(2, 8);
   const noteE = useStagger(8, 8);
 
-  const people = [
-    { person: arnaud, c: GD_ORANGE, desc: "Sr. Developer Advocate at AWS. Arnaud will deliver the official GameDay instructions at ~18:10 CET and guide all 53 teams through the competition format, rules, and scoring system." },
-    { person: loic, c: GD_GOLD, desc: "Sr. Technical Account Manager at AWS. Loïc co-delivers the GameDay instructions and is available as a gamemaster throughout the competition to help with any technical questions." },
-  ];
+  const people = GAMEMASTERS.map((person, i) => ({
+    person,
+    c: GM_COLORS[i % GM_COLORS.length],
+    desc: person.bio?.[0] ?? "",
+  }));
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -1455,7 +1461,7 @@ const CONTENT_SLIDES: { key: string; name: string; el: React.ReactNode }[] = [
   { key: "hero", name: "Hero + Countdown", el: <SlideHero /> },
   { key: "whats-happening", name: "What's Happening?", el: <SlideWhatsHappening /> },
   { key: "meet-linda", name: `Meet ${HOST.fullName ?? HOST.name}`, el: <SlideMeetHost /> },
-  { key: "meet-anda-jerome", name: `Meet ${ORGANIZERS[1].name} & ${ORGANIZERS[0].name}`, el: <SlideMeetCoOrganizers /> },
+  { key: "meet-co-organizers", name: `Meet ${CO_ORG_LABEL}`, el: <SlideMeetCoOrganizers /> },
   { key: "meet-gamemasters", name: `Meet ${GM_LABEL}`, el: <SlideMeetGamemasters /> },
   { key: "aws-community", name: "What is the AWS Community?", el: <SlideAWSCommunity /> },
   { key: "ug-leader", name: "What is a UG Leader?", el: <SlideUGLeader /> },

@@ -29,9 +29,11 @@ export interface Organizer {
 export const ORGANIZERS: Organizer[] = [
   {
     name: "Jerome", streamRole: "co-organizer", role: "AWS User Group Belgium", country: "Belgium", city: "Brussels, Belgium", flag: "🇧🇪", face: "assets/faces/jerome.jpg", type: "community",
+    bio: ["AWS User Group Leader and co-founder of this initiative. Jerome co-architected the event structure, competition framework, and built the network of 53 User Groups across 23 countries."],
   },
   {
     name: "Anda", streamRole: "co-organizer", role: "AWS User Group Geneva", country: "Switzerland", city: "Geneva, Switzerland", flag: "🇨🇭", face: "assets/faces/anda.jpg", type: "community",
+    bio: ["AWS User Group Leader and initiator of this GameDay. Anda had the original vision for a pan-European AWS community event and brought together volunteer organizers from 53 User Groups across the continent."],
   },
   {
     name: "Marcel", role: "AWS User Group Münsterland", country: "Germany", city: "Münster, Germany", flag: "🇩🇪", face: "assets/faces/marcel.jpg", type: "community",
@@ -63,8 +65,10 @@ export const ORGANIZERS: Organizer[] = [
 
 // ── AWS Supporters (Gamemasters & Community Team) ──
 export const AWS_SUPPORTERS: Organizer[] = [
-  { name: "Arnaud", streamRole: "gamemaster", role: "Sr. Developer Advocate, AWS",        country: "France", flag: "🇫🇷", face: "assets/faces/arnaud.jpg", type: "aws" },
-  { name: "Loïc",   streamRole: "gamemaster", role: "Sr. Technical Account Manager, AWS", country: "France", flag: "🇫🇷", face: "assets/faces/loic.jpg",   type: "aws" },
+  { name: "Arnaud", streamRole: "gamemaster", role: "Sr. Developer Advocate, AWS",        country: "France", flag: "🇫🇷", face: "assets/faces/arnaud.jpg", type: "aws",
+    bio: ["Sr. Developer Advocate at AWS. Arnaud will deliver the official GameDay instructions and guide all teams through the competition format, rules, and scoring system."] },
+  { name: "Loïc",   streamRole: "gamemaster", role: "Sr. Technical Account Manager, AWS", country: "France", flag: "🇫🇷", face: "assets/faces/loic.jpg",   type: "aws",
+    bio: ["Sr. Technical Account Manager at AWS. Loïc co-delivers the GameDay instructions and is available as a gamemaster throughout the competition to help with any technical questions."] },
   { name: "Uliana", role: "Community Manager, AWS",             country: "DACH, CEE, CEAR & MENAT", flag: "🌍", face: "assets/faces/uliana.jpg", type: "aws" },
   { name: "Natalia", role: "DevEx Community Manager, AWS",      country: "EMEA / Europe South",     flag: "🌍", face: "assets/faces/natalia.jpg", type: "aws" },
 ];
