@@ -85,7 +85,7 @@ const CO_ORGANIZERS = ALL_PEOPLE.filter((p) => p.streamRole === "co-organizer");
 const CO_ORG_LABEL  = CO_ORGANIZERS.map((p) => p.name).join(" & ");
 
 const HOST      = ALL_PEOPLE.find((p) => p.streamRole === "host")!;
-const PRESENTER = ALL_PEOPLE.find((p) => p.streamRole === "support-presenter")!;
+const PRESENTER = ALL_PEOPLE.find((p) => p.streamRole === "support-presenter");
 
 // Format EVENT_DATE ("2026-03-17") → "March 17, 2026"
 const [_ey, _em, _ed] = EVENT_DATE.split("-").map(Number);
@@ -220,7 +220,7 @@ function ugLogo(name: string): string | undefined {
 const UG_VIE_LOGO = ugLogo(HOST.role);
 const UG_BEL_LOGO = ugLogo("AWS User Group Belgium");
 const UG_GEN_LOGO = ugLogo("AWS Swiss UG  -  Geneva");
-const UG_BUD_LOGO = ugLogo(PRESENTER.role);
+const UG_BUD_LOGO = PRESENTER ? ugLogo(PRESENTER.role) : undefined;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHEDULE DATA
@@ -238,7 +238,7 @@ const CHAPTERS: ScheduleSegment[] = [
   { label: `${HOST.fullName ?? HOST.name}  - Welcome`,           startFrame: 0,     endFrame: 1799,  speakers: HOST.fullName ?? HOST.name },
   { label: CO_ORG_LABEL,                        startFrame: 1800,  endFrame: 9299,  speakers: CO_ORG_LABEL },
   { label: `${HOST.fullName ?? HOST.name}  - Transition`,        startFrame: 9300,  endFrame: 10799, speakers: HOST.fullName ?? HOST.name },
-  { label: `${PRESENTER.fullName ?? PRESENTER.name}  - Support Process`, startFrame: 10800, endFrame: 13379, speakers: PRESENTER.fullName ?? PRESENTER.name },
+  ...(PRESENTER ? [{ label: `${PRESENTER.fullName ?? PRESENTER.name}  - Support Process`, startFrame: 10800, endFrame: 13379, speakers: PRESENTER.fullName ?? PRESENTER.name } as ScheduleSegment] : []),
   { label: `${HOST.fullName ?? HOST.name}  - Intro Guest`,       startFrame: 13380, endFrame: 15179, speakers: HOST.fullName ?? HOST.name },
   { label: "Special Guest",                    startFrame: 15180, endFrame: 23399 },
   { label: `${HOST.fullName ?? HOST.name}  - Intro Gamemasters`, startFrame: 23400, endFrame: 25199, speakers: HOST.fullName ?? HOST.name },
@@ -1607,6 +1607,7 @@ const SpeakerIndicator: React.FC<{ frame: number; fps: number }> = ({ frame, fps
 // and fades out exactly at VIDEO_IN  -  creating a seamless face-to-lower-third handoff.
 // ─────────────────────────────────────────────────────────────────────────────
 const SupportPresenterIntroCard: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  if (!PRESENTER) return null;
   if (frame < S.MIHALY_IN || frame > S.MIHALY_OUT) return null;
 
   // Entry spring
@@ -1772,6 +1773,7 @@ const SupportPresenterIntroCard: React.FC<{ frame: number; fps: number }> = ({ f
 //   UG   left=298  top=537  (caption=16)
 // ─────────────────────────────────────────────────────────────────────────────
 const SupportPresenterMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }) => {
+  if (!PRESENTER) return null;
   if (frame < MAGIC_MOVE_START || frame > MAGIC_MOVE_END) return null;
 
   const rawT = interpolate(frame, [MAGIC_MOVE_START, MAGIC_MOVE_END], [0, 1], {
@@ -1862,6 +1864,7 @@ const SupportPresenterMagicMoveOverlay: React.FC<{ frame: number }> = ({ frame }
 const SupportVideoBody: React.FC = () => {
   const frame  = useCurrentFrame();   // relative: 0 when absoluteFrame = S.VIDEO_IN
   const { fps } = useVideoConfig();
+  if (!PRESENTER) return null;
   const DURATION = S.VIDEO_OUT - S.VIDEO_IN; // 1799 frames
 
   const fadeIn  = spring({ frame, fps, config: springConfig.entry });
