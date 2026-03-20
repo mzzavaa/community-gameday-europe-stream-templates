@@ -45,6 +45,9 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
   const hasEnded = closing && msUntil(eventDate, closing.time) === 0;
   const gLive = gMs === 0 && !hasEnded;
 
+  const [_ey, _em, _ed] = eventDate.split("-").map(Number);
+  const eventDateDisplay = new Date(_ey, _em - 1, _ed).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
   // Descriptions with corrected text color  -  white with slight transparency instead of purple
   const DESC_COLOR = "rgba(255,255,255,0.65)";
 
@@ -65,7 +68,7 @@ export const CountdownComposition: React.FC<CountdownProps> = ({ eventDate, mile
           {hasEnded ? (
             <>
               <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: GD_ACCENT, marginBottom: 16 }}>
-                March 17, 2026 · Across Europe
+                {eventDateDisplay} · Across Europe
               </div>
               <div style={{ fontSize: 64, fontWeight: 900, color: GD_GOLD, lineHeight: 1.1, marginBottom: 16 }}>
                 Event Complete

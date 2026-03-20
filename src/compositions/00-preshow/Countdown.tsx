@@ -33,7 +33,12 @@ import {
   GAME_START_OFFSET_MINUTES as GAME_START,
   EVENT_EDITION,
   EDITION_LABEL,
+  EVENT_DATE,
 } from "../../../config/event";
+
+const [_cy, _cm, _cd] = EVENT_DATE.split("-").map(Number);
+const _countdownDate = new Date(_cy, _cm - 1, _cd);
+const EVENT_DATE_DISPLAY = _countdownDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
 // ── Audio Cue Banner Visibility ──
 export function isAudioCueBannerVisible(frame: number): boolean {
