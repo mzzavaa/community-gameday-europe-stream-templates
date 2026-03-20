@@ -1,14 +1,45 @@
-# AWS Community GameDay Europe — Stream Visuals
+# community-gameday-europe-stream-templates
 
-> **LIVE WINNERS TEMPLATE** — The closing ceremony winners must be updated with real data before rendering. See **[TEMPLATE.md](TEMPLATE.md)** for instructions.
+Remotion-powered stream visual template for **AWS Community GameDay Europe** — a competitive cloud event spanning 53+ AWS User Groups across 20+ countries and multiple timezones.
 
-Remotion-powered stream overlay compositions for the first-ever **AWS Community GameDay Europe**, a competitive cloud event spanning **53+ AWS User Groups** across **20+ countries** and multiple timezones.
+This is the **template repository**. It contains all compositions, components, design system, and web player code. It does **not** change between editions. Event-specific config (participants, schedule, logos) is injected at build time from the companion event repository.
 
-These compositions are the visual layer of a live stream that plays at every participating User Group location simultaneously. They provide countdowns, schedules, speaker information, and key instructions — ensuring every attendee can follow along even with bad audio or no idea who is on screen.
+> **Two-repo architecture:**
+> [`community-gameday-europe-stream-templates`](https://github.com/mzzavaa/community-gameday-europe-stream-templates) — this repo, all code
+> [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event) — event config, triggers deploys, hosts the live page
 
 ---
 
-## Preview
+## Live page
+
+The deployed web player for the 2026 edition:
+https://mzzavaa.github.io/community-gameday-europe-event/
+
+---
+
+## Remotion Studio
+
+Open Remotion Studio to preview and develop all compositions locally:
+
+```bash
+git clone https://github.com/mzzavaa/community-gameday-europe-stream-templates.git
+cd community-gameday-europe-stream-templates
+npm install
+npm run studio
+```
+
+Then open **http://localhost:3000** — all 35 compositions appear in the left sidebar. Scrub through every frame, edit props live, and render individual compositions to video.
+
+[![Remotion Studio — Composition browser and timeline](screenshots/studio/readme-remotion-studio.png)](screenshots/studio/readme-remotion-studio.png)
+
+**Remotion Studio:** http://localhost:3000 (after `npm run studio`)
+**Remotion docs:** https://www.remotion.dev/docs/studio
+
+Full developer guide with all composition screenshots and rendering commands: [docs/remotion.md](docs/remotion.md)
+
+---
+
+## Composition previews
 
 ### Pre-Show Info Loop
 ![Pre-Show Info Loop](screenshots/compositions/readme-infoloop.png)
@@ -25,17 +56,49 @@ These compositions are the visual layer of a live stream that plays at every par
 ### Closing — Bar Chart Reveal (Part B)
 ![Closing Winners](screenshots/compositions/readme-closing-winners.png)
 
-### Live Inserts — Commentary & Operations
+### Live Inserts
 ![Close Race Insert](screenshots/inserts/readme-insert-close-race.png)
 ![Gamemasters Update Insert](screenshots/inserts/readme-insert-gamemasters-update.png)
 
 ---
 
-## What is this?
+## Architecture
 
-This repository contains Remotion video compositions (in `src/compositions/`) that together form the full ~3-hour GameDay stream experience. The compositions cover every phase of the event — from the pre-show countdown through the final winner reveal — plus a library of 29 live **insert** compositions for in-game announcements.
+### Two-repo design
 
-See [docs/remotion.md](docs/remotion.md) for a complete visual reference of every composition with screenshots, rendering commands, and the full Remotion developer guide.
+```
+community-gameday-europe-stream-templates   ← this repo
+│  All composition code, design system, web player
+│  Does not change between editions
+│  Not deployed directly — used as a build input
+│
+└──► community-gameday-europe-event         ← event repo
+     │  config/participants.ts  ← organizers, UGs, logos
+     │  config/schedule.ts      ← segment timing
+     │  public/faces/           ← organizer face photos
+     │
+     └──► GitHub Actions (on push to main)
+          1. Checks out this template repo
+          2. Overwrites stream/config/participants.ts
+          3. Overwrites stream/web-player/src/schedule.ts
+          4. Merges public/faces/ into stream/public/assets/faces/
+          5. Builds web player (Vite + Remotion)
+          6. Deploys to GitHub Pages
+```
+
+To run an edition: fork [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event), update the config files, push — no changes needed in this repo.
+
+### Config files
+
+All event-specific values live in `config/`. Every composition imports from here — nothing is hardcoded in the components.
+
+| File | What it controls | Source of truth |
+|---|---|---|
+| [`config/event.ts`](config/event.ts) | Event name, date, edition, host, timezone, timing offsets | This repo |
+| [`config/participants.ts`](config/participants.ts) | Organizers, AWS supporters, all user groups + logos | Event repo (overwritten at build) |
+| [`config/schedule.ts`](config/schedule.ts) | Web player segment boundaries | Event repo (overwritten at build) |
+
+> `config/event.ts` is the only config file edited in this repo. All other config comes from the event repo.
 
 ---
 
@@ -44,82 +107,45 @@ See [docs/remotion.md](docs/remotion.md) for a complete visual reference of ever
 ### Main stream (in order)
 
 | Composition ID | File | Duration | Purpose |
-|----------------|------|----------|---------|
-| `00-Countdown` | `00-preshow/Countdown.tsx` | 10 min (loop) | Simple countdown timer before stream |
-| `00-InfoLoop` | `00-preshow/InfoLoop.tsx` | 30 min | Rotating content: user groups, organizers, schedule |
-| `01-MainEvent` | `01-main-event/MainEvent.tsx` | 30 min | Live introductions, speaker info, code distribution |
+|---|---|---|---|
+| `00-Countdown` | `00-preshow/Countdown.tsx` | 10 min (loop) | Simple countdown timer |
+| `00-InfoLoop` | `00-preshow/InfoLoop.tsx` | 30 min | Rotating slides: UGs, organizers, schedule |
+| `01-MainEvent` | `01-main-event/MainEvent.tsx` | 30 min | Live intro sequence, speaker cards, code distribution |
 | `02-Gameplay` | `02-gameplay/Gameplay.tsx` | 120 min | Muted overlay during the 2-hour game |
-| `03A-ClosingPreRendered` | `03-closing/ClosingPreRendered.tsx` | ~2.5 min | Hero intro, fast scroll, shuffle — pre-rendered |
-| `03B-ClosingWinnersTemplate` | `03-closing/ClosingWinnersTemplate.tsx` | ~5 min | Bar chart reveal, podium, thank you — **updated live** |
-| `Marketing-OrganizersVideo` | `marketing/MarketingVideo.tsx` | 15 sec | Social media clip for organizers |
+| `03A-ClosingPreRendered` | `03-closing/ClosingPreRendered.tsx` | ~2.5 min | Hero intro, UG scroll, shuffle — pre-render before event |
+| `03B-ClosingWinnersTemplate` | `03-closing/ClosingWinnersTemplate.tsx` | ~5 min | Bar chart reveal, podium — fill in live scores |
+| `Marketing-OrganizersVideo` | `marketing/MarketingVideo.tsx` | 15 sec | Social media clip |
 
 ### Live inserts (29 total)
 
-30-second full-screen announcements triggered on demand during gameplay. See [docs/playbook.md](docs/playbook.md) for when and how to use each one.
+30-second full-screen announcements triggered on demand during gameplay.
 
 | Category | Inserts |
-|----------|---------|
+|---|---|
 | **Event Flow** | `Insert-QuestsLive`, `Insert-HalfTime`, `Insert-FinalCountdown`, `Insert-GameExtended`, `Insert-LeaderboardHidden`, `Insert-ScoresCalculating`, `Insert-BreakAnnouncement`, `Insert-WelcomeBack` |
-| **Live Commentary** | `Insert-FirstCompletion`, `Insert-CloseRace`, `Insert-ComebackAlert`, `Insert-TopTeams`, `Insert-CollectiveMilestone`, `Insert-TeamSpotlight` |
-| **Quest Operations** | `Insert-QuestFixed`, `Insert-QuestBroken`, `Insert-QuestUpdate`, `Insert-QuestHint`, `Insert-NewQuestAvailable`, `Insert-SurveyReminder` |
-| **Operational** | `Insert-StreamInterruption`, `Insert-TechnicalIssue`, `Insert-Leaderboard`, `Insert-ScoreCorrection`, `Insert-GamemastersUpdate` |
-| **People & Community** | `Insert-StreamHostUpdate`, `Insert-LocationShoutout`, `Insert-ImportantReminder` |
-
-Full visual reference with screenshots: [docs/remotion.md](docs/remotion.md)
+| **Commentary** | `Insert-FirstCompletion`, `Insert-CloseRace`, `Insert-ComebackAlert`, `Insert-TopTeams`, `Insert-CollectiveMilestone`, `Insert-TeamSpotlight` |
+| **Quest** | `Insert-QuestFixed`, `Insert-QuestBroken`, `Insert-QuestUpdate`, `Insert-QuestHint`, `Insert-NewQuestAvailable`, `Insert-SurveyReminder` |
+| **Ops** | `Insert-StreamInterruption`, `Insert-TechnicalIssue`, `Insert-Leaderboard`, `Insert-ScoreCorrection`, `Insert-GamemastersUpdate` |
+| **People** | `Insert-StreamHostUpdate`, `Insert-LocationShoutout`, `Insert-ImportantReminder` |
 
 ---
 
-## Quick Start
-
-### Prerequisites
-
-- **Node.js** 18+ (recommended: 20 LTS)
-- **npm**
-- A modern browser (Chrome recommended for Remotion Studio)
-
-### Installation
-
-```bash
-git clone <repo-url>
-cd community-gameday-europe-stream
-npm install
-npm run studio
-```
-
-Open `http://localhost:3000`. All 35 compositions appear in the left sidebar.
-
-### Render a composition
-
-```bash
-# Render to video
-npx remotion render src/index.ts 01-MainEvent out/main-event.mp4
-
-# Render a single frame (for preview/docs)
-npx remotion still src/index.ts Insert-CloseRace out/preview.png --frame=90
-
-# Render an insert for use in a video switcher
-npx remotion render src/index.ts Insert-QuestsLive out/quests-live.mp4
-```
-
-Video files are gitignored — render locally, never commit.
-
----
-
-## Project Structure
+## Project structure
 
 ```
+community-gameday-europe-stream-templates/
+│
 ├── config/
-│   ├── event.ts              # Event metadata and timezone
-│   ├── schedule.ts           # Timeline segments for MainEvent
-│   ├── participants.ts       # Organizers, AWS supporters, user groups
-│   └── logos.ts              # User group logo URLs (loaded from Notion CDN)
+│   ├── event.ts              # Event name, date, host, timezone — edit here for new edition
+│   ├── participants.ts       # Organizers, UGs + logos — overwritten from event repo at build
+│   └── schedule.ts           # Web player segment timing — overwritten from event repo at build
 │
 ├── src/
 │   ├── Root.tsx              # All 35 compositions registered here
 │   ├── index.ts              # Remotion entry point
 │   ├── design/               # Colors, typography, animation presets
-│   ├── components/           # Shared UI (BackgroundLayer, GlassCard, etc.)
-│   ├── utils/                # Timing, phases, closing ceremony logic
+│   ├── components/           # Shared UI: BackgroundLayer, GlassCard, AudioBadge, etc.
+│   ├── utils/                # Timing helpers, phase detection, closing logic
 │   └── compositions/
 │       ├── 00-preshow/       # Countdown + InfoLoop
 │       ├── 01-main-event/    # MainEvent
@@ -128,109 +154,126 @@ Video files are gitignored — render locally, never commit.
 │       ├── marketing/        # MarketingVideo
 │       └── inserts/
 │           ├── _TEMPLATE.tsx # Copy this to create a new insert
-│           ├── event-flow/   # Phase markers (kickoff, halftime, etc.)
-│           ├── commentary/   # Narrative moments (first completion, close race, etc.)
-│           ├── quest/        # Quest status updates
-│           ├── ops/          # Operational announcements
-│           └── people/       # Community moments
+│           ├── event-flow/
+│           ├── commentary/
+│           ├── quest/
+│           ├── ops/
+│           └── people/
 │
-├── public/
-│   └── assets/
-│       ├── faces/            # Face photos — firstname.jpg (all lowercase)
-│       ├── logos/            # GameDay logo variants
-│       ├── aws-community-logo.png
-│       ├── aws-usergroups-badge.png
-│       ├── aws-builders-logo.png
-│       ├── aws-heroes-logo.png
-│       ├── aws-cloud-clubs-logo.png
-│       ├── background-landscape.png
-│       ├── europe-map.png
-│       └── gameday-unicorn.png
+├── web-player/               # Vite app — serves compositions as a web page
+│   ├── index.html
+│   ├── public/logo.ico
+│   └── src/
+│       ├── main.tsx
+│       ├── WebPlayer.tsx     # Auto-switching player driven by schedule.ts
+│       └── schedule.ts       # ← overwritten from event repo at build time
+│
+├── public/assets/
+│   ├── faces/                # Organizer face photos (firstname.jpg)
+│   ├── logos/                # GameDay logo variants
+│   ├── background-landscape.png
+│   ├── europe-map.png
+│   └── gameday-unicorn.png
 │
 ├── docs/
-│   ├── remotion.md           # Full Remotion developer guide with all composition screenshots
-│   ├── playbook.md           # Stream operator guide — when and how to use inserts
-│   ├── inserts.md            # Insert design rules and contributor guide
-│   └── stream-preview/       # Timeline screenshots from the actual event
+│   ├── remotion.md           # Full Remotion developer guide + all composition screenshots
+│   ├── playbook.md           # Stream operator guide
+│   ├── inserts.md            # Insert design rules and how to create a new one
+│   ├── 00-preshow-muted.md
+│   ├── 01-mainevent-audio.md
+│   ├── 02-gameplay-muted.md
+│   └── 03-closing-audio.md
 │
 └── screenshots/
-    └── readme-*.png          # Composition screenshots used in documentation
+    ├── studio/               # Remotion Studio UI screenshots
+    ├── compositions/         # Composition preview screenshots
+    ├── inserts/              # Insert preview screenshots
+    └── misc/
 ```
 
 ---
 
-## Design System
+## Documentation
 
-All compositions share a unified design system in `src/design/`. See [src/design/README.md](src/design/README.md) for the full reference.
+| Document | Contents |
+|---|---|
+| [docs/remotion.md](docs/remotion.md) | Remotion developer guide — studio setup, all composition screenshots, rendering |
+| [docs/playbook.md](docs/playbook.md) | Stream operator guide — what to play when, insert timing |
+| [docs/inserts.md](docs/inserts.md) | Insert design rules, how to create a new insert |
+| [docs/00-preshow-muted.md](docs/00-preshow-muted.md) | Pre-show phase details |
+| [docs/01-mainevent-audio.md](docs/01-mainevent-audio.md) | Main event phase details |
+| [docs/02-gameplay-muted.md](docs/02-gameplay-muted.md) | Gameplay phase details |
+| [docs/03-closing-audio.md](docs/03-closing-audio.md) | Closing phase details |
+| [TEMPLATE.md](TEMPLATE.md) | How to fill in real winner data before the closing ceremony |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to adapt this template for your own event |
+| [AGENTS.md](AGENTS.md) | Architecture overview for AI-assisted development |
+| [config/README.md](config/README.md) | Config file reference |
+| [src/design/README.md](src/design/README.md) | Design system — colors, typography, animation presets |
+| [src/components/README.md](src/components/README.md) | Shared component reference |
+| [src/compositions/README.md](src/compositions/README.md) | Composition catalogue |
 
-**Colors** (`src/design/colors.ts`):
+---
 
-| Name | Hex | Usage |
-|------|-----|-------|
-| `GD_DARK` | `#0c0820` | Background base |
-| `GD_PURPLE` | `#6c3fa0` | Hex grid, subtle accents |
-| `GD_VIOLET` | `#8b5cf6` | Community moments, people inserts |
-| `GD_ACCENT` | `#c084fc` | Labels, commentary inserts |
-| `GD_ORANGE` | `#ff9900` | AWS/Gamemaster announcements, warnings |
-| `GD_GOLD` | `#fbbf24` | Event flow milestones |
+## Design system
+
+Full reference: [src/design/README.md](src/design/README.md)
+
+**Color tokens** (`src/design/colors.ts`):
+
+| Token | Hex | Usage |
+|---|---|---|
+| `GD_DARK` | `#0c0820` | Background |
+| `GD_VIOLET` | `#8b5cf6` | Community, people |
+| `GD_ACCENT` | `#c084fc` | Labels, commentary |
+| `GD_ORANGE` | `#ff9900` | AWS / Gamemaster |
+| `GD_GOLD` | `#fbbf24` | Event milestones |
 | `GD_GREEN` | `#22c55e` | Quest fixed / success |
-| `GD_RED` | `#ef4444` | Quest broken / technical issues |
-
-**Animation presets** (`src/design/animations.ts`):
-
-| Preset | damping | stiffness | Usage |
-|--------|---------|-----------|-------|
-| `springConfig.entry` | 14 | 120 | Standard element entrance |
-| `springConfig.emphasis` | 8 | 200 | Punchy, attention-grabbing |
-| `springConfig.exit` | 20 | 100 | Gentle element exit |
+| `GD_RED` | `#ef4444` | Quest broken / errors |
 
 ---
 
-## Event Timeline (CET Reference)
+## Render a composition
+
+```bash
+# Open Remotion Studio (http://localhost:3000)
+npm run studio
+
+# Render to video
+npx remotion render src/index.ts 01-MainEvent out/main-event.mp4
+
+# Render a single frame
+npx remotion still src/index.ts Insert-CloseRace out/preview.png --frame=90
+```
+
+Video files are gitignored. Render locally, never commit.
+
+---
+
+## Closing ceremony
+
+Split into two compositions for live flexibility:
+
+- **`03A-ClosingPreRendered`** — Pre-render before the event. Hero intro, UG scroll, shuffle.
+- **`03B-ClosingWinnersTemplate`** — Fill in real scores on the day. Bar chart reveal, podium, thank you. See [TEMPLATE.md](TEMPLATE.md).
+
+---
+
+## Event timeline (CET)
 
 ```
-17:30  Pre-Show begins (optional local UG setup)
-18:00  Stream starts — Main Event composition
-       18:00–18:06  Community intro (Linda, Jerome & Anda)
-       18:06–18:07  Support process video
-       18:07–18:13  Special guest
-       18:13–18:14  AWS Gamemasters intro
-       18:14–18:25  GameDay instructions (Arnaud & Loïc)
-       18:25–18:30  Distribute team codes
-18:30  Game starts — Gameplay overlay (stream muted)
-19:30  Half-time — leaderboard shown
-20:30  Game ends — Closing ceremony begins (audio back on)
+17:30  Pre-show begins
+18:00  Live stream — Main Event
+       ├─ Host welcome + community intro
+       ├─ Support process video
+       ├─ Special guest
+       └─ Gamemasters intro + instructions
+18:30  GameDay starts — Gameplay overlay (muted)
+20:30  Closing ceremony (audio returns)
 21:00  Stream ends
 ```
 
 ---
 
-## User Group Logos
-
-The 53+ user group logos are not stored locally — they load at render time from a shared Notion database. The URL mapping lives in `config/logos.ts`.
-
-[![Notion Gallery — AWS User Groups](screenshots/misc/readme-notion-gallery.png)](https://awscommunitydach.notion.site/89ae998ccfc941f8a4ebf3e7b6586045?v=11f535253b02470f963a6d844ca671d4)
-> Click to open the public Notion gallery.
-
-Rendering requires internet access. If a logo URL is unreachable, a flag-only card is shown as fallback.
-
----
-
-## Closing Ceremony
-
-Split into two compositions for live flexibility:
-
-- **`03A-ClosingPreRendered`** — Pre-render this before the event. Hero intro showcasing all user groups, fast scroll, shuffle countdown building suspense.
-- **`03B-ClosingWinnersTemplate`** — Updated live with real scores. Bar chart reveal (6th → 1st), podium cards, thank you. See [TEMPLATE.md](TEMPLATE.md).
-
----
-
-## For the Community
-
-This project was built entirely by community volunteers for **AWS Community GameDay Europe 2026** (March 17, 2026 — first edition). If you want to understand how the stream visuals work, adapt them for your own event, or learn Remotion — you are welcome to explore, fork, and adapt.
-
-See [AGENTS.md](AGENTS.md) for architecture guidance and [CONTRIBUTING.md](CONTRIBUTING.md) for how to adapt and contribute back.
-
 ## License
 
-[CC BY-NC-SA 4.0](LICENSE) — Non-commercial community use only. Built by volunteers for the AWS Community GameDay Europe 2026.
+[CC BY-NC-SA 4.0](LICENSE) — non-commercial community use. Built by volunteers for AWS Community GameDay Europe 2026.
