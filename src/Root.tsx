@@ -55,6 +55,30 @@ import { StreamHostUpdate } from "./compositions/inserts/people/StreamHostUpdate
 import { LocationShoutout } from "./compositions/inserts/people/LocationShoutout";
 import { ImportantReminder } from "./compositions/inserts/people/ImportantReminder";
 
+// ── Blog Explainer ───────────────────────────────────────────────────────────
+import {
+  Blog01Intro,
+  Blog02TwoRepos,
+  Blog03RemotionStudio,
+  Blog04RemotionProps,
+  Blog05ActionsWorkflow,
+  Blog06SetupSteps,
+  Blog07TemplateVar,
+  Blog08AutoSwitcher,
+  Blog09InfoLoop,
+  Blog10ConfigFiles,
+  Blog11InsertGrid,
+  Blog12QuestBroken,
+  Blog13QuestFixed,
+  Blog14Leaderboard,
+  Blog15ScheduledVsReactive,
+  Blog16WinnersReveal,
+  Blog17WinnersPodium,
+  Blog18FlagFallback,
+  Blog19StudioInsert,
+  Blog20WinnersThankyou,
+  Blog21HowMadeThis,
+} from "./compositions/blog-explainer/BlogExplainer";
 // ─────────────────────────────────────────────────────────────────────────────
 // All compositions are 1280x720 @ 30fps.
 // Inserts are always 900 frames (30 seconds).
@@ -357,6 +381,35 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ title: "Important Reminder", message: "Your message here." }}
         durationInFrames={900} fps={30} width={1280} height={720}
       />
+
+      {/* ── Blog Explainer ────────────────────────────────────────────────────
+       * 21 compositions for the AWS Community GameDay Europe 2026 blog post.
+       * Each is 900 frames (30s) at 1280x720 @ 30fps.
+       * Render one: npx remotion render Blog-01-Intro out/blog-01-intro.mp4
+       * Render all: npx remotion render --bundle-cache=true Blog-* out/
+       */}
+      <Composition id="Blog-01-Intro"               component={Blog01Intro}               durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-02-TwoRepos"             component={Blog02TwoRepos}             durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-03-RemotionStudio"       component={Blog03RemotionStudio}       durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-04-RemotionProps"        component={Blog04RemotionProps}        durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-05-ActionsWorkflow"      component={Blog05ActionsWorkflow}      durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-06-SetupSteps"           component={Blog06SetupSteps}           durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-07-TemplateVar"          component={Blog07TemplateVar}          durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-08-AutoSwitcher"         component={Blog08AutoSwitcher}         durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-09-InfoLoop"             component={Blog09InfoLoop}             durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-10-ConfigFiles"          component={Blog10ConfigFiles}          durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-11-InsertGrid"           component={Blog11InsertGrid}           durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-12-QuestBroken"          component={Blog12QuestBroken}          durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-13-QuestFixed"           component={Blog13QuestFixed}           durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-14-Leaderboard"          component={Blog14Leaderboard}          durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-15-ScheduledVsReactive"  component={Blog15ScheduledVsReactive}  durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-16-WinnersReveal"        component={Blog16WinnersReveal}        durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-17-WinnersPodium"        component={Blog17WinnersPodium}        durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-18-FlagFallback"         component={Blog18FlagFallback}         durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-19-StudioInsert"         component={Blog19StudioInsert}         durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-20-WinnersThankyou"      component={Blog20WinnersThankyou}      durationInFrames={900} fps={30} width={1280} height={720} />
+      <Composition id="Blog-21-HowMadeThis"          component={Blog21HowMadeThis}          durationInFrames={900} fps={30} width={1280} height={720} />
+
 
     </>
   );

@@ -118,20 +118,34 @@ const CARD_ACCENTS = [GD_VIOLET, GD_PURPLE, GD_PINK, GD_ACCENT, "#6366f1", GD_VI
 function peopleLayout(n: number): { imgSize: number; itemW: number; colGap: number; rowGap: number; containerW: number } {
   const cols   = n <= 3 ? n : n === 4 ? 2 : n <= 6 ? 3 : n <= 8 ? 4 : 3;
   const imgSize = n <= 2 ? 150 : n <= 4 ? 135 : n <= 6 ? 125 : 115;
-  const colGap  = n <= 2 ? 90  : n <= 4 ? 70  : n <= 6 ? 55  : 45;
+  // colGap reduced slightly for n>6 to give each card more text room within 1280px canvas
+  const colGap  = n <= 2 ? 90  : n <= 4 ? 70  : n <= 6 ? 55  : 38;
   const rowGap  = 44;
-  const itemW   = imgSize + 50; // fixed width so text wraps inside
+  // itemW widened for n>6: 195px lets "AWS User Group Leader" fit on one line at 16px
+  const itemW   = n <= 6 ? imgSize + 50 : imgSize + 80;
   return { imgSize, itemW, colGap, rowGap, containerW: cols * itemW + (cols - 1) * colGap };
 }
 
-// ── Single-row layout for AWS supporters (always one row, scales down for 5+) ──
-function supportersLayout(n: number): { imgSize: number; itemW: number; gap: number; nameSize: number; roleSize: number } {
+// ── Layout for AWS supporters — single row for n<=5, 2-row wrap grid for n>=6 ──
+function supportersLayout(n: number): { imgSize: number; itemW: number; gap: number; nameSize: number; roleSize: number; wrap: boolean; containerW: number } {
+  if (n >= 6) {
+    // Switch to a 2-row wrapping grid so we never overflow the 1280px canvas
+    const cols = n <= 6 ? 3 : 4;
+    const imgSize = 95;
+    const gap = n <= 6 ? 50 : 40;
+    const itemW = imgSize + 70; // 165px — fits "Sr. Technical Account Manager, AWS" at 12px
+    const containerW = cols * itemW + (cols - 1) * gap;
+    return { imgSize, itemW, gap, nameSize: 18, roleSize: 12, wrap: true, containerW };
+  }
   const imgSize  = n <= 3 ? 130 : n <= 4 ? 115 : 95;
-  const gap      = n <= 3 ? 70  : n <= 4 ? 55  : 40;
-  const itemW    = imgSize + 56;
+  // gap reduced slightly for n<=4 to give each card more text room; total still fits in 1280px
+  const gap      = n <= 3 ? 70  : n <= 4 ? 45  : 40;
+  // itemW widened for n<=4: 205px fits "Sr. Technical Account Manager, AWS" on one line at 13px
+  const itemW    = n <= 3 ? imgSize + 56 : n <= 4 ? imgSize + 90 : imgSize + 56;
   const nameSize = n <= 4 ? 22 : 18;
-  const roleSize = n <= 4 ? 15 : 13;
-  return { imgSize, itemW, gap, nameSize, roleSize };
+  const roleSize = 13;
+  const containerW = n * itemW + (n - 1) * gap;
+  return { imgSize, itemW, gap, nameSize, roleSize, wrap: false, containerW };
 }
 
 // ── Transition Flash Constants ──
@@ -373,9 +387,11 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 <div style={{
-                  display: "flex", flexWrap: "wrap", justifyContent: "center",
-                  gap: `${gl.rowGap}px ${gl.colGap}px`,
-                  width: gl.containerW,
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${gl.cols}, ${gl.itemW}px)`,
+                  columnGap: gl.colGap,
+                  rowGap: gl.rowGap,
+                  justifyItems: "center",
                 }}>
                   {ORGANIZERS.map((org, i) => {
                     const cardSpring = spring({ frame: Math.max(0, frame - 565 - i * 18), fps, config: { damping: 18, stiffness: 80, mass: 1 } });
@@ -391,16 +407,16 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                         }}>
                           <Img src={staticFile(org.face)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         </div>
-                        <div style={{ textAlign: "center" }}>
+                        <div style={{ textAlign: "center", width: "100%" }}>
                           <div style={{ fontSize: TYPOGRAPHY.h6, fontWeight: 800, color: "#ffffff", fontFamily: "'Inter', sans-serif" }}>
                             {org.name}
                           </div>
-                          <div style={{ fontSize: TYPOGRAPHY.bodySmall, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3 }}>
+                          <div style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.55)", fontFamily: "'Inter', sans-serif", marginTop: 3, lineHeight: 1.35 }}>
                             {getOrganizerRole(org)}
                           </div>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 2 }}>
-                            <span style={{ fontSize: 16 }}>{org.flag}</span>
-                            <span style={{ fontSize: TYPOGRAPHY.caption, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif" }}>{org.location?.split(", ")[0]}</span>
+                            <span style={{ fontSize: 14 }}>{org.flag}</span>
+                            <span style={{ fontSize: TYPOGRAPHY.captionSmall, color: "rgba(255,255,255,0.4)", fontFamily: "'Inter', sans-serif" }}>{org.location?.split(", ")[0]}</span>
                           </div>
                         </div>
                       </div>
@@ -434,7 +450,7 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
               Orga Support & Gamemasters making this event possible
             </span>
           </div>
-          {/* AWS supporter cards — single row, scales for up to 5 people */}
+          {/* AWS supporter cards — single row up to n=5, wrapping 2-row grid for n>=6 */}
           {(() => {
             const sl = supportersLayout(AWS_SUPPORTERS.length);
             return (
@@ -442,8 +458,18 @@ const HeroIntro: React.FC<{ frame: number }> = ({ frame }) => {
                 position: "absolute", top: 130, bottom: 180, left: 0, right: 0,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <div style={{
-                  display: "flex", flexWrap: "nowrap", justifyContent: "center", alignItems: "flex-start",
+                <div style={sl.wrap ? {
+                  // n>=6: CSS grid so partial last rows (n=7) are centered, not left-aligned
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${AWS_SUPPORTERS.length <= 6 ? 3 : 4}, ${sl.itemW}px)`,
+                  columnGap: sl.gap,
+                  rowGap: sl.gap,
+                  justifyItems: "center",
+                } : {
+                  display: "flex",
+                  flexWrap: "nowrap",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
                   gap: sl.gap,
                 }}>
                   {AWS_SUPPORTERS.map((person, i) => {

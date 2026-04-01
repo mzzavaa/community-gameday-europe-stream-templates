@@ -969,11 +969,11 @@ const SlideAllOrganizers: React.FC = () => (
       {AWS_SUPPORTERS.map((p, i) => {
         const o = useStagger(ORGANIZERS.length + 1 + i, 5);
         return (
-          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [12, 0])}px)`, display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}28`, borderRadius: 14, padding: "14px 18px", width: 265 }}>
+          <div key={p.name} style={{ opacity: o, transform: `translateY(${interpolate(o, [0, 1], [12, 0])}px)`, display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", border: `1px solid ${GD_ORANGE}28`, borderRadius: 14, padding: "14px 18px", width: 290 }}>
             <Img src={staticFile(p.face)} style={{ width: 56, height: 56, borderRadius: 28, objectFit: "cover", flexShrink: 0 }} />
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: TYPOGRAPHY.bodySmall, fontWeight: 700, color: "white" }}>{p.flag} {p.name}</div>
-              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ORANGE, marginTop: 2 }}>{getOrganizerRole(p)}</div>
+              <div style={{ fontSize: TYPOGRAPHY.labelSmall, color: GD_ORANGE, marginTop: 2, lineHeight: 1.4 }}>{getOrganizerRole(p)}</div>
               <div style={{ fontSize: TYPOGRAPHY.overline, color: "rgba(255,255,255,0.4)" }}>{p.location}</div>
             </div>
           </div>

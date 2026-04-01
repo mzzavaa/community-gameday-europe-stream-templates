@@ -61,4 +61,7 @@ screenshots/misc/*
 *.MP4
 *.mov
 *.MOV
+
+# Tool/IDE state — never commit
 .claude
+.playwright-mcp/
