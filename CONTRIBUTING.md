@@ -18,14 +18,14 @@ There are two scenarios:
 
 ### Scenario A — use the template as-is, change only event data
 
-Fork [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event), update the config files, push. The template repo (this one) is pulled automatically during the build. You never touch this repo.
+Fork [`community-gameday-europe-event`](https://github.com/linda-mhmd/community-gameday-europe-event), update the config files, push. The template repo (this one) is pulled automatically during the build. You never touch this repo.
 
-→ See the [event repo README](https://github.com/mzzavaa/community-gameday-europe-event) for setup steps.
+→ See the [event repo README](https://github.com/linda-mhmd/community-gameday-europe-event) for setup steps.
 
 ### Scenario B — modify the template itself (compositions, design, new inserts)
 
 1. Fork this repo (`community-gameday-europe-stream-templates`) and make your changes
-2. Fork [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event) for your event config
+2. Fork [`community-gameday-europe-event`](https://github.com/linda-mhmd/community-gameday-europe-event) for your event config
 3. In your event repo fork, go to **Settings → Secrets and variables → Actions → Variables tab**
 4. Create a repository variable:
    - **Name:** `TEMPLATE_REPO`

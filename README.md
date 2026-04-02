@@ -5,15 +5,15 @@ Remotion-powered stream visual template for **AWS Community GameDay Europe** —
 This is the **template repository**. It contains all compositions, components, design system, and web player code. It does **not** change between editions. Event-specific config (participants, schedule, logos) is injected at build time from the companion event repository.
 
 > **Two-repo architecture:**
-> [`community-gameday-europe-stream-templates`](https://github.com/mzzavaa/community-gameday-europe-stream-templates) — this repo, all code
-> [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event) — event config, triggers deploys, hosts the live page
+> [`community-gameday-europe-stream-templates`](https://github.com/linda-mhmd/community-gameday-europe-stream-templates) — this repo, all code
+> [`community-gameday-europe-event`](https://github.com/linda-mhmd/community-gameday-europe-event) — event config, triggers deploys, hosts the live page
 
 ---
 
 ## Live page
 
 The deployed web player for the 2026 edition:
-https://mzzavaa.github.io/community-gameday-europe-event/
+https://linda-mhmd.github.io/community-gameday-europe-event/
 
 ---
 
@@ -22,7 +22,7 @@ https://mzzavaa.github.io/community-gameday-europe-event/
 Open Remotion Studio to preview and develop all compositions locally:
 
 ```bash
-git clone https://github.com/mzzavaa/community-gameday-europe-stream-templates.git
+git clone https://github.com/linda-mhmd/community-gameday-europe-stream-templates.git
 cd community-gameday-europe-stream-templates
 npm install
 npm run studio
@@ -86,7 +86,7 @@ community-gameday-europe-stream-templates   ← this repo
           6. Deploys to GitHub Pages
 ```
 
-To run an edition: fork [`community-gameday-europe-event`](https://github.com/mzzavaa/community-gameday-europe-event), update the config files, push — no changes needed in this repo.
+To run an edition: fork [`community-gameday-europe-event`](https://github.com/linda-mhmd/community-gameday-europe-event), update the config files, push — no changes needed in this repo.
 
 ### Config files
 
